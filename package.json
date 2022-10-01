@@ -53,7 +53,7 @@
 		"@oclif/test": "^2",
 		"@types/adm-zip": "^0.5.0",
 		"@types/chai": "^4",
-		"@types/cli-table": "^0.3.0",
+		"@types/cli-table": "^0.3.1",
 		"@types/configstore": "^5.0.1",
 		"@types/express": "^4.17.13",
 		"@types/fs-extra": "^9.0.13",
