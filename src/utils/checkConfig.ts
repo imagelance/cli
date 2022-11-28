@@ -31,7 +31,7 @@ export default async function checkConfig(configPath: string, outputCategory: st
 		const warnings = log.filter((entry: ValidatorEntry) => entry.level === 'warning')
 
 		if (warnings.length > 0) {
-			console.log(chalk.yellow(`Upozornění při validaci configu:`));
+			console.log(chalk.yellow(`Warnings when validating config file:`));
 
 			warnings.forEach((warning: ValidatorEntry) => {
 				console.log(chalk.yellow(warning.message));
@@ -39,7 +39,7 @@ export default async function checkConfig(configPath: string, outputCategory: st
 		}
 
 		if (errors.length > 0) {
-			console.log(chalk.red(`Chyby při validaci configu:`));
+			console.log(chalk.red(`Errors when validating config file:`));
 
 			errors.forEach((error: ValidatorEntry) => {
 				console.log(chalk.red(error.message));
@@ -50,7 +50,7 @@ export default async function checkConfig(configPath: string, outputCategory: st
 
 	} catch (error: any) {
 		Sentry.captureException(error);
-		console.log(chalk.red(`Chyba při validaci configu`));
+		console.log(chalk.red(`An error occurred while validating config file`));
 		console.log(chalk.red(JSON.stringify(error)));
 
 		return false;

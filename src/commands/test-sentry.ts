@@ -10,6 +10,6 @@ export class TestSentry extends BaseCommand {
 	async run(): Promise<void> {
 		Sentry.captureMessage('Test');
 		console.log('OK');
-		throw new Error('Ahoj');
+		throw new Error('Hello');
 	}
 }

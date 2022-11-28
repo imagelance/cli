@@ -9,7 +9,7 @@ import getDirectories from '../utils/getDirectories';
 import { getRoot } from '../utils/configGetters';
 
 export class Fetch extends AuthenticatedCommand {
-	static description = 'Fetch all local visuals';
+	static description = 'Fetch all local templates';
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),

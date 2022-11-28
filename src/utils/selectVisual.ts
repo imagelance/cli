@@ -51,7 +51,7 @@ export default async function selectVisual() {
 	});
 
 	if (!visuals.length) {
-		console.error('No visuals');
+		console.error('No templates');
 		process.exit();
 	}
 
@@ -60,7 +60,7 @@ export default async function selectVisual() {
 	const visualsChoices = {
 		type: 'search-list',
 		name: 'first',
-		message: 'Select visual',
+		message: 'Select template',
 		choices: visuals.map((visualPath) => visualPath
 			.toString()
 			.replace(`${root}/src/${selectedBrand}/`, '')

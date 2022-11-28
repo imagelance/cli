@@ -9,7 +9,7 @@ import checkSchema from '../utils/checkSchema';
 import { getRoot } from '../utils/configGetters';
 
 export class Validate extends AuthenticatedCommand {
-	static description = 'Validate the config and schema of all local visuals';
+	static description = 'Validate the config and schema of all local templates';
 
 	async run(): Promise<void> {
 		const root: string = getRoot();

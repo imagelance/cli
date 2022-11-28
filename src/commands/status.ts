@@ -11,7 +11,7 @@ import getDirectories from '../utils/getDirectories';
 import { getRoot } from '../utils/configGetters';
 
 export class Status extends AuthenticatedCommand {
-	static description = 'Git status of all local visuals';
+	static description = 'Git status of all local templates';
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
@@ -26,7 +26,7 @@ export class Status extends AuthenticatedCommand {
 		const brandFolders = await getDirectories(path.join(root, 'src'));
 		const brands = brandFolders.filter((folder: string) => folder[0] !== '.');
 		const table = new Table({
-			head: ['Organization', 'Visual', 'Branch', 'Status']
+			head: ['Brand', 'Template', 'Git Branch', 'Status']
 		});
 
 		let tableContainsRows = false;

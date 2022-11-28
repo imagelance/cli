@@ -9,7 +9,7 @@ import { getRoot, getUsername, getPassword } from '../utils/configGetters';
 
 
 export class Clone extends AuthenticatedCommand {
-	static description = 'Clone existing visual';
+	static description = 'Clone existing template';
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
@@ -33,7 +33,7 @@ export class Clone extends AuthenticatedCommand {
 		const username = getUsername();
 		const password = getPassword();
 
-		const remote = `https://${username}:${password}@git.nebe.app/${repoName}.git`;
+		const remote = `https://${username}:${password}@git.imagelance.com/${repoName}.git`;
 
 		try {
 			await fs.promises.mkdir(`${root}/src`);

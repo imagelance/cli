@@ -1,6 +1,5 @@
 import Configstore from 'configstore';
 
-// ToDo: change nebe key to ddm
-const config = new Configstore('ddm-cli');
+const config = new Configstore('imagelance-cli');
 
 export default config;

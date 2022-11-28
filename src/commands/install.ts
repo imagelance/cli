@@ -10,7 +10,7 @@ import BaseCommand from '../BaseCommand';
 import { isSazka, getRoot, setConfig } from '../utils/configGetters';
 
 export class Install extends BaseCommand {
-	static description = 'Set home directory for visuals and prepare dev environment';
+	static description = 'Set home directory for templates and prepare dev environment';
 
 	async run(): Promise<void> {
 		const currentRoot = getRoot();
@@ -19,7 +19,7 @@ export class Install extends BaseCommand {
 			const confirm = await inquirer.prompt({
 				type: 'confirm',
 				name: 'confirm',
-				message: `Domovská složka pro kreativy je již nastavena na ${currentRoot}. Chcete ji změnit?`,
+				message: `Root folder for templates is already set to ${currentRoot}. Do you want to change the location?`,
 				default: false
 			});
 
@@ -28,28 +28,28 @@ export class Install extends BaseCommand {
 			}
 		}
 
-		const homeDir = path.join(os.homedir(), `nebe-visuals`);
-		const projectsDir = path.join(os.homedir(), `Projects`, `nebe-visuals`);
-		const sazkaDir = path.join(os.homedir(), `Projects`, `nebe-visuals-sazka`);
+		const homeDir = path.join(os.homedir(), `imagelance-templates`);
+		const projectsDir = path.join(os.homedir(), `Projects`, `imagelance-templates`);
+		const sazkaDir = path.join(os.homedir(), `Projects`, `imagelance-templates-sazka`);
 		const cwdDir = process.cwd();
-		const cwdNestDir = path.join(process.cwd(), 'nebe-visuals');
+		const cwdNestDir = path.join(process.cwd(), 'imagelance-templates');
 
 		const choices = isSazka()
 			? [
-				{ value: 'sazkaDir', name: `${sazkaDir} (~/Projects/nebe-visuals-sazka)` },
-				{ value: 'cwdDir', name: `${cwdDir} (Aktuální složka)` },
+				{ value: 'sazkaDir', name: `${sazkaDir} (~/Projects/imagelance-templates-sazka)` },
+				{ value: 'cwdDir', name: `${cwdDir} (Current folder)` },
 			]
 			: [
-				{ value: 'homeDir', name: `${homeDir} (~/nebe-visuals)` },
-				{ value: 'projectsDir', name: `${projectsDir} (~/Projects/nebe-visuals)` },
-				{ value: 'cwdDir', name: `${cwdDir} (Aktuální složka)` },
-				{ value: 'cwdNestDir', name: `${cwdNestDir} (Nová složka v aktuální složce)` }
+				{ value: 'homeDir', name: `${homeDir} (~/imagelance-templates)` },
+				{ value: 'projectsDir', name: `${projectsDir} (~/Projects/imagelance-templates)` },
+				{ value: 'cwdDir', name: `${cwdDir} (Current folder)` },
+				{ value: 'cwdNestDir', name: `${cwdNestDir} (Create folder /imagelance-templates in current folder)` }
 			];
 
 		const rootAnswer = await inquirer.prompt({
 			type: 'list',
 			name: 'root',
-			message: 'Kam umístit domovskou složku pro kreativy?',
+			message: 'Where should be templates synchronized on disk?',
 			choices
 		});
 
@@ -61,14 +61,14 @@ export class Install extends BaseCommand {
 				break;
 			case 'cwdNestDir':
 				try {
-					await fs.promises.mkdir(path.join('.', 'nebe-visuals'));
+					await fs.promises.mkdir(path.join('.', 'imagelance-templates'));
 				} catch (error) {
 				}
 				dir = cwdNestDir;
 				break;
 			case 'homeDir':
 				try {
-					await fs.promises.mkdir(path.join(os.homedir(), 'nebe-visuals'));
+					await fs.promises.mkdir(path.join(os.homedir(), 'imagelance-templates'));
 				} catch (error) {
 				}
 				dir = homeDir;
@@ -79,7 +79,7 @@ export class Install extends BaseCommand {
 				} catch (error) {
 				}
 				try {
-					await fs.promises.mkdir(path.join(os.homedir(), 'Projects', 'nebe-visuals'));
+					await fs.promises.mkdir(path.join(os.homedir(), 'Projects', 'imagelance-templates'));
 				} catch (error) {
 				}
 				dir = projectsDir;
@@ -90,7 +90,7 @@ export class Install extends BaseCommand {
 				} catch (error) {
 				}
 				try {
-					await fs.promises.mkdir(path.join(os.homedir(), 'Projects', 'nebe-visuals-sazka'));
+					await fs.promises.mkdir(path.join(os.homedir(), 'Projects', 'imagelance-templates-sazka'));
 				} catch (error) {
 				}
 				dir = sazkaDir;
@@ -101,7 +101,7 @@ export class Install extends BaseCommand {
 			const root = dir.toString().split(path.sep).join('/');
 
 			setConfig('root', root);
-			console.log(`Domovská složka nastavena na:`, chalk.blue(dir));
+			console.log(`Root folder for templates set to:`, chalk.blue(dir));
 
 			// replace wrong package json, that could contain bad version of postcss with custom one
 			const packageJsonPath = path.join(root, 'package.json');

@@ -32,7 +32,7 @@ export default async function checkSchema(schemaPath: string, state: any): Promi
 		const warnings = log.filter((entry: ValidatorEntry) => entry.level === 'warning')
 
 		if (warnings.length > 0) {
-			console.log(chalk.yellow(`Upozornění při validaci schématu:`));
+			console.log(chalk.yellow(`Warnings when validating schema file:`));
 
 			warnings.forEach((warning: ValidatorEntry) => {
 				console.log(chalk.yellow(warning.message));
@@ -40,7 +40,7 @@ export default async function checkSchema(schemaPath: string, state: any): Promi
 		}
 
 		if (errors.length > 0) {
-			console.log(chalk.red(`Chyby při validaci schématu:`));
+			console.log(chalk.red(`Errors when validating schema file:`));
 
 			errors.forEach((error: ValidatorEntry) => {
 				console.log(chalk.red(error.message));
@@ -50,7 +50,7 @@ export default async function checkSchema(schemaPath: string, state: any): Promi
 		return isValid;
 	} catch (error: any) {
 		Sentry.captureException(error);
-		console.log(chalk.red(`Chyba při validaci schématu`));
+		console.log(chalk.red(`An error occurred while validating schema file`));
 		console.error(error);
 
 		return false;

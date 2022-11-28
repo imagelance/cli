@@ -1,7 +1,7 @@
 {
 	"name": "imagelance-cli",
 	"version": "2.2.2",
-	"description": "Development stack for creating DDM visuals",
+	"description": "Development stack for imagelance templates",
 	"author": "Patrik Janosdeak @truesteps",
 	"bin": {
 		"lance": "./bin/run"

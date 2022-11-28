@@ -12,7 +12,7 @@ import devstackUrl from '../utils/devstackUrl';
 import studioUrl from '../utils/studioUrl';
 
 export class Create extends AuthenticatedCommand {
-	static description = 'Creates new visual';
+	static description = 'Creates new template';
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
@@ -63,7 +63,7 @@ export class Create extends AuthenticatedCommand {
 			const brandAnswer = await inquirer.prompt([{
 				type: 'search-list',
 				name: 'brand',
-				message: 'Select organization',
+				message: 'Select brand',
 				choices: brands.map(({ name, full_name }: any) => ({
 					name: `${full_name} ${chalk.grey(`(${name})`)}`,
 					value: name
@@ -76,7 +76,7 @@ export class Create extends AuthenticatedCommand {
 		}
 
 		if (!brand) {
-			console.log(chalk.red('No organization selected'));
+			console.log(chalk.red('No brand selected'));
 			return await this.exitHandler(1);
 		}
 
@@ -150,7 +150,7 @@ export class Create extends AuthenticatedCommand {
 		const nameAnswer = await inquirer.prompt({
 			type: 'input',
 			name: 'name',
-			message: `Visual name ${chalk.yellow('[min 4 characters]')} ${chalk.grey('(public, can be changed later)')}`,
+			message: `Template name ${chalk.yellow('[min 4 characters]')} ${chalk.grey('(public, can be changed later)')}`,
 			validate: (input) => input && input.length > 3,
 		});
 
@@ -227,7 +227,7 @@ export class Create extends AuthenticatedCommand {
 			payload.defaultBranch = defaultBranch;
 		}
 
-		console.log(chalk.blue(`Creating visual in organization "${chalk.bold(brand)}"`));
+		console.log(chalk.blue(`Creating template in brand "${chalk.bold(brand)}"`));
 		console.log(chalk.blue(JSON.stringify(payload, null, 2)));
 
 		const confirm = await inquirer.prompt({
@@ -245,7 +245,7 @@ export class Create extends AuthenticatedCommand {
 
 		try {
 			const runner = new Listr([{
-				title: chalk.blue('Creating visual...'),
+				title: chalk.blue('Creating template...'),
 				task: async (ctx, task) => {
 					const { data } = await this.performRequest({
 						url: devstackUrl('/gitea/repos'),
@@ -258,7 +258,7 @@ export class Create extends AuthenticatedCommand {
 
 					repository = data.repo;
 
-					task.title = chalk.green('Visual created');
+					task.title = chalk.green('Template created');
 				}
 			}])
 
@@ -322,8 +322,8 @@ export class Create extends AuthenticatedCommand {
 
 		if (!processedRepository) {
 			console.log(chalk.yellow('Processing repository is taking longer than usual'));
-			console.log(chalk.yellow('You will have to manually sync the visual after it has been processed'));
-			console.log(chalk.yellow(`Please visit ${studioUrl('/visuals/sync')}, select visual and download it using the "${getCommand('sync')}" command`));
+			console.log(chalk.yellow('You will have to manually sync the template after it has been processed'));
+			console.log(chalk.yellow(`Please visit ${studioUrl('/visuals/sync')}, select template and download it using the "${getCommand('sync')}" command`));
 			return await this.exitHandler();
 		}
 

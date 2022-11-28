@@ -9,7 +9,7 @@
                         |___/                                                            
 ```
 
-### Development stack for creating DDM visuals
+### Development stack for Imagelance templates
 
 [![npm](https://img.shields.io/npm/v/imagelance-cli.svg)](https://www.npmjs.com/package/imagelance-cli)
 
@@ -35,7 +35,7 @@ yarn global add imagelance-cli
 
 - Create proper directory structure `$ lance install`
 - Login to your accounts `$ lance login`
-- Sync visuals `$ lance sync`
+- Sync templates `$ lance sync`
 
 <!-- getting started stop -->
 
@@ -113,7 +113,7 @@ _See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomp
 
 ## `lance clone REPONAME`
 
-Clone existing visual
+Clone existing template
 
 ```
 USAGE
@@ -123,7 +123,7 @@ FLAGS
   -d, --debug  Debug mode
 
 DESCRIPTION
-  Clone existing visual
+  Clone existing template
 ```
 
 _See code: [dist/commands/clone.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/clone.ts)_
@@ -147,7 +147,7 @@ _See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/cli/blob
 
 ## `lance create`
 
-Creates new visual
+Creates new template
 
 ```
 USAGE
@@ -157,34 +157,34 @@ FLAGS
   -d, --debug  Debug mode
 
 DESCRIPTION
-  Creates new visual
+  Creates new template
 ```
 
 _See code: [dist/commands/create.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/create.ts)_
 
 ## `lance dev`
 
-Run development server to create visuals
+Run development server to create templates
 
 ```
 USAGE
   $ lance dev [-d] [-l] [-n] [-a]
 
 FLAGS
-  -a, --latest  Start dev with latest edited visual
+  -a, --latest  Start dev with latest edited template
   -d, --debug   Debug mode
   -l, --local   Against local apis
-  -n, --newest  Start dev with newly created visual
+  -n, --newest  Start dev with newly created template
 
 DESCRIPTION
-  Run development server to create visuals
+  Run development server to create templates
 ```
 
 _See code: [dist/commands/dev.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/dev.ts)_
 
 ## `lance fetch`
 
-Fetch all local visuals
+Fetch all local templates
 
 ```
 USAGE
@@ -194,7 +194,7 @@ FLAGS
   -d, --debug  Debug mode
 
 DESCRIPTION
-  Fetch all local visuals
+  Fetch all local templates
 ```
 
 _See code: [dist/commands/fetch.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/fetch.ts)_
@@ -221,14 +221,14 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.1
 
 ## `lance install`
 
-Set home directory for visuals and prepare dev environment
+Set home directory for templates and prepare dev environment
 
 ```
 USAGE
   $ lance install
 
 DESCRIPTION
-  Set home directory for visuals and prepare dev environment
+  Set home directory for templates and prepare dev environment
 ```
 
 _See code: [dist/commands/install.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/install.ts)_
@@ -253,7 +253,7 @@ _See code: [dist/commands/login.ts](https://github.com/imagelance/cli/blob/v2.2.
 
 ## `lance pull`
 
-Pull all local visuals
+Pull all local templates
 
 ```
 USAGE
@@ -263,14 +263,14 @@ FLAGS
   -d, --debug  Debug mode
 
 DESCRIPTION
-  Pull all local visuals
+  Pull all local templates
 ```
 
 _See code: [dist/commands/pull.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/pull.ts)_
 
 ## `lance push`
 
-Push all local visuals
+Push all local templates
 
 ```
 USAGE
@@ -280,14 +280,14 @@ FLAGS
   -d, --debug  Debug mode
 
 DESCRIPTION
-  Push all local visuals
+  Push all local templates
 ```
 
 _See code: [dist/commands/push.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/push.ts)_
 
 ## `lance status`
 
-Git status of all local visuals
+Git status of all local templates
 
 ```
 USAGE
@@ -297,14 +297,14 @@ FLAGS
   -d, --debug  Debug mode
 
 DESCRIPTION
-  Git status of all local visuals
+  Git status of all local templates
 ```
 
 _See code: [dist/commands/status.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/status.ts)_
 
 ## `lance sync`
 
-Download all synced visuals
+Download all synced templates
 
 ```
 USAGE
@@ -315,7 +315,7 @@ FLAGS
   -s, --shallow  Perform shallow fetch
 
 DESCRIPTION
-  Download all synced visuals
+  Download all synced templates
 ```
 
 _See code: [dist/commands/sync.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/sync.ts)_
@@ -359,14 +359,14 @@ _See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v3
 
 ## `lance validate`
 
-Validate the config and schema of all local visuals
+Validate the config and schema of all local templates
 
 ```
 USAGE
   $ lance validate
 
 DESCRIPTION
-  Validate the config and schema of all local visuals
+  Validate the config and schema of all local templates
 ```
 
 _See code: [dist/commands/validate.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/validate.ts)_

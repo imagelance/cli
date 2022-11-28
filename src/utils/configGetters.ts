@@ -47,12 +47,8 @@ const setConfig = function (key: string, value: any): void {
 	return isSazka() ? config.set(`${key}Sazka`, value) : config.set(key, value);
 }
 
-const getBin = function (): string {
-	return isSazka() ? 'nebe-sazka' : 'nebe';
-}
-
 const getCommand = function (command: string): string {
-	return isSazka() ? `ddm ${command} --sazka` : `ddm ${command}`;
+	return isSazka() ? `lance ${command} --sazka` : `lance ${command}`;
 }
 
 const setUser = function (user: any) {
@@ -73,7 +69,6 @@ export {
 	setConfig,
 	getConfig,
 	getAccessToken,
-	getBin,
 	getCommand,
 	setUser
 };

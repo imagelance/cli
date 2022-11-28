@@ -124,7 +124,7 @@ export default function getFill(schemaPath: string) {
 			);
 		};
 
-		window.DDM_CLI_VERSION = '${packageJson.version}';
+		window.IMAGELANCE_CLI_VERSION = '${packageJson.version}';
 
 		window.INPUTS = JSON.parse('${demoInputsJson}');
 

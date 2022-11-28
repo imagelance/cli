@@ -29,7 +29,7 @@ export class ConvertPdf extends BaseCommand {
 			}
 		} catch (error) {
 			console.error(error);
-			console.error(chalk.red(`Není nainstalován GraphicsMagick (gm)! https://github.com/yakovmeister/pdf2image/blob/HEAD/docs/gm-installation.md`));
+			console.error(chalk.red(`GraphicsMagick (gm) is not installed! https://github.com/yakovmeister/pdf2image/blob/HEAD/docs/gm-installation.md`));
 			process.exit(1);
 			return;
 		}
@@ -42,7 +42,7 @@ export class ConvertPdf extends BaseCommand {
 			}
 		} catch (error) {
 			console.error(error);
-			console.error(chalk.red(`Není nainstalován GhostScript (gs)! https://github.com/yakovmeister/pdf2image/blob/HEAD/docs/gm-installation.md`));
+			console.error(chalk.red(`GhostScript (gs) is not installed! https://github.com/yakovmeister/pdf2image/blob/HEAD/docs/gm-installation.md`));
 			process.exit(1);
 			return;
 		}

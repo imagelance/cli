@@ -21,20 +21,20 @@ import { getRoot, getLastDev, getConfig, setConfig } from '../utils/configGetter
 import { Endpoint, Endpoints } from '../types/dev';
 
 export class Dev extends AuthenticatedCommand {
-	static description = 'Run development server to create visuals';
+	static description = 'Run development server to create templates';
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
 		local: Flags.boolean({ char: 'l', description: 'Against local apis', required: false, default: false }),
 		newest: Flags.boolean({
 			char: 'n',
-			description: 'Start dev with newly created visual',
+			description: 'Start dev with newly created template',
 			required: false,
 			default: false
 		}),
 		latest: Flags.boolean({
 			char: 'a',
-			description: 'Start dev with latest edited visual',
+			description: 'Start dev with latest edited template',
 			required: false,
 			default: false
 		}),
@@ -133,7 +133,7 @@ export class Dev extends AuthenticatedCommand {
 		const folders = glob.sync(`${root}/src/${visualPath}/[!_][0-9]*/index.html`);
 
 		if (folders.length === 0) {
-			console.log(chalk.red('🛑 No resize in visual! Start by copying the contents of an existing visual if it exists or copy a template from https://github.com/nebe-app'))
+			console.log(chalk.red('🛑 No resize in template! Start by copying the contents of an existing template if it exists or copy a template from https://github.com/imagelance'))
 			return await this.exitHandler(1);
 		}
 
@@ -164,7 +164,7 @@ export class Dev extends AuthenticatedCommand {
 
 		// if bundle is not found, we need to create a new edit session
 		if (this.bundle) {
-			console.log(chalk.yellow.bold('Visual is already being edited in studio. If you start a local build, all unsaved changes from studio will be overwritten by local files'));
+			console.log(chalk.yellow.bold('Template is already being edited in studio. If you start a local build, all unsaved changes from studio will be overwritten by local files'));
 
 			const resumingBundleChoice = await inquirer.prompt({
 				type: 'list',
@@ -177,7 +177,7 @@ export class Dev extends AuthenticatedCommand {
 			});
 
 			if (resumingBundleChoice.answer === 'No') {
-				console.log(chalk.blue(`You can continue editing your visual in studio here ${studioUrl(`/visuals/${orgName}/${repository.name}`)}`));
+				console.log(chalk.blue(`You can continue editing your template in studio here ${studioUrl(`/visuals/${orgName}/${repository.name}`)}`));
 				return await this.exitHandler();
 			}
 		} else {
@@ -354,7 +354,7 @@ export class Dev extends AuthenticatedCommand {
 		const lastVisualAnswers = await inquirer.prompt({
 			type: 'list',
 			name: 'first',
-			message: `Use last visual? ${lastVisualContent}`,
+			message: `Develop recent template? ${lastVisualContent}`,
 			choices: [
 				'Ano',
 				'Ne'
@@ -507,7 +507,7 @@ export class Dev extends AuthenticatedCommand {
 					return;
 				}
 
-				// add everything from visual except hidden files to zip
+				// add everything from template except hidden files to zip
 				zip.addLocalFolder(this.visualRoot, undefined, (filename: string) => !isHiddenFile(filename));
 
 				// create unique zip file name
@@ -574,7 +574,7 @@ export class Dev extends AuthenticatedCommand {
 
 	async startWatcher(): Promise<any> {
 		if (!this.visualRoot) {
-			console.log(chalk.red('🛑 Visual root not set! Cannot start watcher.'));
+			console.log(chalk.red('🛑 Templates root not set! Cannot start watcher.'));
 			return await this.exitHandler(1);
 		}
 

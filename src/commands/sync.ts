@@ -14,7 +14,7 @@ import getDirectories from '../utils/getDirectories';
 import { getRoot, getUsername, getPassword, getConfig, setConfig, isSazka } from '../utils/configGetters';
 
 export class Sync extends AuthenticatedCommand {
-	static description = 'Download all synced visuals';
+	static description = 'Download all synced templates';
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
@@ -38,7 +38,7 @@ export class Sync extends AuthenticatedCommand {
 		let response;
 
 		try {
-			console.log(chalk.green(`Stahuji seznam kreativ k synchronizaci..`));
+			console.log(chalk.green(`Downloading template list available for sync..`));
 
 			response = await axios.get(apiUrl('visual'), {
 				auth: { username, password }
@@ -84,7 +84,6 @@ export class Sync extends AuthenticatedCommand {
 					};
 				})
 			});
-
 			selectedBrands = brandAnswers.brands;
 		}
 
@@ -144,7 +143,7 @@ export class Sync extends AuthenticatedCommand {
 				}
 			}
 
-			console.log(chalk.cyan(`Synchronizuji brand: ${brand} (${shouldSyncCount} z ${Object.keys(visuals).length})`));
+			console.log(chalk.cyan(`Syncing brand: ${brand} (${shouldSyncCount} of ${Object.keys(visuals).length})`));
 
 			for (let i in visualFolders) {
 				if (!visualFolders.hasOwnProperty(i)) {
@@ -174,7 +173,7 @@ export class Sync extends AuthenticatedCommand {
 				}
 
 				if (debug) {
-					console.log(chalk.cyan(`Synchronizuji kreativu: ${visual}`));
+					console.log(chalk.cyan(`Syncing template: ${visual}`));
 				}
 
 				const visualData = visuals[visual];
@@ -190,7 +189,7 @@ export class Sync extends AuthenticatedCommand {
 				if (visualData.visual_sync_for_logged_user) {
 					//console.log(visualData.visual_sync_for_logged_user);
 				} else {
-					//console.log(`Visual is not set to be synced ${repoPath}`);
+					//console.log(`Template is not set to be synced ${repoPath}`);
 
 					try {
 						const stats = fs.lstatSync(repoPath);
@@ -203,7 +202,7 @@ export class Sync extends AuthenticatedCommand {
 							const status = await git.status();
 
 							if (status.files.length) {
-								console.log(`Kreativa "${visual}" má být odsynchronizována, ale složka obsahuje změny, přeskakuji...`);
+								console.log(`Template "${visual}" should get de-synced, but there are uncommitted changes, skipping...`);
 								continue;
 							}
 
@@ -247,7 +246,7 @@ export class Sync extends AuthenticatedCommand {
 						//await git.init();
 						//await git.addRemote('origin', visualData.origin);
 						if (debug) {
-							console.log(chalk.green('Repository successfully inited'));
+							console.log(chalk.green('Repository has been successfully initialized'));
 						}
 					} catch (error) {
 						console.error(error);
@@ -271,7 +270,7 @@ export class Sync extends AuthenticatedCommand {
 							console.log(chalk.green('Repository successfully cloned'));
 						}
 					} catch (error) {
-						console.log(`Chyba při klonování repozitáře`);
+						console.log(`And error occurred while cloning repository`);
 						console.error(error);
 						Sentry.captureException(error);
 					}
@@ -348,10 +347,10 @@ export class Sync extends AuthenticatedCommand {
 			}
 		}
 
-		console.log(chalk.green(`Celkem lokálně synchronizováno ${totalSyncedCount} z ${totalCount} kreativ`));
+		console.log(chalk.green(`Successfully synchronized ${totalSyncedCount} templates (of ${totalCount})`));
 
 		const url = isSazka() ? 'https://sazka.nebe.app/visual/sync' : 'https://client.nebe.app/visual/sync';
-		console.log(chalk.blue(`Nastavení, které kreativy se mají lokálně synchronizovat, naleznete na adrese: ${url}`));
+		console.log(chalk.blue(`You can change which templates to synchronize at: ${url}`));
 
 		const now = new Date();
 		setConfig('lastSync', now.toISOString());

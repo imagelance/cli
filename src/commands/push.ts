@@ -12,7 +12,7 @@ import getDirectories from '../utils/getDirectories';
 import { getRoot } from '../utils/configGetters';
 
 export class Push extends AuthenticatedCommand {
-	static description = 'Push all local visuals';
+	static description = 'Push all local templates';
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
@@ -77,7 +77,7 @@ export class Push extends AuthenticatedCommand {
 		const visualChoices = {
 			type: 'checkbox',
 			name: 'selectedVisuals',
-			message: 'Select visuals to be pushed',
+			message: 'Select templates to be pushed',
 			choices: changedVisuals,
 		};
 
@@ -93,7 +93,7 @@ export class Push extends AuthenticatedCommand {
 		}
 
 		if (tasks.length < 1) {
-			console.log(chalk.red('No visuals selected'));
+			console.log(chalk.red('No templates selected'));
 			await this.exitHandler(1);
 		}
 

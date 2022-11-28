@@ -25,7 +25,7 @@ export default abstract class BaseCommand extends Command {
 
 		Sentry.init({
 			dsn: 'https://02902c9ddb584992a780788c71ba5cd7@o562268.ingest.sentry.io/6384635',
-			release: `ddm-cli@${this.config.pjson.version}`,
+			release: `imagelance-cli@${this.config.pjson.version}`,
 			// @ts-ignore
 			tags: { version: this.config.pjson.version },
 			environment: process.env.NODE_ENV,

@@ -9,7 +9,7 @@ import getDirectories from '../utils/getDirectories';
 import { getRoot } from '../utils/configGetters';
 
 export class Pull extends AuthenticatedCommand {
-	static description = 'Pull all local visuals';
+	static description = 'Pull all local templates';
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
