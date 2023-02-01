@@ -36,7 +36,7 @@
 		"form-data": "^4.0.0",
 		"fs": "^0.0.1-security",
 		"fs-extra": "^10.1.0",
-		"glob": "^8.0.1",
+		"glob": "^8.1.0",
 		"inquirer": "^8.2.2",
 		"inquirer-search-list": "^1.2.6",
 		"listr": "^0.14.3",
