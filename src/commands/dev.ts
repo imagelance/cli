@@ -1,59 +1,59 @@
-import fs from 'fs-extra';
-import glob from 'glob';
-import path from 'path';
-import chalk from 'chalk';
-import open from 'open';
-import inquirer from 'inquirer';
-import simpleGit from 'simple-git';
-import AdmZip from 'adm-zip';
-import FormData from 'form-data';
-import Listr from 'listr';
-import chokidar from 'chokidar';
-import isHiddenFile from '@frigus/is-hidden-file';
-import * as Sentry from '@sentry/node';
-import { Flags } from '@oclif/core';
+import fs from 'fs-extra'
+import glob from 'glob'
+import path from 'node:path'
+import chalk from 'chalk'
+import open from 'open'
+import inquirer from 'inquirer'
+import simpleGit from 'simple-git'
+import AdmZip from 'adm-zip'
+import FormData from 'form-data'
+import Listr from 'listr'
+import chokidar from 'chokidar'
+import isHiddenFile from '@frigus/is-hidden-file'
+import * as Sentry from '@sentry/node'
+import {Flags} from '@oclif/core'
 
-import AuthenticatedCommand from '../AuthenticatedCommand';
-import selectVisual from '../utils/selectVisual';
-import devstackUrl from '../utils/devstackUrl';
-import studioUrl from '../utils/studioUrl';
-import { getRoot, getLastDev, getConfig, setConfig } from '../utils/configGetters';
-import { Endpoint, Endpoints } from '../types/dev';
+import AuthenticatedCommand from '../authenticated-command'
+import selectVisual from '../utils/select-visual'
+import devstackUrl from '../utils/devstack-url'
+import studioUrl from '../utils/studio-url'
+import {getRoot, getLastDev, getConfig, setConfig} from '../utils/config-getters'
+import {Endpoint, Endpoints} from '../types/dev'
 
 export class Dev extends AuthenticatedCommand {
-	static description = 'Run development server to create templates';
+	static description = 'Run development server to create templates'
 
 	static flags = {
-		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-		local: Flags.boolean({ char: 'l', description: 'Against local apis', required: false, default: false }),
+		debug: Flags.boolean({char: 'd', description: 'Debug mode', required: false, default: false}),
+		local: Flags.boolean({char: 'l', description: 'Against local apis', required: false, default: false}),
 		newest: Flags.boolean({
 			char: 'n',
 			description: 'Start dev with newly created template',
 			required: false,
-			default: false
+			default: false,
 		}),
 		latest: Flags.boolean({
 			char: 'a',
 			description: 'Start dev with latest edited template',
 			required: false,
-			default: false
+			default: false,
 		}),
-	};
+	}
 
 	private endpoints: Endpoints = {
-		list: { url: `/filesystem/{bundleId}?path={path}`, method: 'get' },
-		show: { url: `/filesystem/{bundleId}/show?path={path}`, method: 'get' },
-		store: { url: `/filesystem/{bundleId}/store?path={path}`, method: 'post' },
-		upload: { url: `/filesystem/upload`, method: 'post' },
-		mkdir: { url: `/filesystem/{bundleId}/mkdir?path={value}`, method: 'post' },
-		mkresize: { url: `/filesystem/{bundleId}/mkresize`, method: 'post' },
-		mkfile: { url: `/filesystem/{bundleId}/mkfile?path={value}`, method: 'post' },
-		rename: { url: `/filesystem/{bundleId}/rename?name={value}`, method: 'post' },
-		move: { url: `/filesystem/{bundleId}/move?destPath={value}`, method: 'post' },
-		rollback: { url: `/git/{bundleId}/rollback?path={value}`, method: 'post' },
-		copy: { url: `/filesystem/{bundleId}/copy?srcPath={srcPath}&destPath={destPath}`, method: 'post' },
-		delete: { url: `/filesystem/{bundleId}?path={value}`, method: 'delete' }
-	};
+		list: {url: '/filesystem/{bundleId}?path={path}', method: 'get'},
+		show: {url: '/filesystem/{bundleId}/show?path={path}', method: 'get'},
+		store: {url: '/filesystem/{bundleId}/store?path={path}', method: 'post'},
+		upload: {url: '/filesystem/upload', method: 'post'},
+		mkdir: {url: '/filesystem/{bundleId}/mkdir?path={value}', method: 'post'},
+		mkresize: {url: '/filesystem/{bundleId}/mkresize', method: 'post'},
+		mkfile: {url: '/filesystem/{bundleId}/mkfile?path={value}', method: 'post'},
+		rename: {url: '/filesystem/{bundleId}/rename?name={value}', method: 'post'},
+		move: {url: '/filesystem/{bundleId}/move?destPath={value}', method: 'post'},
+		rollback: {url: '/git/{bundleId}/rollback?path={value}', method: 'post'},
+		copy: {url: '/filesystem/{bundleId}/copy?srcPath={srcPath}&destPath={destPath}', method: 'post'},
+		delete: {url: '/filesystem/{bundleId}?path={value}', method: 'delete'},
+	}
 
 	private chokidarOptions: any = {
 		// ignore dotfiles
@@ -67,74 +67,74 @@ export class Dev extends AuthenticatedCommand {
 			// after last write, wait for 1s to compare outcome with source to ensure add/change are properly fired
 			stabilityThreshold: 300,
 		},
-	};
+	}
 
-	private visualRoot: string | null = null;
+	private visualRoot: string | null = null
 
-	private isDebugging: boolean = false;
+	private isDebugging = false
 
-	private bundle: any = null;
+	private bundle: any = null
 
-	private resize: any = null;
+	private resize: any = null
 
-	private localZipPath: string | null = null;
+	private localZipPath: string | null = null
 
-	private shouldDestroyBundle: boolean = false;
+	private shouldDestroyBundle = false
 
 	async run(): Promise<void> {
-		const { flags } = await this.parse(Dev);
-		const { debug, newest, latest, local } = flags;
+		const {flags} = await this.parse(Dev)
+		const {debug, newest, latest} = flags
 
-		this.isDebugging = debug;
+		this.isDebugging = debug
 
 		// Prepare folder
 
-		const root = getRoot();
+		const root = getRoot()
 
-		let visualPath: string | null = null;
+		let visualPath: string | null = null
 
 		if (newest && getConfig('newestVisual')) {
-			visualPath = getConfig('newestVisual');
+			visualPath = getConfig('newestVisual')
 		} else if (latest) {
-			visualPath = await this.getLastVisual();
+			visualPath = await this.getLastVisual()
 		} else {
-			visualPath = await this.detectLastVisual();
+			visualPath = await this.detectLastVisual()
 		}
 
 		if (!visualPath) {
-			visualPath = await selectVisual();
+			visualPath = await selectVisual()
 		}
 
-		console.log(`Building ${visualPath}`);
-		setConfig('lastDev', visualPath);
+		console.log(`Building ${visualPath}`)
+		setConfig('lastDev', visualPath)
 
-		this.visualRoot = `${root}/src/${visualPath}`;
+		this.visualRoot = `${root}/src/${visualPath}`
 
-		const git = simpleGit();
-		git.cwd(this.visualRoot);
+		const git = simpleGit()
+		git.cwd(this.visualRoot)
 
 		try {
-			await git.fetch();
-			await git.pull(['--rebase']);
+			await git.fetch()
+			await git.pull(['--rebase'])
 		} catch (error: any) {
-			Sentry.captureException(error);
+			Sentry.captureException(error)
 
 			if (this.isDebugging) {
-				this.reportError(error);
+				this.reportError(error)
 			}
 
-			console.log(chalk.red('Git pull failed, please pull manually'));
-			return await this.exitHandler(1);
+			console.log(chalk.red('Git pull failed, please pull manually'))
+			return await this.exitHandler(1)
 		}
 
 		/**
 		 * VisualSizes
 		 */
-		const folders = glob.sync(`${root}/src/${visualPath}/[!_][0-9]*/index.html`);
+		const folders = glob.sync(`${root}/src/${visualPath}/[!_][0-9]*/index.html`)
 
 		if (folders.length === 0) {
 			console.log(chalk.red('🛑 No resize in template! Start by copying the contents of an existing template if it exists or copy a template from https://github.com/imagelance'))
-			return await this.exitHandler(1);
+			return await this.exitHandler(1)
 		}
 
 		// Select resizes
@@ -146,25 +146,25 @@ export class Dev extends AuthenticatedCommand {
 			choices: folders.map((folder: string) => {
 				return folder.toString()
 					.replace(`${this.visualRoot}/`, '')
-					.replace('/index.html', '');
-			})
-		};
+					.replace('/index.html', '')
+			}),
+		}
 
-		const folderAnswers = await inquirer.prompt([folderChoices]);
-		const { selectedFolder } = folderAnswers;
-		const [orgName, repoName] = visualPath.split('/');
+		const folderAnswers = await inquirer.prompt([folderChoices])
+		const {selectedFolder} = folderAnswers
+		const [orgName, repoName] = visualPath.split('/')
 
-		const repository = await this.getRepository(orgName, repoName);
+		const repository = await this.getRepository(orgName, repoName)
 		// output category is on the 3rd position in repo name
-		const outputCategory = repository.name.split('-')[2];
+		const outputCategory = repository.name.split('-')[2]
 
 		// let's attempt to find a running bundle in studio, if it exists, resume session
 		// in cli
-		this.bundle = await this.findRunningBundle(orgName, repository.name, outputCategory);
+		this.bundle = await this.findRunningBundle(orgName, repository.name, outputCategory)
 
 		// if bundle is not found, we need to create a new edit session
 		if (this.bundle) {
-			console.log(chalk.yellow.bold('Template is already being edited in studio. If you start a local build, all unsaved changes from studio will be overwritten by local files'));
+			console.log(chalk.yellow.bold('Template is already being edited in studio. If you start a local build, all unsaved changes from studio will be overwritten by local files'))
 
 			const resumingBundleChoice = await inquirer.prompt({
 				type: 'list',
@@ -172,26 +172,26 @@ export class Dev extends AuthenticatedCommand {
 				message: chalk.yellow('Do you wish to continue?'),
 				choices: [
 					'Yes',
-					'No'
-				]
-			});
+					'No',
+				],
+			})
 
 			if (resumingBundleChoice.answer === 'No') {
-				console.log(chalk.blue(`You can continue editing your template in studio here ${studioUrl(`/visuals/${orgName}/${repository.name}`)}`));
-				return await this.exitHandler();
+				console.log(chalk.blue(`You can continue editing your template in studio here ${studioUrl(`/visuals/${orgName}/${repository.name}`)}`))
+				return await this.exitHandler()
 			}
 		} else {
-			const branches = await this.getBranches(orgName, repository.name);
+			const branches = await this.getBranches(orgName, repository.name)
 
-			let branch: string | null = null;
+			let branch: string | null = null
 
-			if (branches.length < 1) {
-				console.log(chalk.red('🤖 No branches found'));
-				return await this.exitHandler(1);
+			if (branches.length === 0) {
+				console.log(chalk.red('🤖 No branches found'))
+				return await this.exitHandler(1)
 			}
 
 			if (branches.length === 1) {
-				branch = branches[0].value;
+				branch = branches[0].value
 			}
 
 			if (!branch) {
@@ -200,70 +200,70 @@ export class Dev extends AuthenticatedCommand {
 					name: 'selectedBranch',
 					message: 'Select branch',
 					choices: branches,
-				};
+				}
 
-				const branchAnswer = await inquirer.prompt([branchChoices]);
+				const branchAnswer = await inquirer.prompt([branchChoices])
 
-				branch = branchAnswer.selectedBranch;
+				branch = branchAnswer.selectedBranch
 			}
 
 			if (!branch) {
-				console.log(chalk.red('🤖 No branches selected'));
-				return await this.exitHandler(1);
+				console.log(chalk.red('🤖 No branches selected'))
+				return await this.exitHandler(1)
 			}
 
-			this.bundle = await this.startBundle(branch, orgName, repository.name, outputCategory);
+			this.bundle = await this.startBundle(branch, orgName, repository.name, outputCategory)
 		}
 
-		this.shouldDestroyBundle = true;
+		this.shouldDestroyBundle = true
 
 		if (!this.bundle) {
-			console.log(chalk.red('🤖 Could not start bundle'));
-			return await this.exitHandler(1);
+			console.log(chalk.red('🤖 Could not start bundle'))
+			return await this.exitHandler(1)
 		}
 
 		// replace bundleId in endpoints with actual bundle.id
 		Object.keys(this.endpoints).forEach((endpoint: string) => {
-			const endpointConfig: Endpoint = this.endpoints[endpoint];
-			endpointConfig.url = devstackUrl(endpointConfig.url.replace('{bundleId}', this.bundle.id));
-		});
+			const endpointConfig: Endpoint = this.endpoints[endpoint]
+			endpointConfig.url = devstackUrl(endpointConfig.url.replace('{bundleId}', this.bundle.id))
+		})
 
-		const synced = await this.syncLocalFilesToDevstack(repository.name);
+		const synced = await this.syncLocalFilesToDevstack(repository.name)
 
 		if (!synced) {
-			console.log(chalk.red(`🤖 Could not sync local files to devstack`));
-			return await this.exitHandler(1);
+			console.log(chalk.red('🤖 Could not sync local files to devstack'))
+			return await this.exitHandler(1)
 		}
 
 		// after syncing local files to devstack, we need to manually start the file watcher for the bundle
-		await this.startBundleWatcher(orgName);
+		await this.startBundleWatcher(orgName)
 
 		// run preview
 		const tasks = new Listr([{
 			title: chalk.blue(`Running bundler for resize ${selectedFolder}...`),
 			task: async (ctx, task) => {
-				this.resize = await this.previewResize(orgName, this.bundle.id, selectedFolder);
+				this.resize = await this.previewResize(orgName, this.bundle.id, selectedFolder)
 
 				if (!this.resize) {
-					throw new Error('Bundling resize unavailable');
+					throw new Error('Bundling resize unavailable')
 				}
 
-				const url = studioUrl(`/visuals/local/${this.bundle.id}/${selectedFolder}`);
+				const url = studioUrl(`/visuals/local/${this.bundle.id}/${selectedFolder}`)
 
-				await open(url);
+				await open(url)
 
-				task.title = chalk.green(`Started bundle ${url}`);
-			}
-		}]);
+				task.title = chalk.green(`Started bundle ${url}`)
+			},
+		}])
 
-		await this.runTasks(tasks);
+		await this.runTasks(tasks)
 
-		await this.startWatcher();
+		await this.startWatcher()
 
-		console.log(chalk.blue('🤖 Watching for changes... Press ctrl + c to stop bundler'));
+		console.log(chalk.blue('🤖 Watching for changes... Press ctrl + c to stop bundler'))
 	}
 
-	async exitHandler(code: number = 0): Promise<void> {
+	async exitHandler(code = 0): Promise<void> {
 		const tasks = new Listr([{
 			title: chalk.blue('Stopping bundler...'),
 			task: async (ctx, task): Promise<void> => {
@@ -273,9 +273,9 @@ export class Dev extends AuthenticatedCommand {
 							url: devstackUrl(`/resizes/${this.resize.id}`),
 							method: 'DELETE',
 							cancelToken: this.getCancelToken('resizeDestroy'),
-						};
+						}
 
-						await this.performRequest(config);
+						await this.performRequest(config)
 					}
 
 					if (this.bundle) {
@@ -286,69 +286,69 @@ export class Dev extends AuthenticatedCommand {
 								saveChanges: false,
 								commitMessage: 'CLI stopped',
 								targetBranch: this.bundle.branch,
-							}
-						};
+							},
+						}
 
-						await this.performRequest(config);
+						await this.performRequest(config)
 					}
 				}
 
 				if (this.localZipPath && fs.existsSync(this.localZipPath)) {
-					await fs.unlink(this.localZipPath);
+					await fs.unlink(this.localZipPath)
 				}
 
-				task.title = chalk.green(`Stopped`);
-			}
-		}]);
+				task.title = chalk.green('Stopped')
+			},
+		}])
 
-		await this.runTasks(tasks);
+		await this.runTasks(tasks)
 
-		process.exit(code);
+		process.exit(code)
 	}
 
 	async getLastVisual() {
-		const root = getRoot();
-		const lastDev = getLastDev();
+		const root = getRoot()
+		const lastDev = getLastDev()
 
 		if (!lastDev) {
-			return null;
+			return null
 		}
 
-		let visualExists = false;
+		let visualExists = false
 
 		try {
-			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev));
-			visualExists = stats.isDirectory();
+			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev))
+			visualExists = stats.isDirectory()
 		} catch (error) {
+			console.error(error)
 		}
 
 		if (!visualExists) {
-			return null;
+			return null
 		}
 
-		return lastDev;
+		return lastDev
 	}
 
 	async detectLastVisual() {
-		const root = getRoot();
-		const lastDev = getLastDev();
+		const root = getRoot()
+		const lastDev = getLastDev()
 
 		if (!lastDev) {
-			return null;
+			return null
 		}
 
-		let visualExists = false;
+		let visualExists = false
 
 		try {
-			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev));
-			visualExists = stats.isDirectory();
-		} catch (error) {
-		}
+			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev))
+			visualExists = stats.isDirectory()
+		} catch {}
 
-		const lastVisualContent = lastDev;
+		const lastVisualContent = lastDev
 
 		if (!visualExists) {
-			return null;
+			return null
 		}
 
 		const lastVisualAnswers = await inquirer.prompt({
@@ -357,11 +357,11 @@ export class Dev extends AuthenticatedCommand {
 			message: `Develop recent template? ${lastVisualContent}`,
 			choices: [
 				'Ano',
-				'Ne'
-			]
-		});
+				'Ne',
+			],
+		})
 
-		return lastVisualAnswers.first === 'Ano' ? lastVisualContent : null;
+		return lastVisualAnswers.first === 'Ano' ? lastVisualContent : null
 	}
 
 	async getRepository(orgName: string, repoName: string): Promise<any> {
@@ -374,51 +374,51 @@ export class Dev extends AuthenticatedCommand {
 				},
 			}
 
-			const { data } = await this.performRequest(config);
+			const {data} = await this.performRequest(config)
 
-			return data.repo;
+			return data.repo
 		} catch (error: any) {
-			Sentry.captureException(error);
+			Sentry.captureException(error)
 
 			if (this.isDebugging) {
-				this.reportError(error);
+				this.reportError(error)
 			}
 
-			return null;
+			return null
 		}
 	}
 
 	async getBranches(orgName: string, repoName: string): Promise<any> {
 		try {
 			const config = {
-				url: devstackUrl(`/gitea/branches`),
+				url: devstackUrl('/gitea/branches'),
 				method: 'get',
 				params: {
 					gitRepoName: repoName,
 				},
 				headers: {
 					'X-Organization': orgName,
-				}
-			};
-
-			const { data } = await this.performRequest(config);
-
-			return data.branches;
-		} catch (error: any) {
-			Sentry.captureException(error);
-
-			if (this.isDebugging) {
-				this.reportError(error);
+				},
 			}
 
-			return null;
+			const {data} = await this.performRequest(config)
+
+			return data.branches
+		} catch (error: any) {
+			Sentry.captureException(error)
+
+			if (this.isDebugging) {
+				this.reportError(error)
+			}
+
+			return null
 		}
 	}
 
 	async findRunningBundle(orgName: string, repoName: string, outputCategory: string): Promise<any> {
 		try {
 			const config = {
-				url: devstackUrl(`/bundles/running`),
+				url: devstackUrl('/bundles/running'),
 				method: 'GET',
 				params: {
 					gitOrgName: orgName,
@@ -428,16 +428,16 @@ export class Dev extends AuthenticatedCommand {
 				headers: {
 					'X-Organization': orgName,
 				},
-			};
+			}
 
-			const { data } = await this.performRequest(config);
+			const {data} = await this.performRequest(config)
 
-			return data.bundle;
+			return data.bundle
 		} catch (error: any) {
-			Sentry.captureException(error);
+			Sentry.captureException(error)
 
 			if (this.isDebugging) {
-				this.reportError(error);
+				this.reportError(error)
 			}
 		}
 	}
@@ -445,7 +445,7 @@ export class Dev extends AuthenticatedCommand {
 	async startBundle(branch: string, orgName: string, repoName: string, outputCategory: string): Promise<any> {
 		try {
 			const config = {
-				url: devstackUrl(`/bundles`),
+				url: devstackUrl('/bundles'),
 				method: 'POST',
 				data: {
 					branch: branch,
@@ -461,19 +461,19 @@ export class Dev extends AuthenticatedCommand {
 				headers: {
 					'X-Organization': orgName,
 				},
-			};
-
-			const { data } = await this.performRequest(config);
-
-			return data;
-		} catch (error: any) {
-			Sentry.captureException(error);
-
-			if (this.isDebugging) {
-				this.reportError(error);
 			}
 
-			return null;
+			const {data} = await this.performRequest(config)
+
+			return data
+		} catch (error: any) {
+			Sentry.captureException(error)
+
+			if (this.isDebugging) {
+				this.reportError(error)
+			}
+
+			return null
 		}
 	}
 
@@ -485,14 +485,14 @@ export class Dev extends AuthenticatedCommand {
 				headers: {
 					'X-Organization': orgName,
 				},
-			};
+			}
 
-			await this.performRequest(config);
+			await this.performRequest(config)
 		} catch (error: any) {
-			Sentry.captureException(error);
+			Sentry.captureException(error)
 
 			if (this.isDebugging) {
-				this.reportError(error);
+				this.reportError(error)
 			}
 		}
 	}
@@ -501,27 +501,27 @@ export class Dev extends AuthenticatedCommand {
 		const tasks = new Listr([{
 			title: chalk.blue('Syncing local files to devstack...'),
 			task: async (ctx, task) => {
-				const zip = new AdmZip();
+				const zip = new AdmZip()
 
 				if (!this.visualRoot) {
-					return;
+					return
 				}
 
 				// add everything from template except hidden files to zip
-				zip.addLocalFolder(this.visualRoot, undefined, (filename: string) => !isHiddenFile(filename));
+				zip.addLocalFolder(this.visualRoot, undefined, (filename: string) => !isHiddenFile(filename))
 
 				// create unique zip file name
-				const zipName = `${gitRepoName}-${Date.now()}.zip`;
-				this.localZipPath = path.join(this.visualRoot, zipName);
+				const zipName = `${gitRepoName}-${Date.now()}.zip`
+				this.localZipPath = path.join(this.visualRoot, zipName)
 
 				// save zip file to disk
-				zip.writeZip(this.localZipPath);
+				zip.writeZip(this.localZipPath)
 
-				const formData = new FormData();
+				const formData = new FormData()
 
-				formData.append('bundleId', this.bundle.id);
-				formData.append('path', '/');
-				formData.append('files[]', fs.createReadStream(this.localZipPath), zipName);
+				formData.append('bundleId', this.bundle.id)
+				formData.append('path', '/')
+				formData.append('files[]', fs.createReadStream(this.localZipPath), zipName)
 
 				const config = {
 					url: devstackUrl('/ingest'),
@@ -530,24 +530,24 @@ export class Dev extends AuthenticatedCommand {
 					data: formData,
 					headers: {
 						'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
-					}
-				};
+					},
+				}
 
-				await this.performRequest(config);
+				await this.performRequest(config)
 
-				await fs.unlink(this.localZipPath);
+				await fs.unlink(this.localZipPath)
 
-				task.title = chalk.green('Synced local files to devstack');
-			}
-		}]);
+				task.title = chalk.green('Synced local files to devstack')
+			},
+		}])
 
-		return await this.runTasks(tasks);
+		return await this.runTasks(tasks)
 	}
 
 	async previewResize(orgName: string, bundleId: number, label: string): Promise<any> {
 		try {
 			const config = {
-				url: devstackUrl(`resizes`),
+				url: devstackUrl('resizes'),
 				method: 'post',
 				data: {
 					bundleId,
@@ -555,48 +555,48 @@ export class Dev extends AuthenticatedCommand {
 				},
 				headers: {
 					'X-Organization': orgName,
-				}
+				},
 			}
 
-			const { data } = await this.performRequest(config);
+			const {data} = await this.performRequest(config)
 
-			return data;
+			return data
 		} catch (error: any) {
-			Sentry.captureException(error);
+			Sentry.captureException(error)
 
 			if (this.isDebugging) {
-				this.reportError(error);
+				this.reportError(error)
 			}
 
-			return null;
+			return null
 		}
 	}
 
 	async startWatcher(): Promise<any> {
 		if (!this.visualRoot) {
-			console.log(chalk.red('🛑 Templates root not set! Cannot start watcher.'));
-			return await this.exitHandler(1);
+			console.log(chalk.red('🛑 Templates root not set! Cannot start watcher.'))
+			return await this.exitHandler(1)
 		}
 
 		// init file watcher
-		const watcher = chokidar.watch(`${this.visualRoot}`, this.chokidarOptions);
+		const watcher = chokidar.watch(`${this.visualRoot}`, this.chokidarOptions)
 
 		// bind event listeners + set context of functions to current class
-		watcher.on('add', this.onAdd.bind(this));
-		watcher.on('unlink', this.onUnlink.bind(this));
-		watcher.on('change', this.onChange.bind(this));
-		watcher.on('addDir', this.onAddDir.bind(this));
-		watcher.on('unlinkDir', this.onUnlinkDir.bind(this));
+		watcher.on('add', this.onAdd.bind(this))
+		watcher.on('unlink', this.onUnlink.bind(this))
+		watcher.on('change', this.onChange.bind(this))
+		watcher.on('addDir', this.onAddDir.bind(this))
+		watcher.on('unlinkDir', this.onUnlinkDir.bind(this))
 
-		return watcher;
+		return watcher
 	}
 
 	getRelativePath(path: string): string {
-		return path.replace(`${this.visualRoot}`, '');
+		return path.replace(`${this.visualRoot}`, '')
 	}
 
 	async onChange(filepath: string): Promise<void> {
-		const relativePath = this.getRelativePath(filepath);
+		const relativePath = this.getRelativePath(filepath)
 		const tasks = new Listr([{
 			title: chalk.blue(`Updating "${relativePath}"...`),
 			task: (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
@@ -606,36 +606,36 @@ export class Dev extends AuthenticatedCommand {
 						method: this.endpoints.store.method,
 						cancelToken: this.getCancelToken(filepath),
 						data: {
-							content: fs.readFileSync(filepath, { encoding: 'utf8' }),
+							content: fs.readFileSync(filepath, {encoding: 'utf8'}),
 						},
-					};
+					}
 
-					await this.performRequest(config);
+					await this.performRequest(config)
 
-					task.title = chalk.green(`Updated "${relativePath}"`);
+					task.title = chalk.green(`Updated "${relativePath}"`)
 
-					resolve();
+					resolve()
 				} catch (error: any) {
-					reject(error);
+					reject(error)
 				}
 			}),
-		}]);
+		}])
 
-		await this.runTasks(tasks);
+		await this.runTasks(tasks)
 	}
 
 	async onAdd(filepath: string): Promise<void> {
-		const relativePath = this.getRelativePath(filepath);
+		const relativePath = this.getRelativePath(filepath)
 		const tasks = new Listr([{
 			title: chalk.blue(`Storing file "${relativePath}"...`),
 			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
 				try {
-					const filename = path.basename(filepath);
-					const formData = new FormData();
+					const filename = path.basename(filepath)
+					const formData = new FormData()
 
-					formData.append('bundleId', this.bundle.id);
-					formData.append('path', relativePath.replace(`/${filename}`, '') || '/');
-					formData.append('files[]', fs.createReadStream(filepath), filename);
+					formData.append('bundleId', this.bundle.id)
+					formData.append('path', relativePath.replace(`/${filename}`, '') || '/')
+					formData.append('files[]', fs.createReadStream(filepath), filename)
 
 					const config = {
 						url: this.endpoints.upload.url,
@@ -644,29 +644,29 @@ export class Dev extends AuthenticatedCommand {
 						data: formData,
 						headers: {
 							'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
-						}
-					};
+						},
+					}
 
-					await this.performRequest(config);
+					await this.performRequest(config)
 
-					task.title = chalk.green(`Stored file "${relativePath}"`);
+					task.title = chalk.green(`Stored file "${relativePath}"`)
 
-					resolve();
+					resolve()
 				} catch (error: any) {
-					reject(error);
+					reject(error)
 				}
 			}),
-		}]);
+		}])
 
-		await this.runTasks(tasks);
+		await this.runTasks(tasks)
 	}
 
 	async onUnlink(filepath: string): Promise<void> {
-		await this.unlink(filepath);
+		await this.unlink(filepath)
 	}
 
 	async onAddDir(filepath: string): Promise<void> {
-		const relativePath = this.getRelativePath(filepath);
+		const relativePath = this.getRelativePath(filepath)
 		const tasks = new Listr([{
 			title: chalk.blue(`Creating directory "${relativePath}"...`),
 			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
@@ -675,28 +675,28 @@ export class Dev extends AuthenticatedCommand {
 						url: this.endpoints.mkdir.url.replace(new RegExp('{value}', 'g'), this.getRelativePath(filepath)),
 						method: this.endpoints.mkdir.method,
 						cancelToken: this.getCancelToken(filepath),
-					};
+					}
 
-					await this.performRequest(config);
+					await this.performRequest(config)
 
-					task.title = chalk.green(`Created directory "${relativePath}"`);
+					task.title = chalk.green(`Created directory "${relativePath}"`)
 
-					resolve();
+					resolve()
 				} catch (error: any) {
-					reject(error);
+					reject(error)
 				}
 			}),
-		}]);
+		}])
 
-		await this.runTasks(tasks);
+		await this.runTasks(tasks)
 	}
 
 	async onUnlinkDir(filepath: string): Promise<void> {
-		await this.unlink(filepath);
+		await this.unlink(filepath)
 	}
 
 	async unlink(filepath: string): Promise<void> {
-		const relativePath = this.getRelativePath(filepath);
+		const relativePath = this.getRelativePath(filepath)
 		const tasks = new Listr([{
 			title: chalk.blue(`Deleting "${relativePath}"...`),
 			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
@@ -705,44 +705,44 @@ export class Dev extends AuthenticatedCommand {
 						url: this.endpoints.delete.url.replace(new RegExp('{value}', 'g'), relativePath),
 						method: this.endpoints.delete.method,
 						cancelToken: this.getCancelToken(filepath),
-					};
+					}
 
-					await this.performRequest(config);
+					await this.performRequest(config)
 
-					task.title = chalk.green(`Deleted "${relativePath}"`);
+					task.title = chalk.green(`Deleted "${relativePath}"`)
 
-					resolve();
+					resolve()
 				} catch (error: any) {
 					// in case of deleting a directory and all it's content multiple unlink are fired
 					// and are not ordered properly, let's assume everything has been deleted since
-					// rimraf is fired on b	ackend
+					// rimraf is fired on backend
 					if (error.response && error.response.data && error.response.data.code === 404) {
-						task.title = chalk.green(`Deleted "${relativePath}"`);
+						task.title = chalk.green(`Deleted "${relativePath}"`)
 
-						return resolve();
+						return resolve()
 					}
 
-					reject(error);
+					reject(error)
 				}
 			}),
-		}]);
+		}])
 
-		await this.runTasks(tasks);
+		await this.runTasks(tasks)
 	}
 
 	async runTasks(tasks: Listr): Promise<boolean> {
 		try {
-			await tasks.run();
+			await tasks.run()
 
-			return true;
+			return true
 		} catch (error: any) {
-			Sentry.captureException(error);
+			Sentry.captureException(error)
 
 			if (this.isDebugging) {
-				this.reportError(error);
+				this.reportError(error)
 			}
 
-			return false;
+			return false
 		}
 	}
 }
