@@ -57,7 +57,7 @@ $ npm install -g imagelance-cli
 $ lance COMMAND
 running command...
 $ lance (--version)
-imagelance-cli/2.2.2 darwin-arm64 node-v16.11.1
+imagelance-cli/2.2.3 darwin-arm64 node-v16.11.1
 $ lance --help [COMMAND]
 USAGE
   $ lance COMMAND
@@ -72,7 +72,7 @@ USAGE
 * [`lance create`](#lance-create)
 * [`lance dev`](#lance-dev)
 * [`lance fetch`](#lance-fetch)
-* [`lance help [COMMAND]`](#lance-help-command)
+* [`lance help [COMMANDS]`](#lance-help-commands)
 * [`lance install`](#lance-install)
 * [`lance login`](#lance-login)
 * [`lance pull`](#lance-pull)
@@ -109,7 +109,7 @@ EXAMPLES
   $ lance autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.3.0/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.4.5/src/commands/autocomplete/index.ts)_
 
 ## `lance clone REPONAME`
 
@@ -126,7 +126,7 @@ DESCRIPTION
   Clone existing template
 ```
 
-_See code: [dist/commands/clone.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/clone.ts)_
+_See code: [dist/commands/clone.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/clone.ts)_
 
 ## `lance convert-pdf`
 
@@ -143,7 +143,7 @@ DESCRIPTION
   Convert pdf to jpg
 ```
 
-_See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/convert-pdf.ts)_
+_See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/convert-pdf.ts)_
 
 ## `lance create`
 
@@ -160,7 +160,7 @@ DESCRIPTION
   Creates new template
 ```
 
-_See code: [dist/commands/create.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/create.ts)_
+_See code: [dist/commands/create.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/create.ts)_
 
 ## `lance dev`
 
@@ -180,7 +180,7 @@ DESCRIPTION
   Run development server to create templates
 ```
 
-_See code: [dist/commands/dev.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/dev.ts)_
+_See code: [dist/commands/dev.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/dev.ts)_
 
 ## `lance fetch`
 
@@ -197,18 +197,18 @@ DESCRIPTION
   Fetch all local templates
 ```
 
-_See code: [dist/commands/fetch.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/fetch.ts)_
+_See code: [dist/commands/fetch.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/fetch.ts)_
 
-## `lance help [COMMAND]`
+## `lance help [COMMANDS]`
 
 Display help for lance.
 
 ```
 USAGE
-  $ lance help [COMMAND] [-n]
+  $ lance help [COMMANDS] [-n]
 
 ARGUMENTS
-  COMMAND  Command to show help for.
+  COMMANDS  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -217,7 +217,7 @@ DESCRIPTION
   Display help for lance.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.4/src/commands/help.ts)_
 
 ## `lance install`
 
@@ -231,7 +231,7 @@ DESCRIPTION
   Set home directory for templates and prepare dev environment
 ```
 
-_See code: [dist/commands/install.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/install.ts)_
+_See code: [dist/commands/install.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/install.ts)_
 
 ## `lance login`
 
@@ -249,7 +249,7 @@ DESCRIPTION
   Authorize CLI against web application
 ```
 
-_See code: [dist/commands/login.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/login.ts)_
+_See code: [dist/commands/login.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/login.ts)_
 
 ## `lance pull`
 
@@ -266,7 +266,7 @@ DESCRIPTION
   Pull all local templates
 ```
 
-_See code: [dist/commands/pull.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/pull.ts)_
+_See code: [dist/commands/pull.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/pull.ts)_
 
 ## `lance push`
 
@@ -283,7 +283,7 @@ DESCRIPTION
   Push all local templates
 ```
 
-_See code: [dist/commands/push.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/push.ts)_
+_See code: [dist/commands/push.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/push.ts)_
 
 ## `lance status`
 
@@ -300,7 +300,7 @@ DESCRIPTION
   Git status of all local templates
 ```
 
-_See code: [dist/commands/status.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/status.ts)_
+_See code: [dist/commands/status.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/status.ts)_
 
 ## `lance sync`
 
@@ -318,7 +318,7 @@ DESCRIPTION
   Download all synced templates
 ```
 
-_See code: [dist/commands/sync.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/sync.ts)_
+_See code: [dist/commands/sync.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/sync.ts)_
 
 ## `lance update [CHANNEL]`
 
@@ -355,7 +355,7 @@ EXAMPLES
     $ lance update --available
 ```
 
-_See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v3.0.0/src/commands/update.ts)_
+_See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v3.1.3/src/commands/update.ts)_
 
 ## `lance validate`
 
@@ -369,5 +369,5 @@ DESCRIPTION
   Validate the config and schema of all local templates
 ```
 
-_See code: [dist/commands/validate.ts](https://github.com/imagelance/cli/blob/v2.2.2/dist/commands/validate.ts)_
+_See code: [dist/commands/validate.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/validate.ts)_
 <!-- commandsstop -->
