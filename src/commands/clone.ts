@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import fs from 'node:fs'
 import simpleGit from 'simple-git'
 import * as Sentry from '@sentry/node'
-import {Flags} from '@oclif/core'
+import {Args, Flags} from '@oclif/core'
 
 import AuthenticatedCommand from '../authenticated-command'
 import {getRoot, getUsername, getPassword} from '../utils/config-getters'
@@ -14,9 +14,11 @@ export class Clone extends AuthenticatedCommand {
 		debug: Flags.boolean({char: 'd', description: 'Debug mode', required: false, default: false}),
 	}
 
-	static args = [
-		{name: 'repoName', required: true},
-	]
+	static args = {
+		repoName: Args.string({
+			required: true,
+		}),
+	}
 
 	async run(): Promise<void> {
 		const {args, flags} = await this.parse(Clone)
@@ -36,7 +38,8 @@ export class Clone extends AuthenticatedCommand {
 
 		try {
 			await fs.promises.mkdir(`${root}/src`)
-		} catch {}
+		} catch {
+		}
 
 		try {
 			const stats = await fs.promises.lstat(`${root}/src/${repoName}`)
@@ -46,14 +49,16 @@ export class Clone extends AuthenticatedCommand {
 				console.error(chalk.red('Repository already cloned'))
 				return
 			}
-		} catch {}
+		} catch {
+		}
 
 		const brandFolder = repoName.split('/')[0]
 
 		try {
 			await fs.promises.mkdir(`${root}/src/${brandFolder}`)
 			await fs.promises.mkdir(`${root}/src/${repoName}`)
-		} catch {}
+		} catch {
+		}
 
 		try {
 			console.log(chalk.blue('Starting cloning...'))

@@ -1,6 +1,7 @@
 {
 	"rules": {
 		"no-process-exit": "off",
+		"unicorn/no-process-exit": "off",
 		"indent": [
 			"error",
 			"tab"
