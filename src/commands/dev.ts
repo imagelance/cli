@@ -124,7 +124,7 @@ export class Dev extends AuthenticatedCommand {
 			}
 
 			console.log(chalk.red('Git pull failed, please pull manually'))
-			return await this.exitHandler(1)
+			return this.exitHandler(1)
 		}
 
 		/**
@@ -134,7 +134,7 @@ export class Dev extends AuthenticatedCommand {
 
 		if (folders.length === 0) {
 			console.log(chalk.red('🛑 No resize in template! Start by copying the contents of an existing template if it exists or copy a template from https://github.com/imagelance'))
-			return await this.exitHandler(1)
+			return this.exitHandler(1)
 		}
 
 		// Select resizes
@@ -178,7 +178,7 @@ export class Dev extends AuthenticatedCommand {
 
 			if (resumingBundleChoice.answer === 'No') {
 				console.log(chalk.blue(`You can continue editing your template in studio here ${studioUrl(`/visuals/${orgName}/${repository.name}`)}`))
-				return await this.exitHandler()
+				return this.exitHandler()
 			}
 		} else {
 			const branches = await this.getBranches(orgName, repository.name)
@@ -187,7 +187,7 @@ export class Dev extends AuthenticatedCommand {
 
 			if (branches.length === 0) {
 				console.log(chalk.red('🤖 No branches found'))
-				return await this.exitHandler(1)
+				return this.exitHandler(1)
 			}
 
 			if (branches.length === 1) {
@@ -209,7 +209,7 @@ export class Dev extends AuthenticatedCommand {
 
 			if (!branch) {
 				console.log(chalk.red('🤖 No branches selected'))
-				return await this.exitHandler(1)
+				return this.exitHandler(1)
 			}
 
 			this.bundle = await this.startBundle(branch, orgName, repository.name, outputCategory)
@@ -219,7 +219,7 @@ export class Dev extends AuthenticatedCommand {
 
 		if (!this.bundle) {
 			console.log(chalk.red('🤖 Could not start bundle'))
-			return await this.exitHandler(1)
+			return this.exitHandler(1)
 		}
 
 		// replace bundleId in endpoints with actual bundle.id
@@ -232,7 +232,7 @@ export class Dev extends AuthenticatedCommand {
 
 		if (!synced) {
 			console.log(chalk.red('🤖 Could not sync local files to devstack'))
-			return await this.exitHandler(1)
+			return this.exitHandler(1)
 		}
 
 		// after syncing local files to devstack, we need to manually start the file watcher for the bundle
@@ -575,7 +575,7 @@ export class Dev extends AuthenticatedCommand {
 	async startWatcher(): Promise<any> {
 		if (!this.visualRoot) {
 			console.log(chalk.red('🛑 Templates root not set! Cannot start watcher.'))
-			return await this.exitHandler(1)
+			return this.exitHandler(1)
 		}
 
 		// init file watcher
