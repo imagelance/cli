@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import inquirerSearchList from 'inquirer-search-list'
-import inquirer from 'inquirer'
+import * as inquirer from 'inquirer'
 import axios, {AxiosRequestConfig, AxiosRequestHeaders, CancelToken} from 'axios'
 import {Command} from '@oclif/core'
 import {CancelTokens} from './types/base-command'
@@ -65,6 +65,8 @@ export default abstract class BaseCommand extends Command {
 	reportError(error: any): void {
 		if (error.response && error.response.data) {
 			console.error(error.response.data)
+		} else if (error.message) {
+			console.error(error.message)
 		} else {
 			console.error(error)
 		}

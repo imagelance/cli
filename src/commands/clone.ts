@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import fs from 'node:fs'
+import * as fs from 'node:fs'
 import simpleGit from 'simple-git'
 import * as Sentry from '@sentry/node'
 import {Args, Flags} from '@oclif/core'
@@ -39,6 +39,7 @@ export class Clone extends AuthenticatedCommand {
 		try {
 			await fs.promises.mkdir(`${root}/src`)
 		} catch {
+			// do nothing
 		}
 
 		try {
@@ -50,6 +51,7 @@ export class Clone extends AuthenticatedCommand {
 				return
 			}
 		} catch {
+			// do nothing
 		}
 
 		const brandFolder = repoName.split('/')[0]
@@ -58,6 +60,7 @@ export class Clone extends AuthenticatedCommand {
 			await fs.promises.mkdir(`${root}/src/${brandFolder}`)
 			await fs.promises.mkdir(`${root}/src/${repoName}`)
 		} catch {
+			// do nothing
 		}
 
 		try {
