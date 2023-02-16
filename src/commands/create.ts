@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import simpleGit from 'simple-git';
 import Listr from 'listr';
 import * as Sentry from '@sentry/node';
-import { Flags } from '@oclif/core';
 
 import AuthenticatedCommand from '../authenticated-command';
 import { getRoot, setConfig, getConfig, getCommand } from '../utils/config-getters';
@@ -13,11 +12,6 @@ import studioUrl from '../utils/studio-url';
 
 export class Create extends AuthenticatedCommand {
 	static description = 'Creates new template'
-
-	static flags = {
-		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-		local: Flags.boolean({ char: 'l', description: 'Local', required: false, default: false }),
-	}
 
 	private isDebugging = false
 

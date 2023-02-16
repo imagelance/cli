@@ -3,7 +3,6 @@ import glob from 'glob';
 import chalk from 'chalk';
 import which from 'which';
 import Listr from 'listr';
-import { Flags } from '@oclif/core';
 import { fromPath } from 'pdf2pic';
 
 import BaseCommand from '../base-command';
@@ -12,10 +11,6 @@ import { getRoot } from '../utils/config-getters';
 
 export class ConvertPdf extends BaseCommand {
 	static description = 'Convert pdf to jpg'
-
-	static flags = {
-		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-	}
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(ConvertPdf);

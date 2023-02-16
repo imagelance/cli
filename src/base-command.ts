@@ -2,8 +2,8 @@
 // @ts-ignore
 import inquirerSearchList from 'inquirer-search-list';
 import * as inquirer from 'inquirer';
-import axios, { AxiosRequestConfig, AxiosRequestHeaders, CancelToken } from 'axios';
-import { Command } from '@oclif/core';
+import axios, { AxiosRequestConfig, CancelToken } from 'axios';
+import { Command, Flags } from '@oclif/core';
 import * as Sentry from '@sentry/node';
 import chalk from 'chalk';
 
@@ -15,6 +15,17 @@ import { reportError } from './utils/report-error';
 
 export default abstract class BaseCommand extends Command {
 	cancelTokens: CancelTokens = {}
+
+	static baseFlags = {
+		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
+		local: Flags.boolean({ char: 'a', description: 'Against local apis', required: false, default: false }),
+		env: Flags.string({
+			char: 'e',
+			description: 'Which environment to use for API calls',
+			required: false,
+			default: 'client',
+		}),
+	}
 
 	// region Hooks
 

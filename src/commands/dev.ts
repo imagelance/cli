@@ -25,8 +25,6 @@ export class Dev extends AuthenticatedCommand {
 	static description = 'Run development server to create templates'
 
 	static flags = {
-		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-		local: Flags.boolean({ char: 'a', description: 'Against local apis', required: false, default: false }),
 		newest: Flags.boolean({
 			char: 'n',
 			description: 'Start dev with newly created template',

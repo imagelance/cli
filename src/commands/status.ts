@@ -4,7 +4,6 @@ import chalk from 'chalk';
 import simpleGit from 'simple-git';
 import Table from 'cli-table';
 import * as Sentry from '@sentry/node';
-import { Flags } from '@oclif/core';
 
 import AuthenticatedCommand from '../authenticated-command';
 import getDirectories from '../utils/get-directories';
@@ -12,11 +11,6 @@ import { getRoot } from '../utils/config-getters';
 
 export class Status extends AuthenticatedCommand {
 	static description = 'Git status of all local templates'
-
-	static flags = {
-		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-		local: Flags.boolean({ char: 'a', description: 'Against local apis', required: false, default: false }),
-	}
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(Status);

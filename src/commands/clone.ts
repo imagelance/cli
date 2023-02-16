@@ -2,17 +2,13 @@ import chalk from 'chalk';
 import * as fs from 'node:fs';
 import simpleGit from 'simple-git';
 import * as Sentry from '@sentry/node';
-import { Args, Flags } from '@oclif/core';
+import { Args } from '@oclif/core';
 
 import AuthenticatedCommand from '../authenticated-command';
 import { getRoot, getUsername, getPassword } from '../utils/config-getters';
 
 export class Clone extends AuthenticatedCommand {
 	static description = 'Clone existing template'
-
-	static flags = {
-		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-	}
 
 	static args = {
 		repoName: Args.string({

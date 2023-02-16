@@ -4,7 +4,6 @@ import simpleGit from 'simple-git';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import * as Sentry from '@sentry/node';
-import { Flags } from '@oclif/core';
 import Listr, { ListrContext, ListrTask, ListrTaskWrapper } from 'listr';
 
 import AuthenticatedCommand from '../authenticated-command';
@@ -13,10 +12,6 @@ import { getRoot } from '../utils/config-getters';
 
 export class Push extends AuthenticatedCommand {
 	static description = 'Push all local templates'
-
-	static flags = {
-		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-	}
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(Push);

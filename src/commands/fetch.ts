@@ -2,7 +2,6 @@ import path from 'node:path';
 import fs from 'node:fs';
 import simpleGit from 'simple-git';
 import Listr, { ListrTask } from 'listr';
-import { Flags } from '@oclif/core';
 
 import AuthenticatedCommand from '../authenticated-command';
 import getDirectories from '../utils/get-directories';
@@ -10,10 +9,6 @@ import { getRoot } from '../utils/config-getters';
 
 export class Fetch extends AuthenticatedCommand {
 	static description = 'Fetch all local templates'
-
-	static flags = {
-		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-	}
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(Fetch);
