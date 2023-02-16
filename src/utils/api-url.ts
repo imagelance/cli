@@ -1,13 +1,9 @@
-import { environment, isLocal } from './config-getters';
+import { environment } from './config-getters';
 
 export default function apiUrl(url: string): string {
 	url = url.trim();
 	// trim slashes
 	url = url.replace(/^\/|\/$/g, '');
-
-	if (isLocal()) {
-		return `http://localhost:8070/api/public/cli/${url}`;
-	}
 
 	switch (environment()) {
 		// sazka environments
@@ -24,6 +20,8 @@ export default function apiUrl(url: string): string {
 			return `https://api.sunny.imagelance.com/api/public/cli/${url}`;
 		case 'uat':
 			return `https://api.uat.imagelance.com/api/public/cli/${url}`;
+		case 'local':
+			return `http://localhost:8070/api/public/cli/${url}`;
 		// production environment
 		case 'client':
 		default:

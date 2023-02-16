@@ -11,6 +11,10 @@ const isLocal = function (): boolean {
 const environment = function (): string {
 	const args = process.argv.slice(2);
 
+	if (isLocal()) {
+		return 'local';
+	}
+
 	if (!args || !args.join(' ').includes('--env=')) { // No env argument
 		return 'client';
 	}

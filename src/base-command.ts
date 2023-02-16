@@ -8,7 +8,7 @@ import * as Sentry from '@sentry/node';
 import chalk from 'chalk';
 
 import { CancelTokens } from './types/base-command';
-import { isInstalled } from './utils/config-getters';
+import { environment, isInstalled } from './utils/config-getters';
 import { performInstall } from './utils/perform-install';
 import { performRequest } from './utils/perform-request';
 import { reportError } from './utils/report-error';
@@ -55,6 +55,11 @@ export default abstract class BaseCommand extends Command {
 
 		// Register custom prompts for inquirer
 		inquirer.registerPrompt('search-list', inquirerSearchList);
+
+		// Log info
+		if (environment() !== 'client') {
+			console.log(chalk.blue(`Using ${chalk.blue.underline.bold(environment())} environment`));
+		}
 	}
 
 	async catch(error: any): Promise<void> {
