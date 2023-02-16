@@ -2,11 +2,28 @@ import config from './config';
 import { Token } from '../types/login';
 import { User } from '../types/authenticated-command';
 
-
 const isLocal = function (): boolean {
 	const args = process.argv.slice(2);
 
 	return args && args.join(' ').includes('--local');
+};
+
+const environment = function (): string {
+	const args = process.argv.slice(2);
+
+	if (!args || !args.join(' ').includes('--env=')) { // No env argument
+		return 'client';
+	}
+
+	for (const key in args) {
+		if (args[key].indexOf('--env=') !== 0) {
+			continue;
+		}
+
+		return args[key].replace('--env=', ''); // --env=sunny/uat/...
+	}
+
+	return 'client'; // default
 };
 
 const getRoot = function (): string {
@@ -80,5 +97,6 @@ export {
 	setUser,
 	setIsInstalled,
 	isInstalled,
-	hasSynced
+	hasSynced,
+	environment,
 };

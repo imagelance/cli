@@ -5,10 +5,19 @@
 		"unicorn/no-process-exit": "off",
 		"indent": [
 			"error",
-			"tab"
+			"tab",
+			{
+				"SwitchCase": 1
+			}
 		],
-		"semi": ["warn", "always"],
-		"object-curly-spacing": ["error", "always"],
+		"semi": [
+			"warn",
+			"always"
+		],
+		"object-curly-spacing": [
+			"error",
+			"always"
+		],
 		"node/no-missing-import": [
 			"error",
 			{
