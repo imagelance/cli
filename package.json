@@ -9,7 +9,7 @@
 	"homepage": "https://github.com/imagelance/imagelance-cli",
 	"license": "Apache-2.0",
 	"main": "dist/index.js",
-	"repository": "imagelance/cli",
+	"repository": "imagelance/imagelance-cli",
 	"files": [
 		"/bin",
 		"/dist",
@@ -18,7 +18,7 @@
 	],
 	"dependencies": {
 		"@frigus/is-hidden-file": "^1.0.2",
-		"@oclif/core": "^2.0.11",
+		"@oclif/core": "^2.1.4",
 		"@oclif/plugin-autocomplete": "^1.4.5",
 		"@oclif/plugin-help": "^5.2.4",
 		"@oclif/plugin-not-found": "^2.3.18",
