@@ -7,6 +7,8 @@
 			"error",
 			"tab"
 		],
+		"semi": ["warn", "always"],
+		"object-curly-spacing": ["error", "always"],
 		"node/no-missing-import": [
 			"error",
 			{

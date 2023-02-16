@@ -1,11 +1,11 @@
-import {isLocal} from './config-getters'
+import { isLocal } from './config-getters';
 
 export default function studioUrl(url: string): string {
-	url = url.trim()
+	url = url.trim();
 	// trim slashes
-	url = url.replace(/^\/|\/$/g, '')
+	url = url.replace(/^\/|\/$/g, '');
 
-	const baseUrl = isLocal() ? 'http://localhost:8060' : 'https://studio.imagelance.com'
+	const baseUrl = isLocal() ? 'http://localhost:8060' : 'https://studio.imagelance.com';
 
-	return `${baseUrl}/${url}`
+	return `${baseUrl}/${url}`;
 }

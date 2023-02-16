@@ -1,62 +1,62 @@
-import inquirer from 'inquirer'
-import chalk from 'chalk'
-import fs from 'node:fs'
-import simpleGit from 'simple-git'
-import Listr from 'listr'
-import * as Sentry from '@sentry/node'
-import {Flags} from '@oclif/core'
+import inquirer from 'inquirer';
+import chalk from 'chalk';
+import fs from 'node:fs';
+import simpleGit from 'simple-git';
+import Listr from 'listr';
+import * as Sentry from '@sentry/node';
+import { Flags } from '@oclif/core';
 
-import AuthenticatedCommand from '../authenticated-command'
-import {getRoot, setConfig, getConfig, getCommand} from '../utils/config-getters'
-import devstackUrl from '../utils/devstack-url'
-import studioUrl from '../utils/studio-url'
+import AuthenticatedCommand from '../authenticated-command';
+import { getRoot, setConfig, getConfig, getCommand } from '../utils/config-getters';
+import devstackUrl from '../utils/devstack-url';
+import studioUrl from '../utils/studio-url';
 
 export class Create extends AuthenticatedCommand {
 	static description = 'Creates new template'
 
 	static flags = {
-		debug: Flags.boolean({char: 'd', description: 'Debug mode', required: false, default: false}),
+		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
 	}
 
 	private isDebugging = false
 
 	async run(): Promise<void> {
-		const {flags} = await this.parse(Create)
-		const {debug} = flags
+		const { flags } = await this.parse(Create);
+		const { debug } = flags;
 
-		this.isDebugging = debug
+		this.isDebugging = debug;
 
 		if (!this.user) {
-			console.log(chalk.red('You are not logged in.'))
-			return await this.exitHandler(1)
+			console.log(chalk.red('You are not logged in.'));
+			return await this.exitHandler(1);
 		}
 
-		const root = getRoot()
+		const root = getRoot();
 
-		let brands
+		let brands;
 
 		try {
 			const response = await this.performRequest({
 				url: devstackUrl('/gitea/orgs'),
 				method: 'GET',
-			})
+			});
 
-			brands = response.data
+			brands = response.data;
 
 			if (this.isDebugging) {
-				console.log(brands)
+				console.log(brands);
 			}
 		} catch (error: any) {
-			Sentry.captureException(error)
+			Sentry.captureException(error);
 
 			if (this.isDebugging) {
-				this.reportError(error)
+				this.reportError(error);
 			}
 
-			return await this.exitHandler(1)
+			return await this.exitHandler(1);
 		}
 
-		let brand: string | null = null
+		let brand: string | null = null;
 
 		// only prompt brand select if user has more than 1 brands
 		if (brands.length > 1) {
@@ -64,20 +64,20 @@ export class Create extends AuthenticatedCommand {
 				type: 'search-list',
 				name: 'brand',
 				message: 'Select brand',
-				choices: brands.map(({name, full_name}: any) => ({
+				choices: brands.map(({ name, full_name }: any) => ({
 					name: `${full_name} ${chalk.grey(`(${name})`)}`,
 					value: name,
 				})),
-			}])
+			}]);
 
-			brand = brandAnswer.brand
+			brand = brandAnswer.brand;
 		} else {
-			brand = brands[0].name
+			brand = brands[0].name;
 		}
 
 		if (!brand) {
-			console.log(chalk.red('No brand selected'))
-			return await this.exitHandler(1)
+			console.log(chalk.red('No brand selected'));
+			return await this.exitHandler(1);
 		}
 
 		const modeAnswer = await inquirer.prompt({
@@ -85,15 +85,15 @@ export class Create extends AuthenticatedCommand {
 			name: 'mode',
 			message: 'Select mode',
 			choices: [
-				{name: 'Create blank', value: 'blank'},
-				{name: 'Create from template', value: 'template'},
+				{ name: 'Create blank', value: 'blank' },
+				{ name: 'Create from template', value: 'template' },
 			],
-		})
+		});
 
-		const {mode} = modeAnswer
+		const { mode } = modeAnswer;
 
-		let outputCategory
-		let template
+		let outputCategory;
+		let template;
 
 		if (mode === 'blank') {
 			const outputCategoryAnswer = await inquirer.prompt([{
@@ -101,50 +101,50 @@ export class Create extends AuthenticatedCommand {
 				name: 'outputCategory',
 				message: 'Select format',
 				choices: [
-					{name: 'HTML', value: 'html'},
-					{name: 'Static', value: 'image'},
-					{name: 'Print', value: 'print'},
-					{name: 'Video', value: 'video'},
-					{name: 'Audio', value: 'audio'},
-					{name: 'Fallback', value: 'fallback'},
+					{ name: 'HTML', value: 'html' },
+					{ name: 'Static', value: 'image' },
+					{ name: 'Print', value: 'print' },
+					{ name: 'Video', value: 'video' },
+					{ name: 'Audio', value: 'audio' },
+					{ name: 'Fallback', value: 'fallback' },
 				],
-			}])
+			}]);
 
-			outputCategory = outputCategoryAnswer.outputCategory
+			outputCategory = outputCategoryAnswer.outputCategory;
 		} else {
-			let templates = []
+			let templates = [];
 
 			try {
-				const {data} = await this.performRequest({
+				const { data } = await this.performRequest({
 					url: devstackUrl('/gitea/templates'),
 					method: 'GET',
 					headers: {
 						'X-Organization': brand,
 					},
-				})
+				});
 
-				templates = data.templates
+				templates = data.templates;
 			} catch (error: any) {
-				Sentry.captureException(error)
+				Sentry.captureException(error);
 
 				if (this.isDebugging) {
-					this.reportError(error)
+					this.reportError(error);
 				}
 
-				await this.exitHandler(1)
+				await this.exitHandler(1);
 			}
 
 			const templateAnswer = await inquirer.prompt([{
 				type: 'search-list',
 				name: 'template',
 				message: 'Select template',
-				choices: templates.map(({value, label}: any) => ({
+				choices: templates.map(({ value, label }: any) => ({
 					name: label,
 					value,
 				})),
-			}])
+			}]);
 
-			template = templateAnswer.template
+			template = templateAnswer.template;
 		}
 
 		const nameAnswer = await inquirer.prompt({
@@ -152,28 +152,28 @@ export class Create extends AuthenticatedCommand {
 			name: 'name',
 			message: `Template name ${chalk.yellow('[min 4 characters]')} ${chalk.grey('(public, can be changed later)')}`,
 			validate: input => input && input.length > 3,
-		})
+		});
 
-		const {name} = nameAnswer
+		const { name } = nameAnswer;
 
 		const descriptionAnswer = await inquirer.prompt({
 			type: 'input',
 			name: 'description',
 			message: `Description ${chalk.grey('(optional)')}`,
-		})
+		});
 
-		const {description} = descriptionAnswer
+		const { description } = descriptionAnswer;
 
 		const tagsAnswer = await inquirer.prompt({
 			type: 'input',
 			name: 'tags',
 			message: `Tags ${chalk.grey('(separate with a comma, optional)')}`,
-		})
+		});
 
 		const tags = `${tagsAnswer.tags}`
 			.split(',')
 			.map((word: string) => word.trim())
-			.filter((word: string) => word.length > 0)
+			.filter((word: string) => word.length > 0);
 
 		const payload: any = {
 			mode,
@@ -182,36 +182,36 @@ export class Create extends AuthenticatedCommand {
 			name,
 			description,
 			tags,
-		}
+		};
 
 		if (this.user.role === 'admin') {
-			let branches
+			let branches;
 
 			try {
-				const {data} = await this.performRequest({
+				const { data } = await this.performRequest({
 					url: devstackUrl('/sessions/me/branches'),
 					method: 'GET',
 					headers: {
 						'X-Organization': brand,
 					},
-				})
+				});
 
-				branches = data.branches.map(({label, value}: any) => ({
+				branches = data.branches.map(({ label, value }: any) => ({
 					name: label,
 					value,
-				}))
+				}));
 
 				if (this.isDebugging) {
-					console.log(branches)
+					console.log(branches);
 				}
 			} catch (error: any) {
-				Sentry.captureException(error)
+				Sentry.captureException(error);
 
 				if (this.isDebugging) {
-					this.reportError(error)
+					this.reportError(error);
 				}
 
-				return await this.exitHandler(1)
+				return await this.exitHandler(1);
 			}
 
 			const defaultBranchAnswer = await inquirer.prompt([{
@@ -220,184 +220,184 @@ export class Create extends AuthenticatedCommand {
 				message: 'Select default branch',
 				choices: branches,
 				default: branches[0].value,
-			}])
+			}]);
 
-			const {defaultBranch} = defaultBranchAnswer
+			const { defaultBranch } = defaultBranchAnswer;
 
-			payload.defaultBranch = defaultBranch
+			payload.defaultBranch = defaultBranch;
 		}
 
-		console.log(chalk.blue(`Creating template in brand "${chalk.bold(brand)}"`))
-		console.log(chalk.blue(JSON.stringify(payload, null, 2)))
+		console.log(chalk.blue(`Creating template in brand "${chalk.bold(brand)}"`));
+		console.log(chalk.blue(JSON.stringify(payload, null, 2)));
 
 		const confirm = await inquirer.prompt({
 			type: 'confirm',
 			name: 'confirm',
 			message: 'Is everything correct?',
 			default: true,
-		})
+		});
 
 		if (!confirm.confirm) {
-			await this.exitHandler()
+			await this.exitHandler();
 		}
 
-		let repository: any = null
+		let repository: any = null;
 
 		try {
 			const runner = new Listr([{
 				title: chalk.blue('Creating template...'),
 				task: async (ctx, task) => {
-					const {data} = await this.performRequest({
+					const { data } = await this.performRequest({
 						url: devstackUrl('/gitea/repos'),
 						method: 'POST',
 						data: payload,
 						headers: {
 							'X-Organization': `${brand}`,
 						},
-					})
+					});
 
-					repository = data.repo
+					repository = data.repo;
 
-					task.title = chalk.green('Template created')
+					task.title = chalk.green('Template created');
 				},
-			}])
+			}]);
 
-			await runner.run()
+			await runner.run();
 		} catch (error: any) {
-			Sentry.captureException(error)
+			Sentry.captureException(error);
 
 			if (this.isDebugging) {
-				this.reportError(error)
+				this.reportError(error);
 			}
 
-			return await this.exitHandler(1)
+			return await this.exitHandler(1);
 		}
 
-		let processedRepository: any = null
+		let processedRepository: any = null;
 
 		try {
 			const runner = new Listr([{
 				title: chalk.blue('Processing repository...'),
 				task: async (ctx, task) => await new Promise<void>(resolve => {
-					let checks = 0
+					let checks = 0;
 
 					const checkInterval: ReturnType<typeof setInterval> = setInterval(async () => {
 						if (this.isDebugging) {
-							task.title = chalk.blue(`Processing repository... (${checks + 1}x)`)
+							task.title = chalk.blue(`Processing repository... (${checks + 1}x)`);
 						}
 
 						if (checks > 60) { // 2 minutes, check every 2 seconds
-							clearInterval(checkInterval)
-							resolve()
+							clearInterval(checkInterval);
+							resolve();
 						}
 
-						checks++
+						checks++;
 
-						const repo = await this.fetchRepo(repository, brand)
+						const repo = await this.fetchRepo(repository, brand);
 
 						if (repo.is_processed) {
-							processedRepository = repo
+							processedRepository = repo;
 						}
 
 						if (processedRepository) {
-							task.title = chalk.green(`Repository "${processedRepository.full_name}" processed`)
+							task.title = chalk.green(`Repository "${processedRepository.full_name}" processed`);
 
-							clearInterval(checkInterval)
-							resolve()
+							clearInterval(checkInterval);
+							resolve();
 						}
-					}, 2000)
+					}, 2000);
 				}),
-			}])
+			}]);
 
-			await runner.run()
+			await runner.run();
 		} catch (error: any) {
-			Sentry.captureException(error)
+			Sentry.captureException(error);
 
 			if (this.isDebugging) {
-				this.reportError(error)
+				this.reportError(error);
 			}
 
-			return await this.exitHandler(1)
+			return await this.exitHandler(1);
 		}
 
 		if (!processedRepository) {
-			console.log(chalk.yellow('Processing repository is taking longer than usual'))
-			console.log(chalk.yellow('You will have to manually sync the template after it has been processed'))
-			console.log(chalk.yellow(`Please visit ${studioUrl('/visuals/sync')}, select template and download it using the "${getCommand('sync')}" command`))
-			return await this.exitHandler()
+			console.log(chalk.yellow('Processing repository is taking longer than usual'));
+			console.log(chalk.yellow('You will have to manually sync the template after it has been processed'));
+			console.log(chalk.yellow(`Please visit ${studioUrl('/visuals/sync')}, select template and download it using the "${getCommand('sync')}" command`));
+			return await this.exitHandler();
 		}
 
 		try {
-			await fs.promises.mkdir(`${root}/src`)
+			await fs.promises.mkdir(`${root}/src`);
 		} catch {}
 
-		const origin = processedRepository.clone_url
+		const origin = processedRepository.clone_url;
 
 		try {
-			await fs.promises.mkdir(`${root}/src/${brand}`)
+			await fs.promises.mkdir(`${root}/src/${brand}`);
 		} catch {}
 
-		const repoPath = `${root}/src/${processedRepository.full_name}`
-		const git = simpleGit()
+		const repoPath = `${root}/src/${processedRepository.full_name}`;
+		const git = simpleGit();
 
 		try {
-			await fs.promises.mkdir(repoPath)
-			await git.clone(origin, repoPath, {})
+			await fs.promises.mkdir(repoPath);
+			await git.clone(origin, repoPath, {});
 
-			console.log(chalk.green(`Repository cloned into "${repoPath}"`))
+			console.log(chalk.green(`Repository cloned into "${repoPath}"`));
 		} catch (error: any) {
-			Sentry.captureException(error)
+			Sentry.captureException(error);
 
 			if (this.isDebugging) {
-				this.reportError(error)
+				this.reportError(error);
 			}
 
-			return this.exitHandler(1)
+			return this.exitHandler(1);
 		}
 
-		await git.cwd(repoPath)
+		await git.cwd(repoPath);
 
 		/**
 		 * Set user.name + user.email for repo
 		 */
-		const userName = getConfig('name')
+		const userName = getConfig('name');
 
 		if (userName) {
-			await git.addConfig('user.name', userName)
+			await git.addConfig('user.name', userName);
 		}
 
-		const userEmail = getConfig('email')
+		const userEmail = getConfig('email');
 
 		if (userEmail) {
-			await git.addConfig('user.email', userEmail)
+			await git.addConfig('user.email', userEmail);
 		}
 
-		setConfig('newestVisual', processedRepository.full_name)
+		setConfig('newestVisual', processedRepository.full_name);
 
-		console.log(chalk.green(`Development can be started with command "${getCommand('dev --newest')}"`))
+		console.log(chalk.green(`Development can be started with command "${getCommand('dev --newest')}"`));
 	}
 
 	async fetchRepo(repository: any, brand: string | null): Promise<any> {
 		if (!brand) {
-			return null
+			return null;
 		}
 
 		try {
-			const {data} = await this.performRequest({
+			const { data } = await this.performRequest({
 				url: devstackUrl(`/gitea/repos/${repository.name}`),
 				method: 'GET',
 				headers: {
 					'X-Organization': brand,
 				},
-			})
+			});
 
-			return data.repo
+			return data.repo;
 		} catch (error: any) {
 			if (this.isDebugging) {
-				this.reportError(error)
+				this.reportError(error);
 			}
 
-			return null
+			return null;
 		}
 	}
 }

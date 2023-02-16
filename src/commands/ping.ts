@@ -1,6 +1,6 @@
-import chalk from 'chalk'
+import chalk from 'chalk';
 
-import BaseCommand from '../base-command'
+import BaseCommand from '../base-command';
 
 export class Ping extends BaseCommand {
 	static description = 'Ping the CLI'
@@ -9,6 +9,6 @@ export class Ping extends BaseCommand {
 	static hidden = true
 
 	async run(): Promise<void> {
-		console.log(chalk.blue('Pong'))
+		console.log(chalk.blue('Pong'));
 	}
 }

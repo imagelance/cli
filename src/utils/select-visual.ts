@@ -1,27 +1,27 @@
-import path from 'node:path'
-import inquirer from 'inquirer'
-import chalk from 'chalk'
+import path from 'node:path';
+import inquirer from 'inquirer';
+import chalk from 'chalk';
 
-import {getRoot} from './config-getters'
-import getDirectories from './get-directories'
+import { getRoot } from './config-getters';
+import getDirectories from './get-directories';
 
 export default async function selectVisual() {
-	const root: string = getRoot()
+	const root: string = getRoot();
 
-	const brandFolders = await getDirectories(path.join(root, 'src'))
+	const brandFolders = await getDirectories(path.join(root, 'src'));
 	const brands = brandFolders.filter(folder => {
-		return folder[0] !== '.'
-	})
+		return folder[0] !== '.';
+	});
 
 	if (brands.length === 0) {
-		console.error(chalk.red('No brands'))
-		throw new Error('No brands')
+		console.error(chalk.red('No brands'));
+		throw new Error('No brands');
 	}
 
-	let selectedBrand: string | null = null
+	let selectedBrand: string | null = null;
 
 	if (brands.length === 1) {
-		selectedBrand = brands[0]
+		selectedBrand = brands[0];
 	} else {
 		const brandChoices = {
 			type: 'search-list',
@@ -30,32 +30,32 @@ export default async function selectVisual() {
 			choices: brands.map(brandPath => brandPath.toString()
 				.replace(`${root}/src/`, '')
 				.replace('/brand.json', '')),
-		}
+		};
 
-		const brandAnswers = await inquirer.prompt([brandChoices])
-		selectedBrand = brandAnswers.selectedBrand
+		const brandAnswers = await inquirer.prompt([brandChoices]);
+		selectedBrand = brandAnswers.selectedBrand;
 
-		console.log(selectedBrand)
+		console.log(selectedBrand);
 	}
 
 	if (!selectedBrand) {
-		console.log(chalk.red('No brand selected'))
-		throw new Error('No brand selected')
+		console.log(chalk.red('No brand selected'));
+		throw new Error('No brand selected');
 	}
 
 	// Visual
 
-	const visualFolders = await getDirectories(path.join(root, 'src', selectedBrand))
+	const visualFolders = await getDirectories(path.join(root, 'src', selectedBrand));
 	const visuals = visualFolders.filter(folder => {
-		return folder[0] !== '.'
-	})
+		return folder[0] !== '.';
+	});
 
 	if (visuals.length === 0) {
-		console.error(chalk.red('No templates'))
-		throw new Error('No templates')
+		console.error(chalk.red('No templates'));
+		throw new Error('No templates');
 	}
 
-	visuals.reverse()
+	visuals.reverse();
 
 	const visualsChoices = {
 		type: 'search-list',
@@ -66,10 +66,10 @@ export default async function selectVisual() {
 			.replace(`${root}/src/${selectedBrand}/`, '')
 			.replace('/', ''),
 		),
-	}
+	};
 
-	const visualAnswers = await inquirer.prompt([visualsChoices])
-	const selectedVisual = visualAnswers.first
+	const visualAnswers = await inquirer.prompt([visualsChoices]);
+	const selectedVisual = visualAnswers.first;
 
-	return `${selectedBrand}/${selectedVisual}`
+	return `${selectedBrand}/${selectedVisual}`;
 }
