@@ -1,3 +1,4 @@
+import { Command } from '@oclif/core';
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs';
@@ -6,11 +7,36 @@ import chalk from 'chalk';
 import rimraf from 'rimraf';
 import { existsSync, readJsonSync } from 'fs-extra';
 
-import BaseCommand from '../base-command';
-import { isSazka, getRoot, setConfig } from '../utils/config-getters';
+import { isSazka, getRoot, setConfig, setIsInstalled } from '../utils/config-getters';
+import * as Sentry from '@sentry/node';
 
-export class Install extends BaseCommand {
+export class Install extends Command {
 	static description = 'Set home directory for templates and prepare dev environment'
+
+	async init(): Promise<void> {
+		// Bind exit handler
+
+		process.on('exit', this.exitHandler.bind(this));
+		process.on('SIGINT', this.exitHandler.bind(this));
+		process.on('SIGUSR1', this.exitHandler.bind(this));
+		process.on('SIGUSR2', this.exitHandler.bind(this));
+		process.on('SIGTERM', this.exitHandler.bind(this));
+
+		// Init sentry
+
+		Sentry.init({
+			dsn: 'https://02902c9ddb584992a780788c71ba5cd7@o562268.ingest.sentry.io/6384635',
+			release: `imagelance-cli@${this.config.pjson.version}`,
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			tags: { version: this.config.pjson.version },
+			environment: process.env.NODE_ENV,
+			config: {
+				captureUnhandledRejections: true,
+			},
+		});
+	}
+
 
 	async run(): Promise<void> {
 		const currentRoot = getRoot();
@@ -24,7 +50,7 @@ export class Install extends BaseCommand {
 			});
 
 			if (!confirm.confirm) {
-				process.exit();
+				this.exitHandler(1);
 			}
 		}
 
@@ -56,45 +82,57 @@ export class Install extends BaseCommand {
 		let dir;
 
 		switch (rootAnswer.root) {
-		case 'cwdDir':
-			dir = cwdDir;
-			break;
-		case 'cwdNestDir':
-			try {
-				await fs.promises.mkdir(path.join('.', 'imagelance-templates'));
-			} catch {}
+			case 'cwdDir':
+				dir = cwdDir;
+				break;
+			case 'cwdNestDir':
+				try {
+					await fs.promises.mkdir(path.join('.', 'imagelance-templates'));
+				} catch {
+					// do nothing
+				}
 
-			dir = cwdNestDir;
-			break;
-		case 'homeDir':
-			try {
-				await fs.promises.mkdir(path.join(os.homedir(), 'imagelance-templates'));
-			} catch {}
+				dir = cwdNestDir;
+				break;
+			case 'homeDir':
+				try {
+					await fs.promises.mkdir(path.join(os.homedir(), 'imagelance-templates'));
+				} catch {
+					// do nothing
+				}
 
-			dir = homeDir;
-			break;
-		case 'projectsDir':
-			try {
-				await fs.promises.mkdir(path.join(os.homedir(), 'Projects'));
-			} catch {}
+				dir = homeDir;
+				break;
+			case 'projectsDir':
+				try {
+					await fs.promises.mkdir(path.join(os.homedir(), 'Projects'));
+				} catch {
+					// do nothing
+				}
 
-			try {
-				await fs.promises.mkdir(path.join(os.homedir(), 'Projects', 'imagelance-templates'));
-			} catch {}
+				try {
+					await fs.promises.mkdir(path.join(os.homedir(), 'Projects', 'imagelance-templates'));
+				} catch {
+					// do nothing
+				}
 
-			dir = projectsDir;
-			break;
-		case 'sazkaDir':
-			try {
-				await fs.promises.mkdir(path.join(os.homedir(), 'Projects'));
-			} catch {}
+				dir = projectsDir;
+				break;
+			case 'sazkaDir':
+				try {
+					await fs.promises.mkdir(path.join(os.homedir(), 'Projects'));
+				} catch {
+					// do nothing
+				}
 
-			try {
-				await fs.promises.mkdir(path.join(os.homedir(), 'Projects', 'imagelance-templates-sazka'));
-			} catch {}
+				try {
+					await fs.promises.mkdir(path.join(os.homedir(), 'Projects', 'imagelance-templates-sazka'));
+				} catch {
+					// do nothing
+				}
 
-			dir = sazkaDir;
-			break;
+				dir = sazkaDir;
+				break;
 		}
 
 		if (dir) {
@@ -116,5 +154,12 @@ export class Install extends BaseCommand {
 			fs.writeFileSync(packageJsonPath, JSON.stringify(packageJsonContents, null, '\t'));
 			console.log(`Created new ${packageJsonPath}`);
 		}
+
+		setIsInstalled();
+	}
+
+	exitHandler(code = 0): void {
+		// implement custom exit handling
+		process.exit(code);
 	}
 }

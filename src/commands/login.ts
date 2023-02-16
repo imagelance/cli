@@ -122,9 +122,7 @@ export class Login extends BaseCommand {
 							} catch (error: any) {
 								Sentry.captureException(error);
 
-								if (debug) {
-									this.reportError(error);
-								}
+								this.reportError(error);
 
 								if (server) {
 									await server.close();

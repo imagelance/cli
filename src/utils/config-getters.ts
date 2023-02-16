@@ -48,6 +48,14 @@ const setConfig = function (key: string, value: any): void {
 	return isSazka() ? config.set(`${key}Sazka`, value) : config.set(key, value);
 };
 
+const setIsInstalled = function (value: boolean = true): void {
+	config.set('isInstalled', value);
+}
+
+const isInstalled = function (): boolean {
+	return !!config.get('isInstalled');
+}
+
 const getCommand = function (command: string): string {
 	return isSazka() ? `lance ${command} --sazka` : `lance ${command}`;
 };
@@ -72,4 +80,6 @@ export {
 	getAccessToken,
 	getCommand,
 	setUser,
+	setIsInstalled,
+	isInstalled
 };

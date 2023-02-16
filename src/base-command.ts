@@ -5,8 +5,10 @@ import * as inquirer from 'inquirer';
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, CancelToken } from 'axios';
 import { Command } from '@oclif/core';
 import { CancelTokens } from './types/base-command';
-import { getAccessToken } from './utils/config-getters';
+import { getAccessToken, isInstalled } from './utils/config-getters';
 import * as Sentry from '@sentry/node';
+import chalk from 'chalk';
+import { Install } from './commands/install';
 
 export default abstract class BaseCommand extends Command {
 	cancelTokens: CancelTokens = {}
@@ -14,8 +16,10 @@ export default abstract class BaseCommand extends Command {
 	// region Hooks
 
 	async init(): Promise<void> {
-		// Bind exit handler
+		// Validate whether install command was called
+		await this.wasInstallCommandCalled();
 
+		// Bind exit handler
 		process.on('exit', this.exitHandler.bind(this));
 		process.on('SIGINT', this.exitHandler.bind(this));
 		process.on('SIGUSR1', this.exitHandler.bind(this));
@@ -23,7 +27,6 @@ export default abstract class BaseCommand extends Command {
 		process.on('SIGTERM', this.exitHandler.bind(this));
 
 		// Init sentry
-
 		Sentry.init({
 			dsn: 'https://02902c9ddb584992a780788c71ba5cd7@o562268.ingest.sentry.io/6384635',
 			release: `imagelance-cli@${this.config.pjson.version}`,
@@ -36,7 +39,7 @@ export default abstract class BaseCommand extends Command {
 			},
 		});
 
-		// register custom prompts for inquirer
+		// Register custom prompts for inquirer
 		inquirer.registerPrompt('search-list', inquirerSearchList);
 	}
 
@@ -80,6 +83,29 @@ export default abstract class BaseCommand extends Command {
 		this.cancelTokens[name] = axios.CancelToken.source();
 
 		return this.cancelTokens[name].token;
+	}
+
+	private async wasInstallCommandCalled(): Promise<void> {
+		if (this.id === 'install' || isInstalled()) {
+			return;
+		}
+
+		const shouldRunInstallCommand = await inquirer.prompt({
+			type: 'list',
+			name: 'answer',
+			message: chalk.yellow(`Before running any command, you need to run "${this.config.bin} install". Do you wish to run this command now?`),
+			choices: [
+				'Yes',
+				'No',
+			],
+		});
+
+		if (shouldRunInstallCommand.answer === 'No') {
+			console.log(chalk.blue(`Take your time! When you're ready, just call the "${this.config.bin} install" command.`));
+			return this.exitHandler(1);
+		}
+
+		await Install.run(this.argv);
 	}
 
 	async performRequest(config: AxiosRequestConfig, appendAuthorization = true): Promise<any> {

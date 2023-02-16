@@ -5,7 +5,7 @@ export default function accountsUrl(url: string, isApiRoute = true): string {
 	// trim slashes
 	url = url.replace(/^\/|\/$/g, '');
 
-	const baseUrl = isLocal() ? 'http://localhost' : 'https://accounts.imagelance.com';
+	const baseUrl = isLocal() ? 'http://accounts.localhost' : 'https://accounts.imagelance.com';
 
 	return `${baseUrl}${isApiRoute ? '/api/' : '/'}${url}`;
 }
