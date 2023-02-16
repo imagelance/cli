@@ -6,8 +6,9 @@
 		"declaration": true,
 		"forceConsistentCasingInFileNames": true,
 		"importHelpers": true,
+		"esModuleInterop": true,
 		"module": "commonjs",
-		"outDir": "./lib",
+		"outDir": "./dist",
 		"rootDirs": [
 			"./src"
 		],
