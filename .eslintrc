@@ -3,6 +3,7 @@
 		"camelcase": "off",
 		"no-process-exit": "off",
 		"unicorn/no-process-exit": "off",
+		"no-async-promise-executor": "off",
 		"indent": [
 			"error",
 			"tab",

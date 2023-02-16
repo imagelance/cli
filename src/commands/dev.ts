@@ -228,10 +228,10 @@ export class Dev extends AuthenticatedCommand {
 		}
 
 		// replace bundleId in endpoints with actual bundle.id
-		Object.keys(this.endpoints).forEach((endpoint: string) => {
+		for (const endpoint of Object.keys(this.endpoints)) {
 			const endpointConfig: Endpoint = this.endpoints[endpoint];
 			endpointConfig.url = devstackUrl(endpointConfig.url.replace('{bundleId}', this.bundle.id));
-		});
+		}
 
 		const synced = await this.syncLocalFilesToDevstack(repository.name);
 
@@ -548,7 +548,7 @@ export class Dev extends AuthenticatedCommand {
 			},
 		}]);
 
-		return await this.runTasks(tasks);
+		return this.runTasks(tasks);
 	}
 
 	async previewResize(orgName: string, bundleId: number, label: string): Promise<any> {
@@ -609,7 +609,7 @@ export class Dev extends AuthenticatedCommand {
 			task: (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
 				try {
 					const config = {
-						url: this.endpoints.store.url.replace(new RegExp('{path}', 'g'), relativePath),
+						url: this.endpoints.store.url.replace(/{path}/g, relativePath),
 						method: this.endpoints.store.method,
 						cancelToken: this.getCancelToken(filepath),
 						data: {
@@ -679,7 +679,7 @@ export class Dev extends AuthenticatedCommand {
 			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
 				try {
 					const config = {
-						url: this.endpoints.mkdir.url.replace(new RegExp('{value}', 'g'), this.getRelativePath(filepath)),
+						url: this.endpoints.mkdir.url.replace(/{value}/g, this.getRelativePath(filepath)),
 						method: this.endpoints.mkdir.method,
 						cancelToken: this.getCancelToken(filepath),
 					};
@@ -709,7 +709,7 @@ export class Dev extends AuthenticatedCommand {
 			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
 				try {
 					const config = {
-						url: this.endpoints.delete.url.replace(new RegExp('{value}', 'g'), relativePath),
+						url: this.endpoints.delete.url.replace(/{value}/g, relativePath),
 						method: this.endpoints.delete.method,
 						cancelToken: this.getCancelToken(filepath),
 					};
@@ -726,7 +726,8 @@ export class Dev extends AuthenticatedCommand {
 					if (error.response && error.response.data && error.response.data.code === 404) {
 						task.title = chalk.green(`Deleted "${relativePath}"`);
 
-						return resolve();
+						resolve();
+						return;
 					}
 
 					reject(error);
