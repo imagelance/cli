@@ -8,7 +8,7 @@ import * as Sentry from '@sentry/node';
 import chalk from 'chalk';
 
 import { CancelTokens } from './types/base-command';
-import { getAccessToken, isInstalled } from './utils/config-getters';
+import { isInstalled } from './utils/config-getters';
 import { performInstall } from './utils/perform-install';
 import { performRequest } from './utils/perform-request';
 import { reportError } from './utils/report-error';

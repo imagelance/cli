@@ -15,6 +15,7 @@ export class Status extends AuthenticatedCommand {
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
+		local: Flags.boolean({ char: 'a', description: 'Against local apis', required: false, default: false }),
 	}
 
 	async run(): Promise<void> {

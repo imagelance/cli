@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import { existsSync, readJsonSync } from 'fs-extra';
 import rimraf from 'rimraf';
 
-import { getRoot, isSazka, setConfig, setIsInstalled } from './config-getters';
+import { getRoot, setConfig, setIsInstalled } from './config-getters';
 
 export async function performInstall(): Promise<void> {
 	const currentRoot = getRoot();
@@ -30,17 +30,12 @@ export async function performInstall(): Promise<void> {
 	const cwdDir = process.cwd();
 	const cwdNestDir = path.join(process.cwd(), 'imagelance-templates');
 
-	const choices = isSazka() ?
-		[
-			{ value: 'sazkaDir', name: `${sazkaDir} (~/Projects/imagelance-templates-sazka)` },
-			{ value: 'cwdDir', name: `${cwdDir} (Current folder)` },
-		] :
-		[
-			{ value: 'homeDir', name: `${homeDir} (~/imagelance-templates)` },
-			{ value: 'projectsDir', name: `${projectsDir} (~/Projects/imagelance-templates)` },
-			{ value: 'cwdDir', name: `${cwdDir} (Current folder)` },
-			{ value: 'cwdNestDir', name: `${cwdNestDir} (Create folder /imagelance-templates in current folder)` },
-		];
+	const choices = [
+		{ value: 'homeDir', name: `${homeDir} (~/imagelance-templates)` },
+		{ value: 'projectsDir', name: `${projectsDir} (~/Projects/imagelance-templates)` },
+		{ value: 'cwdDir', name: `${cwdDir} (Current folder)` },
+		{ value: 'cwdNestDir', name: `${cwdNestDir} (Create folder /imagelance-templates in current folder)` },
+	];
 
 	const rootAnswer = await inquirer.prompt({
 		type: 'list',

@@ -1,4 +1,4 @@
-import { isSazka, isLocal } from './config-getters';
+import { isLocal } from './config-getters';
 
 export default function apiUrl(url: string): string {
 	url = url.trim();
@@ -9,5 +9,5 @@ export default function apiUrl(url: string): string {
 		return `http://localhost:8070/api/public/cli/${url}`;
 	}
 
-	return isSazka() ? `https://sazka.imagelance.com/api/public/cli/${url}` : `https://api.app.imagelance.com/api/public/cli/${url}`;
+	return `https://api.app.imagelance.com/api/public/cli/${url}`;
 }
