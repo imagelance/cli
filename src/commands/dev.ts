@@ -17,8 +17,9 @@ import AuthenticatedCommand from '../authenticated-command';
 import selectVisual from '../utils/select-visual';
 import devstackUrl from '../utils/devstack-url';
 import studioUrl from '../utils/studio-url';
-import { getRoot, getLastDev, getConfig, setConfig } from '../utils/config-getters';
+import { getRoot, getLastDev, getConfig, setConfig, hasSynced } from '../utils/config-getters';
 import { Endpoint, Endpoints } from '../types/dev';
+import { performSync } from '../utils/perform-sync';
 
 export class Dev extends AuthenticatedCommand {
 	static description = 'Run development server to create templates'
@@ -87,11 +88,17 @@ export class Dev extends AuthenticatedCommand {
 
 		this.isDebugging = debug;
 
-		// Prepare folder
+		// Get templates root folder
 
 		const root = getRoot();
 
-		let visualPath: string | null = null;
+		// Validate, whether sync command was ran at least 1 time
+
+		await this.wasSyncRun();
+
+		// Selected visual being edited
+
+		let visualPath: string | null;
 
 		if (newest && getConfig('newestVisual')) {
 			visualPath = getConfig('newestVisual');
@@ -343,7 +350,9 @@ export class Dev extends AuthenticatedCommand {
 		try {
 			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev));
 			visualExists = stats.isDirectory();
-		} catch {}
+		} catch {
+			// do nothing
+		}
 
 		const lastVisualContent = lastDev;
 
@@ -356,12 +365,12 @@ export class Dev extends AuthenticatedCommand {
 			name: 'first',
 			message: `Develop recent template? ${lastVisualContent}`,
 			choices: [
-				'Ano',
-				'Ne',
+				'Yes',
+				'No',
 			],
 		});
 
-		return lastVisualAnswers.first === 'Ano' ? lastVisualContent : null;
+		return lastVisualAnswers.first === 'Yes' ? lastVisualContent : null;
 	}
 
 	async getRepository(orgName: string, repoName: string): Promise<any> {
@@ -744,5 +753,28 @@ export class Dev extends AuthenticatedCommand {
 
 			return false;
 		}
+	}
+
+	private async wasSyncRun(): Promise<void> {
+		if (hasSynced()) {
+			return;
+		}
+
+		const shouldRunSyncCommand = await inquirer.prompt({
+			type: 'list',
+			name: 'answer',
+			message: chalk.yellow(`Before running the dev command you need to run "${this.config.bin} sync" to download synchronised templates. Do you wish to run this command now?`),
+			choices: [
+				'Yes',
+				'No',
+			],
+		});
+
+		if (shouldRunSyncCommand.answer === 'No') {
+			console.log(chalk.blue(`Take your time! When you're ready, just call the "${this.config.bin} sync" command.`));
+			return this.exitHandler(1);
+		}
+
+		await performSync({ debug: this.isDebugging });
 	}
 }

@@ -4,11 +4,14 @@ import inquirerSearchList from 'inquirer-search-list';
 import * as inquirer from 'inquirer';
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, CancelToken } from 'axios';
 import { Command } from '@oclif/core';
-import { CancelTokens } from './types/base-command';
-import { getAccessToken, isInstalled } from './utils/config-getters';
 import * as Sentry from '@sentry/node';
 import chalk from 'chalk';
-import { Install } from './commands/install';
+
+import { CancelTokens } from './types/base-command';
+import { getAccessToken, isInstalled } from './utils/config-getters';
+import { performInstall } from './utils/perform-install';
+import { performRequest } from './utils/perform-request';
+import { reportError } from './utils/report-error';
 
 export default abstract class BaseCommand extends Command {
 	cancelTokens: CancelTokens = {}
@@ -66,13 +69,7 @@ export default abstract class BaseCommand extends Command {
 	// region Helpers
 
 	reportError(error: any): void {
-		if (error.response && error.response.data) {
-			console.error(error.response.data);
-		} else if (error.message) {
-			console.error(error.message);
-		} else {
-			console.error(error);
-		}
+		reportError(error);
 	}
 
 	getCancelToken(name: string): CancelToken {
@@ -84,6 +81,14 @@ export default abstract class BaseCommand extends Command {
 
 		return this.cancelTokens[name].token;
 	}
+
+	async performRequest(config: AxiosRequestConfig, appendAuthorization = true): Promise<any> {
+		return performRequest(config, appendAuthorization);
+	}
+
+	// endregion
+
+	// region Utilities
 
 	private async wasInstallCommandCalled(): Promise<void> {
 		if (this.id === 'install' || isInstalled()) {
@@ -105,39 +110,7 @@ export default abstract class BaseCommand extends Command {
 			return this.exitHandler(1);
 		}
 
-		await Install.run(this.argv);
-	}
-
-	async performRequest(config: AxiosRequestConfig, appendAuthorization = true): Promise<any> {
-		const headers: AxiosRequestHeaders = {
-			Accept: 'application/json',
-		};
-
-		if (appendAuthorization) {
-			const accessToken = getAccessToken();
-
-			if (!accessToken) {
-				throw new Error(`User not logged in, please use the "${this.config.bin} login" command first`);
-			}
-
-			headers.Authorization = accessToken;
-		}
-
-		config.headers = {
-			...headers,
-			...config.headers,
-		};
-
-		try {
-			return await axios.request(config);
-		} catch (error: any) {
-			if (error.name === 'CancelledError') {
-				return;
-			}
-
-			// waterfall error
-			throw error;
-		}
+		await performInstall();
 	}
 
 	// endregion

@@ -14,6 +14,12 @@ const isLocal = function (): boolean {
 	return args && args.join(' ').includes('--local');
 };
 
+const isDebug = function (): boolean {
+	const args = process.argv.slice(2);
+
+	return args && args.join(' ').includes('--debug');
+};
+
 const getRoot = function (): string {
 	return isSazka() ? config.get('rootSazka') : config.get('root');
 };
@@ -60,6 +66,10 @@ const getCommand = function (command: string): string {
 	return isSazka() ? `lance ${command} --sazka` : `lance ${command}`;
 };
 
+const hasSynced = function (): boolean {
+	return !!config.get('lastSync');
+}
+
 const setUser = (user: User): void => {
 	setConfig('username', user.git_username);
 	setConfig('password', user.git_password);
@@ -81,5 +91,6 @@ export {
 	getCommand,
 	setUser,
 	setIsInstalled,
-	isInstalled
+	isInstalled,
+	hasSynced
 };

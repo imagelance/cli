@@ -3,9 +3,9 @@ import chalk from 'chalk';
 
 import BaseCommand from './base-command';
 import accountsUrl from './utils/accounts-url';
-import { getAccessToken, setUser } from './utils/config-getters';
+import { getAccessToken, isLocal, setUser } from './utils/config-getters';
 import { User } from './types/authenticated-command';
-import { Login } from './commands/login';
+import { performLogin } from './utils/perform-login';
 
 export default abstract class AuthenticatedCommand extends BaseCommand {
 	protected user: User | null = null
@@ -53,6 +53,6 @@ export default abstract class AuthenticatedCommand extends BaseCommand {
 			return this.exitHandler(1);
 		}
 
-		await Login.run(this.argv);
+		await performLogin({ local: isLocal() });
 	}
 }
