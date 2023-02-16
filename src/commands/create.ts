@@ -16,6 +16,7 @@ export class Create extends AuthenticatedCommand {
 
 	static flags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
+		local: Flags.boolean({ char: 'l', description: 'Local', required: false, default: false }),
 	}
 
 	private isDebugging = false
