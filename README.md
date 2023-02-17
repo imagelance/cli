@@ -57,7 +57,7 @@ $ npm install -g imagelance-cli
 $ lance COMMAND
 running command...
 $ lance (--version)
-imagelance-cli/2.2.3 darwin-arm64 node-v16.11.1
+imagelance-cli/2.2.4 darwin-arm64 node-v16.19.0
 $ lance --help [COMMAND]
 USAGE
   $ lance COMMAND
@@ -109,7 +109,7 @@ EXAMPLES
   $ lance autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.4.5/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.4.6/src/commands/autocomplete/index.ts)_
 
 ## `lance clone REPONAME`
 
@@ -117,16 +117,19 @@ Clone existing template
 
 ```
 USAGE
-  $ lance clone [REPONAME] [-d]
+  $ lance clone REPONAME [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
 
 FLAGS
-  -d, --debug  Debug mode
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Clone existing template
 ```
 
-_See code: [dist/commands/clone.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/clone.ts)_
+_See code: [dist/commands/clone.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/clone.ts)_
 
 ## `lance convert-pdf`
 
@@ -134,16 +137,19 @@ Convert pdf to jpg
 
 ```
 USAGE
-  $ lance convert-pdf [-d]
+  $ lance convert-pdf [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
 
 FLAGS
-  -d, --debug  Debug mode
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Convert pdf to jpg
 ```
 
-_See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/convert-pdf.ts)_
+_See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/convert-pdf.ts)_
 
 ## `lance create`
 
@@ -151,16 +157,19 @@ Creates new template
 
 ```
 USAGE
-  $ lance create [-d]
+  $ lance create [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
 
 FLAGS
-  -d, --debug  Debug mode
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Creates new template
 ```
 
-_See code: [dist/commands/create.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/create.ts)_
+_See code: [dist/commands/create.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/create.ts)_
 
 ## `lance dev`
 
@@ -168,19 +177,21 @@ Run development server to create templates
 
 ```
 USAGE
-  $ lance dev [-d] [-l] [-n] [-a]
+  $ lance dev [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat] [-n] [-l]
 
 FLAGS
-  -a, --latest  Start dev with latest edited template
-  -d, --debug   Debug mode
-  -l, --local   Against local apis
-  -n, --newest  Start dev with newly created template
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -l, --latest        Start dev with latest edited template
+  -n, --newest        Start dev with newly created template
 
 DESCRIPTION
   Run development server to create templates
 ```
 
-_See code: [dist/commands/dev.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/dev.ts)_
+_See code: [dist/commands/dev.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/dev.ts)_
 
 ## `lance fetch`
 
@@ -188,16 +199,19 @@ Fetch all local templates
 
 ```
 USAGE
-  $ lance fetch [-d]
+  $ lance fetch [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
 
 FLAGS
-  -d, --debug  Debug mode
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Fetch all local templates
 ```
 
-_See code: [dist/commands/fetch.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/fetch.ts)_
+_See code: [dist/commands/fetch.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/fetch.ts)_
 
 ## `lance help [COMMANDS]`
 
@@ -225,13 +239,19 @@ Set home directory for templates and prepare dev environment
 
 ```
 USAGE
-  $ lance install
+  $ lance install [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+
+FLAGS
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Set home directory for templates and prepare dev environment
 ```
 
-_See code: [dist/commands/install.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/install.ts)_
+_See code: [dist/commands/install.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/install.ts)_
 
 ## `lance login`
 
@@ -239,17 +259,19 @@ Authorize CLI against web application
 
 ```
 USAGE
-  $ lance login [-d] [-l]
+  $ lance login [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
 
 FLAGS
-  -d, --debug  Debug mode
-  -l, --local  Local
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Authorize CLI against web application
 ```
 
-_See code: [dist/commands/login.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/login.ts)_
+_See code: [dist/commands/login.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/login.ts)_
 
 ## `lance pull`
 
@@ -257,16 +279,19 @@ Pull all local templates
 
 ```
 USAGE
-  $ lance pull [-d]
+  $ lance pull [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
 
 FLAGS
-  -d, --debug  Debug mode
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Pull all local templates
 ```
 
-_See code: [dist/commands/pull.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/pull.ts)_
+_See code: [dist/commands/pull.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/pull.ts)_
 
 ## `lance push`
 
@@ -274,16 +299,19 @@ Push all local templates
 
 ```
 USAGE
-  $ lance push [-d]
+  $ lance push [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
 
 FLAGS
-  -d, --debug  Debug mode
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Push all local templates
 ```
 
-_See code: [dist/commands/push.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/push.ts)_
+_See code: [dist/commands/push.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/push.ts)_
 
 ## `lance status`
 
@@ -291,16 +319,19 @@ Git status of all local templates
 
 ```
 USAGE
-  $ lance status [-d]
+  $ lance status [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
 
 FLAGS
-  -d, --debug  Debug mode
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Git status of all local templates
 ```
 
-_See code: [dist/commands/status.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/status.ts)_
+_See code: [dist/commands/status.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/status.ts)_
 
 ## `lance sync`
 
@@ -308,17 +339,20 @@ Download all synced templates
 
 ```
 USAGE
-  $ lance sync [-d] [-s]
+  $ lance sync [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat] [-s]
 
 FLAGS
-  -d, --debug    Debug mode
-  -s, --shallow  Perform shallow fetch
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -s, --shallow       Perform shallow fetch
 
 DESCRIPTION
   Download all synced templates
 ```
 
-_See code: [dist/commands/sync.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/sync.ts)_
+_See code: [dist/commands/sync.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/sync.ts)_
 
 ## `lance update [CHANNEL]`
 
@@ -355,7 +389,7 @@ EXAMPLES
     $ lance update --available
 ```
 
-_See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v3.1.3/src/commands/update.ts)_
+_See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v3.1.4/src/commands/update.ts)_
 
 ## `lance validate`
 
@@ -363,11 +397,17 @@ Validate the config and schema of all local templates
 
 ```
 USAGE
-  $ lance validate
+  $ lance validate [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+
+FLAGS
+  -a, --local         Against local apis
+  -d, --debug         Debug mode
+  -e, --env=<option>  [default: client] Which environment to use for API calls
+                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
 
 DESCRIPTION
   Validate the config and schema of all local templates
 ```
 
-_See code: [dist/commands/validate.ts](https://github.com/imagelance/cli/blob/v2.2.3/dist/commands/validate.ts)_
+_See code: [dist/commands/validate.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.4/dist/commands/validate.ts)_
 <!-- commandsstop -->
