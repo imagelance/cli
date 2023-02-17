@@ -26,7 +26,7 @@ export default abstract class AuthenticatedCommand extends BaseCommand {
 			this.user = user as User;
 
 			setUser(this.user);
-		} catch (error: any) {
+		} catch {
 			console.log(chalk.red(`Invalid user, please use "${this.config.bin} login" command to try and log in again.`));
 
 			return this.exitHandler(1);
