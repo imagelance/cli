@@ -615,6 +615,10 @@ export class Dev extends AuthenticatedCommand {
 		const tasks = new Listr([{
 			title: chalk.blue(`Updating "${relativePath}"...`),
 			task: (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
+				if (this.isDebugging) {
+					console.log(`Edited file: ${this.endpoints.store.url.replace(/{path}/g, relativePath)}`);
+				}
+
 				try {
 					const config = {
 						url: this.endpoints.store.url.replace(/{path}/g, relativePath),
@@ -644,6 +648,10 @@ export class Dev extends AuthenticatedCommand {
 		const tasks = new Listr([{
 			title: chalk.blue(`Storing file "${relativePath}"...`),
 			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
+				if (this.isDebugging) {
+					console.log(`Added file: ${this.endpoints.store.url.replace(/{path}/g, relativePath)}`);
+				}
+
 				try {
 					const filename = path.basename(filepath);
 					const formData = new FormData();
@@ -715,6 +723,10 @@ export class Dev extends AuthenticatedCommand {
 		const tasks = new Listr([{
 			title: chalk.blue(`Deleting "${relativePath}"...`),
 			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
+				if (this.isDebugging) {
+					console.log(`Removed file: ${this.endpoints.store.url.replace(/{path}/g, relativePath)}`);
+				}
+
 				try {
 					const config = {
 						url: this.endpoints.delete.url.replace(/{value}/g, relativePath),
