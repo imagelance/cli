@@ -116,7 +116,8 @@ export class Dev extends AuthenticatedCommand {
 		this.visualRoot = `${root}/src/${visualPath}`;
 
 		// ToDo: stash before pull/rebase and unstash or skip
-		/*const git = simpleGit(this.visualRoot, getGitConfig());
+		/*const git = simpleGit(getGitConfig());
+		git.cwd(this.visualRoot);
 
 		try {
 			await git.fetch();
