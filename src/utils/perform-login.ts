@@ -72,7 +72,7 @@ export async function performLogin(flags: any): Promise<void> {
 	const runner = new Listr([
 		{
 			title: 'Awaiting login in browser...',
-			task: async (ctx: ListrContext, task: ListrTaskWrapper) => await new Promise<void>(resolve => {
+			task: async (ctx: ListrContext, task: ListrTaskWrapper) => new Promise<void>(resolve => {
 				let checks = 0;
 
 				const checkInterval: ReturnType<typeof setInterval> = setInterval(async () => {

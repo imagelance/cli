@@ -110,13 +110,17 @@ export class Dev extends AuthenticatedCommand {
 			visualPath = await selectVisual();
 		}
 
-		console.log(`Building ${visualPath}`);
+		console.log(`Preparing ${visualPath}`);
 		setConfig('lastDev', visualPath);
 
 		this.visualRoot = `${root}/src/${visualPath}`;
 
-		const git = simpleGit();
-		git.cwd(this.visualRoot);
+		const git = simpleGit(this.visualRoot, {
+			config: [
+				'core.eol=lf',
+				'core.autocrlf=false',
+			],
+		});
 
 		try {
 			await git.fetch();
@@ -231,6 +235,10 @@ export class Dev extends AuthenticatedCommand {
 		for (const endpoint of Object.keys(this.endpoints)) {
 			const endpointConfig: Endpoint = this.endpoints[endpoint];
 			endpointConfig.url = devstackUrl(endpointConfig.url.replace('{bundleId}', this.bundle.id));
+
+			if (this.isDebugging) {
+				console.log(`Updated url: ${endpointConfig.url}`);
+			}
 		}
 
 		const synced = await this.syncLocalFilesToDevstack(repository.name);
