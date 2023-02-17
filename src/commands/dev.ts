@@ -115,7 +115,8 @@ export class Dev extends AuthenticatedCommand {
 
 		this.visualRoot = `${root}/src/${visualPath}`;
 
-		const git = simpleGit(this.visualRoot, {
+		// ToDo: stash before pull/rebase and unstansh or skip
+		/*const git = simpleGit(this.visualRoot, {
 			config: [
 				'core.eol=lf',
 				'core.autocrlf=false',
@@ -134,7 +135,7 @@ export class Dev extends AuthenticatedCommand {
 
 			console.log(chalk.red('Git pull failed, please pull manually'));
 			return this.exitHandler(1);
-		}
+		}*/
 
 		/**
 		 * VisualSizes
