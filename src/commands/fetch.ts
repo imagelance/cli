@@ -5,7 +5,7 @@ import Listr, { ListrTask } from 'listr';
 
 import AuthenticatedCommand from '../authenticated-command';
 import getDirectories from '../utils/get-directories';
-import { getRoot } from '../utils/config-getters';
+import { getGitConfig, getRoot } from '../utils/config-getters';
 
 export class Fetch extends AuthenticatedCommand {
 	static description = 'Fetch all local templates'
@@ -61,7 +61,7 @@ export class Fetch extends AuthenticatedCommand {
 	}
 
 	async fetchVisual(visualPath: string) {
-		const git = simpleGit();
+		const git = simpleGit(getGitConfig());
 
 		if (!fs.existsSync(path.join(visualPath, '.git'))) {
 			return;

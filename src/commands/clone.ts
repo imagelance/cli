@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/node';
 import { Args } from '@oclif/core';
 
 import AuthenticatedCommand from '../authenticated-command';
-import { getRoot, getUsername, getPassword } from '../utils/config-getters';
+import { getRoot, getUsername, getPassword, getGitConfig } from '../utils/config-getters';
 
 export class Clone extends AuthenticatedCommand {
 	static description = 'Clone existing template'
@@ -62,7 +62,7 @@ export class Clone extends AuthenticatedCommand {
 		try {
 			console.log(chalk.blue('Starting cloning...'));
 
-			const git = simpleGit();
+			const git = simpleGit(getGitConfig());
 
 			await git.clone(remote, `${root}/src/${repoName}`, { '--depth': '1' });
 

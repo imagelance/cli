@@ -7,7 +7,7 @@ import * as Sentry from '@sentry/node';
 
 import AuthenticatedCommand from '../authenticated-command';
 import getDirectories from '../utils/get-directories';
-import { getRoot } from '../utils/config-getters';
+import { getGitConfig, getRoot } from '../utils/config-getters';
 
 export class Status extends AuthenticatedCommand {
 	static description = 'Git status of all local templates'
@@ -17,7 +17,7 @@ export class Status extends AuthenticatedCommand {
 		const { debug } = flags;
 
 		const root = getRoot();
-		const git = simpleGit();
+		const git = simpleGit(getGitConfig());
 		const brandFolders = await getDirectories(path.join(root, 'src'));
 		const brands = brandFolders.filter((folder: string) => folder[0] !== '.');
 		const table = new Table({

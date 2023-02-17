@@ -1,6 +1,7 @@
 import config from './config';
 import { Token } from '../types/login';
 import { User } from '../types/authenticated-command';
+import { Options } from 'simple-git';
 
 const isLocal = function (): boolean {
 	const args = process.argv.slice(2);
@@ -64,21 +65,31 @@ const setConfig = function (key: string, value: any): void {
 	return config.set(key, value);
 };
 
-const setIsInstalled = function (value: boolean = true): void {
+const setIsInstalled = function (value = true): void {
 	config.set('isInstalled', value);
-}
+};
 
 const isInstalled = function (): boolean {
-	return !!config.get('isInstalled');
-}
+	return Boolean(config.get('isInstalled'));
+};
 
 const getCommand = function (command: string): string {
 	return `lance ${command}`;
 };
 
 const hasSynced = function (): boolean {
-	return !!config.get('lastSync');
-}
+	return Boolean(config.get('lastSync'));
+};
+
+const getGitConfig = function (mergedConfig: { [key: string]: any } = {}): { [key: string]: any } {
+	return {
+		...mergedConfig,
+		config: [
+			'core.eol=lf',
+			'core.autocrlf=false',
+		],
+	};
+};
 
 const setUser = (user: User): void => {
 	setConfig('username', user.git_username);
@@ -98,6 +109,7 @@ export {
 	getConfig,
 	getAccessToken,
 	getCommand,
+	getGitConfig,
 	setUser,
 	setIsInstalled,
 	isInstalled,

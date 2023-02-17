@@ -8,7 +8,7 @@ import Listr, { ListrContext, ListrTask, ListrTaskWrapper } from 'listr';
 
 import AuthenticatedCommand from '../authenticated-command';
 import getDirectories from '../utils/get-directories';
-import { getRoot } from '../utils/config-getters';
+import { getGitConfig, getRoot } from '../utils/config-getters';
 
 export class Push extends AuthenticatedCommand {
 	static description = 'Push all local templates'
@@ -18,7 +18,7 @@ export class Push extends AuthenticatedCommand {
 		const { debug } = flags;
 
 		const root: string = getRoot();
-		const git = simpleGit();
+		const git = simpleGit(getGitConfig());
 		const brandFolders: string[] = await getDirectories(path.join(root, 'src'));
 		const tasks: ListrTask[] = [];
 		const changedVisuals: any[] = [];
@@ -110,7 +110,7 @@ export class Push extends AuthenticatedCommand {
 	}
 
 	async push(visualPath: string, task: ListrTaskWrapper): Promise<void> {
-		const git = simpleGit();
+		const git = simpleGit(getGitConfig());
 
 		if (!fs.existsSync(path.join(visualPath, '.git'))) {
 			return;

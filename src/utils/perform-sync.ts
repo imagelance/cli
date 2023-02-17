@@ -1,4 +1,4 @@
-import { getConfig, getPassword, getRoot, getUsername, setConfig, setUser } from './config-getters';
+import { getConfig, getGitConfig, getPassword, getRoot, getUsername, setConfig, setUser } from './config-getters';
 import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
@@ -72,20 +72,22 @@ export async function performSync(flags: any): Promise<void> {
 		selectedBrands = brandAnswers.brands;
 	}
 
-	// @ts-ignore
-	const progress = ({ method, stage, progress }) => {
+	const progress = ({ method, stage, progress }: any): void => {
 		if (debug) {
 			console.log(`git.${method} ${stage} stage ${progress}% complete`);
 		}
 	};
 
-	const git = simpleGit({ progress });
+	const git = simpleGit(getGitConfig({
+		progress,
+	}));
 
 	fs.writeFileSync(`${root}/.gitignore`, '*.url');
 
 	try {
 		await fs.promises.mkdir(`${root}/src`);
 	} catch {
+		// do nothing
 	}
 
 	let totalSyncedCount = 0;

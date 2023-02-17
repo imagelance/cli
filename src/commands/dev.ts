@@ -17,7 +17,7 @@ import AuthenticatedCommand from '../authenticated-command';
 import selectVisual from '../utils/select-visual';
 import devstackUrl from '../utils/devstack-url';
 import studioUrl from '../utils/studio-url';
-import { getRoot, getLastDev, getConfig, setConfig, hasSynced } from '../utils/config-getters';
+import { getRoot, getLastDev, getConfig, setConfig, hasSynced, getGitConfig } from '../utils/config-getters';
 import { Endpoint, Endpoints } from '../types/dev';
 import { performSync } from '../utils/perform-sync';
 
@@ -115,13 +115,8 @@ export class Dev extends AuthenticatedCommand {
 
 		this.visualRoot = `${root}/src/${visualPath}`;
 
-		// ToDo: stash before pull/rebase and unstansh or skip
-		/*const git = simpleGit(this.visualRoot, {
-			config: [
-				'core.eol=lf',
-				'core.autocrlf=false',
-			],
-		});
+		// ToDo: stash before pull/rebase and unstash or skip
+		/*const git = simpleGit(this.visualRoot, getGitConfig());
 
 		try {
 			await git.fetch();

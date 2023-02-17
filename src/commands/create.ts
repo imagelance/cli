@@ -6,7 +6,7 @@ import Listr from 'listr';
 import * as Sentry from '@sentry/node';
 
 import AuthenticatedCommand from '../authenticated-command';
-import { getRoot, setConfig, getConfig, getCommand } from '../utils/config-getters';
+import { getRoot, setConfig, getConfig, getCommand, getGitConfig } from '../utils/config-getters';
 import devstackUrl from '../utils/devstack-url';
 import studioUrl from '../utils/studio-url';
 
@@ -333,7 +333,7 @@ export class Create extends AuthenticatedCommand {
 		} catch {}
 
 		const repoPath = `${root}/src/${processedRepository.full_name}`;
-		const git = simpleGit();
+		const git = simpleGit(getGitConfig());
 
 		try {
 			await fs.promises.mkdir(repoPath);
