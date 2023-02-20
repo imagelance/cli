@@ -13,20 +13,22 @@
 
 [![npm](https://img.shields.io/npm/v/imagelance-cli.svg)](https://www.npmjs.com/package/imagelance-cli)
 
-# Installation
-
 <!-- installation -->
 
-**Install with an Installer**
+# Installation
+
+We have 3 separate ways of installing the Imagelance CLI tool
+
+**1. Install with an Installer**
 
 - [macOS](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x64.pkg)
 - [macOS (arm)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-arm64.pkg)
 - [Windows (x64)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x64.exe)
 - [Windows (x86)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x86.exe)
 
-**Standalone installation with a Tarball**
+**2. Standalone installation with a Tarball**
 
-The standalone install is a simple tarball with a binary. It contains its own node.js binary and autoupdates.
+The standalone installation is a simple tarball with a binary. It contains its own node.js binary and autoupdates.
 
 - [macOS](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-darwin-x64.tar.gz)
 - [macOS (arm)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-darwin-arm64.tar.gz)
@@ -35,7 +37,7 @@ The standalone install is a simple tarball with a binary. It contains its own no
 - [Windows (x64)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-win32-x64.tar.gz)
 - [Windows (x86)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-win32-x86.tar.gz)
 
-**Install with npm/yarn**
+**3. Install with npm/yarn**
 
 ```shell
 npm install -g imagelance-cli
@@ -72,7 +74,6 @@ $ lance help
 # Usage
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g imagelance-cli
 $ lance COMMAND
@@ -84,11 +85,9 @@ USAGE
   $ lance COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 <!-- commands -->
-
 * [`lance autocomplete [SHELL]`](#lance-autocomplete-shell)
 * [`lance clone REPONAME`](#lance-clone-reponame)
 * [`lance convert-pdf`](#lance-convert-pdf)
@@ -132,8 +131,7 @@ EXAMPLES
   $ lance autocomplete --refresh-cache
 ```
 
-_See
-code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.1.1/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.1.1/src/commands/autocomplete/index.ts)_
 
 ## `lance clone REPONAME`
 
@@ -173,8 +171,7 @@ DESCRIPTION
   Convert pdf to jpg
 ```
 
-_See
-code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/convert-pdf.ts)_
+_See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/convert-pdf.ts)_
 
 ## `lance create`
 
@@ -276,8 +273,7 @@ DESCRIPTION
   Set home directory for templates and prepare dev environment
 ```
 
-_See
-code: [dist/commands/install.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/install.ts)_
+_See code: [dist/commands/install.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/install.ts)_
 
 ## `lance login`
 
@@ -435,6 +431,5 @@ DESCRIPTION
   Validate the config and schema of all local templates
 ```
 
-_See
-code: [dist/commands/validate.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/validate.ts)_
+_See code: [dist/commands/validate.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/validate.ts)_
 <!-- commandsstop -->
