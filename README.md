@@ -17,7 +17,7 @@
 
 # Installation
 
-We have 3 separate ways of installing the Imagelance CLI tool
+We have 3 separate ways of installing the Imagelance CLI tool. Please select whichever you like.
 
 **1. Install with an Installer**
 
