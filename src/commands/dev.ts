@@ -460,6 +460,7 @@ export class Dev extends AuthenticatedCommand {
 				url: devstackUrl('/bundles'),
 				method: 'POST',
 				data: {
+					target: 'local',
 					branch: branch,
 					gitOrgName: orgName,
 					gitRepoName: repoName,
@@ -608,7 +609,7 @@ export class Dev extends AuthenticatedCommand {
 		// on windows, chokidar return path with windows separators
 		// normalize that, since we use unix separators across the board
 		const normalizedPath = filePath.replace(replace, '\/');
-		
+
 		//console.log('VISUAL ROOT: ', this.visualRoot, '\nFILE PATH:', filePath, '\nNORMALIZED PATH:', normalizedPath);
 
 		return normalizedPath.replace(`${this.visualRoot}`, '');
