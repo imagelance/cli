@@ -603,8 +603,15 @@ export class Dev extends AuthenticatedCommand {
 		return watcher;
 	}
 
-	getRelativePath(path: string): string {
-		return path.replace(`${this.visualRoot}`, '');
+	getRelativePath(filePath: string): string {
+		const replace = new RegExp(`\\${path.sep}`, 'g');
+		// on windows, chokidar return path with windows separators
+		// normalize that, since we use unix separators across the board
+		const normalizedPath = filePath.replace(replace, '\/');
+		
+		//console.log('VISUAL ROOT: ', this.visualRoot, '\nFILE PATH:', filePath, '\nNORMALIZED PATH:', normalizedPath);
+
+		return normalizedPath.replace(`${this.visualRoot}`, '');
 	}
 
 	async onChange(filepath: string): Promise<void> {
