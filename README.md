@@ -19,7 +19,7 @@
 
 **Install with an Installer**
 
-- [macOS](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x64.exe)
+- [macOS](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x64.pkg)
 - [macOS (arm)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-arm64.pkg)
 - [Windows (x64)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x64.exe)
 - [Windows (x86)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x86.exe)
