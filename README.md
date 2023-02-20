@@ -22,7 +22,7 @@ We have 3 separate ways of installing the Imagelance CLI tool. Please select whi
 **1. Install with an Installer**
 
 - [macOS](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x64.pkg)
-- [macOS (arm)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-arm64.pkg)
+- [macOS (Apple silicon)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-arm64.pkg)
 - [Windows (x64)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x64.exe)
 - [Windows (x86)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-x86.exe)
 
@@ -31,7 +31,7 @@ We have 3 separate ways of installing the Imagelance CLI tool. Please select whi
 The standalone installation is a simple tarball with a binary. It contains its own node.js binary and autoupdates.
 
 - [macOS](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-darwin-x64.tar.gz)
-- [macOS (arm)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-darwin-arm64.tar.gz)
+- [macOS (Apple silicone)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-darwin-arm64.tar.gz)
 - [Linux (x64)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-linux-x64.tar.gz)
 - [Linux (arm)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-linux-arm.tar.gz)
 - [Windows (x64)](https://cli-dist.imagelance.com/channels%2Fstable%2Flance-win32-x64.tar.gz)
