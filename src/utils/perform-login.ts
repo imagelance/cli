@@ -24,6 +24,8 @@ export async function performLogin(flags: any): Promise<void> {
 	const app = express();
 	let token: Token | null = null;
 
+	app.use('/img', express.static(path.join(__dirname, '../assets/img')));
+
 	app.get('/', async (req, res) => {
 		const { code } = req.query;
 
@@ -72,7 +74,7 @@ export async function performLogin(flags: any): Promise<void> {
 	const runner = new Listr([
 		{
 			title: 'Awaiting login in browser...',
-			task: async (ctx: ListrContext, task: ListrTaskWrapper) => new Promise<void>(resolve => {
+			task: async (ctx: ListrContext, task: ListrTaskWrapper) => new Promise<void>((resolve) => {
 				let checks = 0;
 
 				const checkInterval: ReturnType<typeof setInterval> = setInterval(async () => {
@@ -132,4 +134,6 @@ export async function performLogin(flags: any): Promise<void> {
 	if (server) {
 		await server.close();
 	}
+
+	process.exit(0);
 }
