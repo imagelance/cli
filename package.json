@@ -92,7 +92,7 @@
 		],
 		"topicSeparator": " ",
 		"node": {
-			"version": "14.17.3"
+			"version": "16.19.0"
 		},
 		"macos": {
 			"identifier": "com.lance.cli"
