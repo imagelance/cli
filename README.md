@@ -79,7 +79,7 @@ $ npm install -g imagelance-cli
 $ lance COMMAND
 running command...
 $ lance (--version)
-imagelance-cli/2.2.10 darwin-arm64 node-v16.19.0
+imagelance-cli/2.2.11 darwin-arm64 node-v16.19.0
 $ lance --help [COMMAND]
 USAGE
   $ lance COMMAND
@@ -151,7 +151,7 @@ DESCRIPTION
   Clone existing template
 ```
 
-_See code: [dist/commands/clone.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/clone.ts)_
+_See code: [dist/commands/clone.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/clone.ts)_
 
 ## `lance convert-pdf`
 
@@ -171,7 +171,7 @@ DESCRIPTION
   Convert pdf to jpg
 ```
 
-_See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/convert-pdf.ts)_
+_See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/convert-pdf.ts)_
 
 ## `lance create`
 
@@ -191,7 +191,7 @@ DESCRIPTION
   Creates new template
 ```
 
-_See code: [dist/commands/create.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/create.ts)_
+_See code: [dist/commands/create.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/create.ts)_
 
 ## `lance dev`
 
@@ -213,7 +213,7 @@ DESCRIPTION
   Run development server to create templates
 ```
 
-_See code: [dist/commands/dev.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/dev.ts)_
+_See code: [dist/commands/dev.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/dev.ts)_
 
 ## `lance fetch`
 
@@ -233,7 +233,7 @@ DESCRIPTION
   Fetch all local templates
 ```
 
-_See code: [dist/commands/fetch.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/fetch.ts)_
+_See code: [dist/commands/fetch.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/fetch.ts)_
 
 ## `lance help [COMMANDS]`
 
@@ -273,7 +273,7 @@ DESCRIPTION
   Set home directory for templates and prepare dev environment
 ```
 
-_See code: [dist/commands/install.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/install.ts)_
+_See code: [dist/commands/install.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/install.ts)_
 
 ## `lance login`
 
@@ -293,7 +293,7 @@ DESCRIPTION
   Authorize CLI against web application
 ```
 
-_See code: [dist/commands/login.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/login.ts)_
+_See code: [dist/commands/login.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/login.ts)_
 
 ## `lance pull`
 
@@ -313,7 +313,7 @@ DESCRIPTION
   Pull all local templates
 ```
 
-_See code: [dist/commands/pull.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/pull.ts)_
+_See code: [dist/commands/pull.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/pull.ts)_
 
 ## `lance push`
 
@@ -333,7 +333,7 @@ DESCRIPTION
   Push all local templates
 ```
 
-_See code: [dist/commands/push.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/push.ts)_
+_See code: [dist/commands/push.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/push.ts)_
 
 ## `lance status`
 
@@ -353,7 +353,7 @@ DESCRIPTION
   Git status of all local templates
 ```
 
-_See code: [dist/commands/status.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/status.ts)_
+_See code: [dist/commands/status.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/status.ts)_
 
 ## `lance sync`
 
@@ -374,7 +374,7 @@ DESCRIPTION
   Download all synced templates
 ```
 
-_See code: [dist/commands/sync.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/sync.ts)_
+_See code: [dist/commands/sync.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/sync.ts)_
 
 ## `lance update [CHANNEL]`
 
@@ -431,5 +431,5 @@ DESCRIPTION
   Validate the config and schema of all local templates
 ```
 
-_See code: [dist/commands/validate.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.10/dist/commands/validate.ts)_
+_See code: [dist/commands/validate.ts](https://github.com/imagelance/imagelance-cli/blob/v2.2.11/dist/commands/validate.ts)_
 <!-- commandsstop -->
