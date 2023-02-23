@@ -139,13 +139,12 @@ Clone existing template
 
 ```
 USAGE
-  $ lance clone REPONAME [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance clone REPONAME [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Clone existing template
@@ -159,13 +158,12 @@ Convert pdf to jpg
 
 ```
 USAGE
-  $ lance convert-pdf [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance convert-pdf [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Convert pdf to jpg
@@ -179,13 +177,12 @@ Creates new template
 
 ```
 USAGE
-  $ lance create [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance create [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Creates new template
@@ -199,15 +196,14 @@ Run development server to create templates
 
 ```
 USAGE
-  $ lance dev [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat] [-n] [-l]
+  $ lance dev [-d] [-a] [-e <value>] [-n] [-l]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
-  -l, --latest        Start dev with latest edited template
-  -n, --newest        Start dev with newly created template
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
+  -l, --latest       Start dev with latest edited template
+  -n, --newest       Start dev with newly created template
 
 DESCRIPTION
   Run development server to create templates
@@ -221,13 +217,12 @@ Fetch all local templates
 
 ```
 USAGE
-  $ lance fetch [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance fetch [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Fetch all local templates
@@ -261,13 +256,12 @@ Set home directory for templates and prepare dev environment
 
 ```
 USAGE
-  $ lance install [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance install [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Set home directory for templates and prepare dev environment
@@ -281,13 +275,12 @@ Authorize CLI against web application
 
 ```
 USAGE
-  $ lance login [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance login [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Authorize CLI against web application
@@ -301,13 +294,12 @@ Pull all local templates
 
 ```
 USAGE
-  $ lance pull [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance pull [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Pull all local templates
@@ -321,13 +313,12 @@ Push all local templates
 
 ```
 USAGE
-  $ lance push [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance push [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Push all local templates
@@ -341,13 +332,12 @@ Git status of all local templates
 
 ```
 USAGE
-  $ lance status [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance status [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Git status of all local templates
@@ -361,14 +351,13 @@ Download all synced templates
 
 ```
 USAGE
-  $ lance sync [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat] [-s]
+  $ lance sync [-d] [-a] [-e <value>] [-s]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
-  -s, --shallow       Perform shallow fetch
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
+  -s, --shallow      Perform shallow fetch
 
 DESCRIPTION
   Download all synced templates
@@ -419,13 +408,12 @@ Validate the config and schema of all local templates
 
 ```
 USAGE
-  $ lance validate [-d] [-a] [-e client|uat|rainy|sunny|cloudy|local|sazka|sazkauat]
+  $ lance validate [-d] [-a] [-e <value>]
 
 FLAGS
-  -a, --local         Against local apis
-  -d, --debug         Debug mode
-  -e, --env=<option>  [default: client] Which environment to use for API calls
-                      <options: client|uat|rainy|sunny|cloudy|local|sazka|sazkauat>
+  -a, --local        Against local apis
+  -d, --debug        Debug mode
+  -e, --env=<value>  [default: client] Which environment to use for API calls
 
 DESCRIPTION
   Validate the config and schema of all local templates

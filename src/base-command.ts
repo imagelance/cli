@@ -23,7 +23,6 @@ export default abstract class BaseCommand extends Command {
 			char: 'e',
 			description: 'Which environment to use for API calls',
 			required: false,
-			options: ['client', 'uat', 'rainy', 'sunny', 'cloudy', 'local', 'sazka', 'sazkauat'],
 			default: 'client',
 		}),
 	}
