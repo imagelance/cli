@@ -161,6 +161,12 @@ export class Dev extends AuthenticatedCommand {
 		const [orgName, repoName] = visualPath.split('/');
 
 		const repository = await this.getRepository(orgName, repoName);
+
+		if (!repository) {
+			console.log(chalk.red('Couldn\'t fetch repository from devstack, exiting. Please try again later.'));
+			return this.exitHandler(1);
+		}
+
 		// output category is on the 3rd position in repo name
 		const outputCategory = repository.name.split('-')[2];
 
@@ -258,7 +264,7 @@ export class Dev extends AuthenticatedCommand {
 					throw new Error('Bundling resize unavailable');
 				}
 
-				const url = studioUrl(`/visuals/local/${this.bundle.id}/${selectedFolder}`);
+				const url = studioUrl(`/visuals/local/${orgName}/${repoName}/${selectedFolder}`);
 
 				await open(url);
 
