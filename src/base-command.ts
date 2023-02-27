@@ -12,6 +12,7 @@ import { environment, isInstalled } from './utils/config-getters';
 import { performInstall } from './utils/perform-install';
 import { performRequest } from './utils/perform-request';
 import { reportError } from './utils/report-error';
+import devstackUrl from './utils/devstack-url';
 
 export default abstract class BaseCommand extends Command {
 	cancelTokens: CancelTokens = {}
@@ -32,6 +33,8 @@ export default abstract class BaseCommand extends Command {
 	async init(): Promise<void> {
 		// Validate whether install command was called
 		await this.wasInstallCommandCalled();
+		// Check whether devstack is available
+		await this.isDevstackHealthy();
 
 		// Bind exit handler
 		process.on('exit', this.exitHandler.bind(this));
@@ -105,6 +108,24 @@ export default abstract class BaseCommand extends Command {
 	// endregion
 
 	// region Utilities
+	async isDevstackHealthy(): Promise<void> {
+		try {
+			const config = {
+				url: devstackUrl(`/public/health/ping`),
+				method: 'GET',
+				cancelToken: this.getCancelToken('isDevstackHealthy'),
+			};
+
+			const { data } = await this.performRequest(config);
+
+			console.log(data);
+		} catch (error: any) {
+			Sentry.captureException(error);
+			console.error(chalk.red('Devstack unavailable. Please try again later.'));
+			await this.exitHandler(1);
+		}
+	}
+
 
 	private async wasInstallCommandCalled(): Promise<void> {
 		if (this.id === 'install' || isInstalled()) {
