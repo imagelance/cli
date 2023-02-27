@@ -6,7 +6,7 @@ export default function devstackUrl(url: string): string {
 	url = url.replace(/^\/|\/$/g, '');
 
 	if (isLocal()) {
-		return `http://localhost:3000/api/${url}`;
+		return `http://localhost:8060/api/${url}`;
 	}
 
 	return `https://devstack.imagelance.com/api/${url}`;
