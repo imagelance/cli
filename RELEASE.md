@@ -3,7 +3,6 @@
 ## Bump version and regenerate `README.md`
 
 ---
-
 1. `yarn verion`
 2. bump version in yarn
 3. push new commit with tags
@@ -12,7 +11,6 @@
 ## Create release files and upload them to S3
 
 ---
-
 Copy `.env.example` to `.env`. Fill out `.env` variables, you can find them shared in SharePoint.
 
 1. `oclif pack tarballs`
@@ -25,7 +23,6 @@ Copy `.env.example` to `.env`. Fill out `.env` variables, you can find them shar
 ## Move uploaded files to a stable channel
 
 ---
-
 You can find the `sha` variable in the generated file names, or it's the last 7 characters of the version commit hash.
 The `version` variable is the version, you want to release, ideally the same version you entered during the first step
 of the release process. You need to separately promote each version, without specific flag it's the tarballs, `--macos`
