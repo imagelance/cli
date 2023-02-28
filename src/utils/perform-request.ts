@@ -1,10 +1,14 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
 
+const pkg = require('../../package.json')
+
 import { getAccessToken, getCommand } from './config-getters';
 
 export async function performRequest(config: AxiosRequestConfig, appendAuthorization = true): Promise<any> {
 	const headers: AxiosRequestHeaders = {
 		Accept: 'application/json',
+		'X-Cli': pkg.name,
+		'X-Cli-Version': pkg.version
 	};
 
 	if (appendAuthorization) {
