@@ -1,7 +1,6 @@
 import config from './config';
 import { Token } from '../types/login';
 import { User } from '../types/authenticated-command';
-import { Options } from 'simple-git';
 
 const isLocal = function (): boolean {
 	const args = process.argv.slice(2);
@@ -91,6 +90,14 @@ const getGitConfig = function (mergedConfig: { [key: string]: any } = {}): { [ke
 	};
 };
 
+const getGitOrigin = function (organization: string, repo: string) {
+	const gitUsername = getUsername();
+	const gitPassword = getPassword();
+	const gitDomain = 'git.imagelance.com';
+
+	return `https://${gitUsername}:${gitPassword}@${gitDomain}/${organization}/${repo}.git`;
+}
+
 const setUser = (user: User): void => {
 	setConfig('username', user.git_username);
 	setConfig('password', user.git_password);
@@ -110,6 +117,7 @@ export {
 	getAccessToken,
 	getCommand,
 	getGitConfig,
+	getGitOrigin,
 	setUser,
 	setIsInstalled,
 	isInstalled,

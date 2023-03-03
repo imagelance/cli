@@ -1,14 +1,17 @@
-import { getConfig, getGitConfig, getPassword, getRoot, getUsername, setConfig, setUser } from './config-getters';
 import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
-import axios from 'axios';
-import apiUrl from './api-url';
 import * as Sentry from '@sentry/node';
 import inquirer from 'inquirer';
 import simpleGit from 'simple-git';
-import getDirectories from './get-directories';
 import rimraf from 'rimraf';
+
+import { getConfig, getGitConfig, getGitOrigin, getRoot, setConfig } from './config-getters';
+import getDirectories from './get-directories';
+import devstackUrl from './devstack-url';
+import { performRequest } from './perform-request';
+import { Org, Sync } from '../types/syncs';
+import studioUrl from './studio-url';
 
 export async function performSync(flags: any): Promise<void> {
 	const { debug, shallow } = flags;
@@ -21,32 +24,33 @@ export async function performSync(flags: any): Promise<void> {
 		// do nothing
 	}
 
-	const username = getUsername();
-	const password = getPassword();
+	let orgs: Org[] | null;
+	let syncs: Sync[] | null;
 
-	let response;
+	/**
+	 * Get user variables, used later for in git config
+	 */
+	const userEmail = getConfig('email');
+	const userName = getConfig('name');
 
+	console.log(chalk.green('Downloading template list available for sync...'));
+
+	/**
+	 * Get orgs
+	 */
 	try {
-		console.log(chalk.green('Downloading template list available for sync..'));
-
-		response = await axios.get(apiUrl('visual'), {
-			auth: { username, password },
+		const { data } = await performRequest({
+			url: devstackUrl('/gitea/orgs'),
+			method: 'GET',
 		});
-		setConfig('lastSyncResponseData', response.data);
+
+		orgs = data as Org[];
 	} catch (error: any) {
 		Sentry.captureException(error);
 		console.log(error);
 		console.error(chalk.red(error.message));
 		return;
 	}
-
-	/**
-	 * Update user
-	 */
-	setUser(response.data.user);
-
-	const userEmail = getConfig('email');
-	const userName = getConfig('name');
 
 	/**
 	 * Select brands
@@ -56,30 +60,44 @@ export async function performSync(flags: any): Promise<void> {
 	const isAllBrands = true; // always sync all brands
 
 	if (isAllBrands) {
-		selectedBrands = Object.keys(response.data.brands);
+		selectedBrands = orgs.map((org: any) => org.name);
 	} else {
 		const brandAnswers = await inquirer.prompt({
 			type: 'checkbox',
 			name: 'brands',
 			message: 'Select brands to sync',
-			choices: Object.keys(response.data.brands).map(name => {
-				return {
-					name,
-					checked: true,
-				};
-			}),
+			choices: orgs.map((org: any) => ({
+				name: `${org.full_name} (${org.name})`,
+				value: org.name,
+				checked: true,
+			})),
 		});
 		selectedBrands = brandAnswers.brands;
 	}
 
-	const progress = ({ method, stage, progress }: any): void => {
-		if (debug) {
-			console.log(`git.${method} ${stage} stage ${progress}% complete`);
-		}
-	};
+	try {
+		const { data } = await performRequest({
+			url: devstackUrl('/syncs'),
+			method: 'GET',
+			params: {
+				organizations: selectedBrands,
+			}
+		});
+
+		syncs = data as Sync[];
+	} catch (error: any) {
+		Sentry.captureException(error);
+		console.log(error);
+		console.error(chalk.red(error.message));
+		return;
+	}
 
 	const git = simpleGit(getGitConfig({
-		progress,
+		progress: ({ method, stage, progress }: any): void => {
+			if (debug) {
+				console.log(`git.${method} ${stage} stage ${progress}% complete`);
+			}
+		},
 	}));
 
 	fs.writeFileSync(`${root}/.gitignore`, '*.url');
@@ -91,17 +109,12 @@ export async function performSync(flags: any): Promise<void> {
 	}
 
 	let totalSyncedCount = 0;
-	let totalCount = 0;
 
-	for (const brand in response.data.brands) {
-		if (!response.data.brands.hasOwnProperty(brand)) {
-			continue;
-		}
+	/**
+	 * Check whether brand folders exist
+	 */
 
-		if (!selectedBrands.includes(brand)) {
-			continue;
-		}
-
+	for (const brand of selectedBrands) {
 		const brandPath = `${root}/src/${brand}`;
 
 		try {
@@ -115,100 +128,57 @@ export async function performSync(flags: any): Promise<void> {
 			console.log(`Creating directory ${brandPath}`);
 		}
 
-		const visuals = response.data.brands[brand];
-		const reversedVisualKeys = Object.keys(visuals).reverse();
+		/**
+		 * Get list of syncs for current brand
+		 */
 
-		// Delete archived
-		const visualFolders = await getDirectories(brandPath);
+		const brandSyncs = syncs.filter((sync) => sync.organization === brand);
 
-		let shouldSyncCount = 0;
-		for (const slug in visuals) {
-			totalCount++;
-			if (visuals[slug].visual_sync_for_logged_user !== null) {
-				shouldSyncCount++;
-				totalSyncedCount++;
-			}
-		}
+		const repoNames: string[] = brandSyncs.map((sync) => sync.repo);
 
-		console.log(chalk.cyan(`Syncing brand: ${brand} (${shouldSyncCount} of ${Object.keys(visuals).length})`));
+		const repoFolders = await getDirectories(brandPath);
 
-		for (const i in visualFolders) {
-			if (!visualFolders.hasOwnProperty(i)) {
-				continue;
-			}
+		console.log(chalk.cyan(`Syncing brand: ${chalk.cyan.bold(brand)} (${brandSyncs.length} synced templates)`));
 
-			const visualFolder = visualFolders[i];
-			if (!reversedVisualKeys.includes(visualFolder)) {
-				// console.log(`Should delete ${brand}/${visualFolder}`);
-				// const files = await fs.promises.readdir(path.join(brandPath, visualFolder), { withFileTypes: true });
+		/**
+		 * Delete folders for repos, that have been unsynced
+		 */
+
+		for (const repoFolder of repoFolders) {
+			if (!repoNames.includes(repoFolder)) {
+				// console.log(`Should delete ${brand}/${repoFolder}`);
+				// const files = await fs.promises.readdir(path.join(brandPath, repoFolder), { withFileTypes: true });
 				// const hasNoFiles = files.length === 0;
 				// const hasOnlyGit = files.length === 1 && files[0].name === '.git';
 				// const hasGitAndConfig = files.length === 2 && files[0].name === '.git' && files[1].name === 'config.json';
 				// if (hasNoFiles || hasOnlyGit || hasGitAndConfig) {
 				if (debug) {
-					console.log(`DELETING ${visualFolder}`);
+					console.log(`DELETING ${repoFolder}`);
 				}
 
-				rimraf.sync(path.join(brandPath, visualFolder));
+				rimraf.sync(path.join(brandPath, repoFolder));
 				// }
 			}
 		}
 
-		// Clone/fetch new
-		for (const i in reversedVisualKeys) {
-			const visual = reversedVisualKeys[i];
-			if (!visuals.hasOwnProperty(visual)) {
+		/**
+		 * Clone and fetch synced repos
+		 */
+
+		for (const i in repoNames) {
+			const repoName: any = repoNames[i];
+
+			if (!repoName) {
 				continue;
 			}
+
+			totalSyncedCount++;
 
 			if (debug) {
-				console.log(chalk.cyan(`Syncing template: ${visual}`));
+				console.log(chalk.cyan(`Syncing template: ${brand}/${repoName}`));
 			}
 
-			const visualData = visuals[visual];
-
-			const repoPath = `${root}/src/${brand}/${visual}`;
-
-			// Until feature is deployed to prod, assume old behaviour
-			if (typeof visualData.visual_sync_for_logged_user === 'undefined') {
-				visualData.visual_sync_for_logged_user = { id: 0 };
-				console.log('assume true');
-			}
-
-			if (visualData.visual_sync_for_logged_user) {
-				// console.log(visualData.visual_sync_for_logged_user);
-			} else {
-				// console.log(`Template is not set to be synced ${repoPath}`);
-
-				try {
-					const stats = fs.lstatSync(repoPath);
-					if (!stats.isDirectory()) {
-						throw new Error('Not directory');
-					}
-
-					await git.cwd(repoPath);
-					try {
-						const status = await git.status();
-
-						if (status.files.length > 0) {
-							console.log(`Template "${visual}" should get de-synced, but there are uncommitted changes, skipping...`);
-							continue;
-						}
-
-						if (debug) {
-							console.log('Deleting');
-						}
-
-						rimraf.sync(repoPath);
-					} catch (error) {
-						console.log(error);
-					}
-				} catch {
-					// Does not exist, that is OK
-				}
-
-				continue;
-			}
+			const repoPath = `${root}/src/${brand}/${repoName}`;
 
 			try {
 				const stats = fs.lstatSync(repoPath);
@@ -232,8 +202,7 @@ export async function performSync(flags: any): Promise<void> {
 
 				try {
 					await git.cwd(repoPath);
-					// await git.init();
-					// await git.addRemote('origin', visualData.origin);
+
 					if (debug) {
 						console.log(chalk.green('Repository has been successfully initialized'));
 					}
@@ -247,19 +216,21 @@ export async function performSync(flags: any): Promise<void> {
 				}
 
 				try {
+					const origin = getGitOrigin(brand, repoName);
+
 					if (debug) {
-						console.log(`Starting cloning ${visualData.origin}`);
+						console.log(`Starting cloning ${origin}`);
 					}
 
 					const options = shallow ? { '--depth': '1' } : undefined;
 
-					await git.clone(visualData.origin, repoPath, options);
+					await git.clone(origin, repoPath, options);
 
 					if (debug) {
 						console.log(chalk.green('Repository successfully cloned'));
 					}
 				} catch (error) {
-					console.log('And error occurred while cloning repository');
+					console.log('An error occurred while cloning repository');
 					console.error(error);
 					Sentry.captureException(error);
 				}
@@ -302,7 +273,7 @@ export async function performSync(flags: any): Promise<void> {
 				try {
 					await git.fetch();
 				} catch (error: any) {
-					console.log(chalk.red(repoPath + ' threw error: ' + error.message));
+					console.log(chalk.red(`${repoPath} threw error: ${error.message}`));
 					continue;
 				}
 
@@ -311,13 +282,13 @@ export async function performSync(flags: any): Promise<void> {
 				try {
 					status = await git.status();
 				} catch (error: any) {
-					console.log(chalk.red(repoPath + ' threw git status error: ' + error.message));
+					console.log(chalk.red(`${repoPath} threw git status error: ${error.message}`));
 					continue;
 				}
 
 				if (status.files.length > 0) {
 					if (debug) {
-						console.log(chalk.yellow(repoPath + ' has some changed files, commit them or push them!'));
+						console.log(chalk.yellow(`${repoPath} has some changed files, commit them or push them!`));
 					}
 
 					continue;
@@ -325,14 +296,14 @@ export async function performSync(flags: any): Promise<void> {
 
 				if (status.behind > 0) {
 					if (debug) {
-						console.log(chalk.yellow(repoPath + ' is behind, pulling'));
+						console.log(chalk.yellow(`${repoPath} is behind, pulling`));
 					}
 
 					await git.pull();
 				}
 
 				if (status.ahead > 0) {
-					console.log(chalk.yellow(repoPath + ' is ahead, push the changes!'));
+					console.log(chalk.yellow(`${repoPath} is ahead, push the changes!`));
 				}
 			} catch (error) {
 				Sentry.captureException(error);
@@ -341,11 +312,9 @@ export async function performSync(flags: any): Promise<void> {
 		}
 	}
 
-	console.log(chalk.green(`Successfully synchronized ${totalSyncedCount} templates (of ${totalCount})`));
+	console.log(chalk.green(`Successfully synchronized ${totalSyncedCount} templates`));
 
-	// ToDo: environment
-	const url = 'https://app.imagelance.com/visuals/sync';
-	console.log(chalk.blue(`You can change which templates to synchronize at: ${url}`));
+	console.log(chalk.blue(`You can change which templates to synchronize at: ${studioUrl('/visuals')}`));
 
 	const now = new Date();
 	setConfig('lastSync', now.toISOString());
