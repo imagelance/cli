@@ -85,6 +85,7 @@ export async function performSync(flags: any): Promise<void> {
 		});
 
 		syncs = data as Sync[];
+		setConfig('lastSyncResponseData', syncs);
 	} catch (error: any) {
 		Sentry.captureException(error);
 		console.log(error);
