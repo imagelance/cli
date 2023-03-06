@@ -103,7 +103,7 @@
 		},
 		"update": {
 			"s3": {
-				"host": "https://cli-dist.imagelance.com",
+				"host": "https://imagelance-cli-distributions.fra1.digitaloceanspaces.com",
 				"indexVersionLimit": 20,
 				"folder": "",
 				"bucket": "imagelance-cli-distributions",
