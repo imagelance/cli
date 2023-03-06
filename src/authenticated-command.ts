@@ -27,21 +27,17 @@ export default abstract class AuthenticatedCommand extends BaseCommand {
 
 			setUser(this.user);
 		} catch {
-			console.log(chalk.red(`Invalid user, please use "${this.config.bin} login" command to try and log in again.`));
+			await this.promptLogin(chalk.red(`Invalid user. You need to re-run "${this.config.bin} login". Do you wish to run this command now?`));
 
 			return this.exitHandler(1);
 		}
 	}
 
-	private async wasLoginCommandRun(): Promise<void> {
-		if (this.id === 'login' || getAccessToken() !== null) {
-			return;
-		}
-
+	private async promptLogin(message: string): Promise<void> {
 		const shouldRunLoginCommand = await inquirer.prompt({
 			type: 'list',
 			name: 'answer',
-			message: chalk.yellow(`Before running an authenticated command, you need to run "${this.config.bin} login". Do you wish to run this command now?`),
+			message,
 			choices: [
 				'Yes',
 				'No',
@@ -54,5 +50,13 @@ export default abstract class AuthenticatedCommand extends BaseCommand {
 		}
 
 		await performLogin({ local: isLocal() });
+	}
+
+	private async wasLoginCommandRun(): Promise<void> {
+		if (this.id === 'login' || getAccessToken() !== null) {
+			return;
+		}
+
+		await this.promptLogin(chalk.yellow(`Before running an authenticated command, you need to run "${this.config.bin} login". Do you wish to run this command now?`));
 	}
 }
