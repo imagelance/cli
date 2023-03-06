@@ -114,7 +114,7 @@ export class Create extends AuthenticatedCommand {
 					url: devstackUrl('/gitea/templates'),
 					method: 'GET',
 					headers: {
-						'X-Organization': brand,
+						'X-Brand': brand,
 					},
 				});
 
@@ -187,7 +187,7 @@ export class Create extends AuthenticatedCommand {
 					url: devstackUrl('/sessions/me/branches'),
 					method: 'GET',
 					headers: {
-						'X-Organization': brand,
+						'X-Brand': brand,
 					},
 				});
 
@@ -247,7 +247,7 @@ export class Create extends AuthenticatedCommand {
 						method: 'POST',
 						data: payload,
 						headers: {
-							'X-Organization': `${brand}`,
+							'X-Brand': `${brand}`,
 						},
 					});
 
@@ -382,7 +382,7 @@ export class Create extends AuthenticatedCommand {
 				url: devstackUrl(`/gitea/repos/${repository.name}`),
 				method: 'GET',
 				headers: {
-					'X-Organization': brand,
+					'X-Brand': brand,
 				},
 			});
 

@@ -388,7 +388,7 @@ export class Dev extends AuthenticatedCommand {
 				url: devstackUrl(`/gitea/repos/${repoName}`),
 				method: 'get',
 				headers: {
-					'X-Organization': orgName,
+					'X-Brand': orgName,
 				},
 			};
 
@@ -415,7 +415,7 @@ export class Dev extends AuthenticatedCommand {
 					gitRepoName: repoName,
 				},
 				headers: {
-					'X-Organization': orgName,
+					'X-Brand': orgName,
 				},
 			};
 
@@ -444,7 +444,7 @@ export class Dev extends AuthenticatedCommand {
 					outputCategory: outputCategory,
 				},
 				headers: {
-					'X-Organization': orgName,
+					'X-Brand': orgName,
 				},
 			};
 
@@ -478,7 +478,7 @@ export class Dev extends AuthenticatedCommand {
 					startFileWatcher: false,
 				},
 				headers: {
-					'X-Organization': orgName,
+					'X-Brand': orgName,
 				},
 			};
 
@@ -502,7 +502,7 @@ export class Dev extends AuthenticatedCommand {
 				url: devstackUrl(`/bundle-watchers/start/${this.bundle.id}`),
 				method: 'POST',
 				headers: {
-					'X-Organization': orgName,
+					'X-Brand': orgName,
 				},
 			};
 
@@ -573,7 +573,7 @@ export class Dev extends AuthenticatedCommand {
 					label,
 				},
 				headers: {
-					'X-Organization': orgName,
+					'X-Brand': orgName,
 				},
 			};
 
