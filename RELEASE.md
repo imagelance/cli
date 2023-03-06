@@ -1,33 +1,43 @@
 # Release
 
-## Bump version and regenerate `README.md`
+## 1. Install `oclif` cli if not yet installed
+```bash
+npm install -g oclif
+```
 
-1. `yarn build`
-2. `yarn version`
-3. bump version in yarn
-4. push new commit with tags
-5. `npm publish`
+## 2. Bump version and regenerate `README.md`
 
-## Create release files and upload them to S3
+```bash
+yarn build
+yarn version
+git push origin --tags
+npm publish
+```
 
-Copy `.env.example` to `.env`. Fill out `.env` variables, you can find them shared in SharePoint.
+## 3. Create release files and upload them to S3
 
-1. `oclif pack tarballs`
-2. `yarn upload tarballs`
-3. `oclif pack macos`
-4. `yarn upload macos`
-5. `oclif pack win`
-6. `yarn upload win`
+!! Copy `.env.example` to `.env`. Fill out `.env` variables, you can find them shared in SharePoint. !!
 
-## Move uploaded files to a stable channel
+```bash
+oclif pack tarballs
+yarn upload tarballs
+oclif pack macos
+yarn upload macos
+oclif pack win
+yarn upload win
+```
 
-You can find the `sha` variable in the generated file names, or it's the last 7 characters of the version commit hash.
-The `version` variable is the version, you want to release, ideally the same version you entered during the first step
-of the release process. You need to separately promote each version, without specific flag it's the tarballs, `--macos`
-is promoting mac version to the stable channel, `--win` is windows.
+## 4. Publish new release on S3
 
-1. `yarn promote --version={version} --sha={sha}`
-2. `yarn promote --version={version} --sha={sha} --macos`
-3. `yarn promote --version={version} --sha={sha} --win`
+You can find the `sha` variable for release in the first 7 characters of the commit hash for instance (c06ad11)8, or you
+can copy it from the generated file names.
 
-## Done!
+The `version` variable is the version, you want to release. You need to separately release each platform, without
+specific flag it's the tarballs, `--macos` is releasing mac version to the stable channel, `--win` is windows.
+
+```bash
+yarn promote --version={version} --sha={sha}
+yarn promote --version={version} --sha={sha} --macos
+yarn promote --version={version} --sha={sha} --win
+```
+## 5. Done!
