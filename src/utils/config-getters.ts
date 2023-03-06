@@ -8,28 +8,6 @@ const isLocal = function (): boolean {
 	return args && args.join(' ').includes('--local');
 };
 
-const environment = function (): string {
-	const args = process.argv.slice(2);
-
-	if (isLocal()) {
-		return 'local';
-	}
-
-	if (!args || !args.join(' ').includes('--env=')) { // No env argument
-		return 'client';
-	}
-
-	for (const key in args) {
-		if (args[key].indexOf('--env=') !== 0) {
-			continue;
-		}
-
-		return args[key].replace('--env=', ''); // --env=sunny/uat/...
-	}
-
-	return 'client'; // default
-};
-
 const getRoot = function (): string {
 	return config.get('root');
 };
@@ -122,5 +100,4 @@ export {
 	setIsInstalled,
 	isInstalled,
 	hasSynced,
-	environment,
 };

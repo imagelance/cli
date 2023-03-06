@@ -8,7 +8,7 @@ import * as Sentry from '@sentry/node';
 import chalk from 'chalk';
 
 import { CancelTokens } from './types/base-command';
-import { environment, isInstalled } from './utils/config-getters';
+import { isInstalled } from './utils/config-getters';
 import { performInstall } from './utils/perform-install';
 import { performRequest } from './utils/perform-request';
 import { reportError } from './utils/report-error';
@@ -19,13 +19,7 @@ export default abstract class BaseCommand extends Command {
 
 	static baseFlags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-		local: Flags.boolean({ char: 'a', description: 'Against local apis', required: false, default: false }),
-		env: Flags.string({
-			char: 'e',
-			description: 'Which environment to use for API calls',
-			required: false,
-			default: 'client',
-		}),
+		local: Flags.boolean({ char: 'a', description: 'Against local apis', required: false, default: false })
 	}
 
 	// region Hooks
@@ -58,11 +52,6 @@ export default abstract class BaseCommand extends Command {
 
 		// Register custom prompts for inquirer
 		inquirer.registerPrompt('search-list', inquirerSearchList);
-
-		// Log info
-		if (environment() !== 'client') {
-			console.log(chalk.blue(`Using ${chalk.blue.underline.bold(environment())} environment`));
-		}
 	}
 
 	async catch(error: any): Promise<void> {
