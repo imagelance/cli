@@ -2,10 +2,11 @@
 
 ## Bump version and regenerate `README.md`
 
-1. `yarn verion`
-2. bump version in yarn
-3. push new commit with tags
-4. `npm publish`
+1. `yarn build`
+2. `yarn version`
+3. bump version in yarn
+4. push new commit with tags
+5. `npm publish`
 
 ## Create release files and upload them to S3
 
@@ -27,6 +28,6 @@ is promoting mac version to the stable channel, `--win` is windows.
 
 1. `yarn promote --version={version} --sha={sha}`
 2. `yarn promote --version={version} --sha={sha} --macos`
-3. `yarn promote --version={version} --sha={sha} --win` 
+3. `yarn promote --version={version} --sha={sha} --win`
 
 ## Done!
