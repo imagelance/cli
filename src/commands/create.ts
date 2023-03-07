@@ -177,50 +177,8 @@ export class Create extends AuthenticatedCommand {
 			name,
 			description,
 			tags,
+			defaultBranch: 'master',
 		};
-
-		if (this.user.role === 'admin') {
-			let branches;
-
-			try {
-				const { data } = await this.performRequest({
-					url: devstackUrl('/sessions/me/branches'),
-					method: 'GET',
-					headers: {
-						'X-Brand': brand,
-					},
-				});
-
-				branches = data.branches.map(({ label, value }: any) => ({
-					name: label,
-					value,
-				}));
-
-				if (this.isDebugging) {
-					console.log(branches);
-				}
-			} catch (error: any) {
-				Sentry.captureException(error);
-
-				if (this.isDebugging) {
-					this.reportError(error);
-				}
-
-				return await this.exitHandler(1);
-			}
-
-			const defaultBranchAnswer = await inquirer.prompt([{
-				type: 'search-list',
-				name: 'defaultBranch',
-				message: 'Select default branch',
-				choices: branches,
-				default: branches[0].value,
-			}]);
-
-			const { defaultBranch } = defaultBranchAnswer;
-
-			payload.defaultBranch = defaultBranch;
-		}
 
 		console.log(chalk.blue(`Creating template in brand "${chalk.bold(brand)}"`));
 		console.log(chalk.blue(JSON.stringify(payload, null, 2)));
