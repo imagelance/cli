@@ -139,7 +139,7 @@ export class Dev extends AuthenticatedCommand {
 		const folders = glob.sync(`${root}/src/${visualPath}/[!_][0-9]*/index.html`);
 
 		if (folders.length === 0) {
-			console.log(chalk.red('🛑 No resize in template! Start by copying the contents of an existing template if it exists or copy a template from https://github.com/imagelance'));
+			console.log(chalk.red('🛑 No resize in template! Copy an existing template or get one from https://git.imagelance.com/templates'));
 			return this.exitHandler(1);
 		}
 

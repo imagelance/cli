@@ -276,7 +276,7 @@ export class Create extends AuthenticatedCommand {
 		if (!processedRepository) {
 			console.log(chalk.yellow('Processing repository is taking longer than usual'));
 			console.log(chalk.yellow('You will have to manually sync the template after it has been processed'));
-			console.log(chalk.yellow(`Please visit ${studioUrl('/visuals/sync')}, select template and download it using the "${getCommand('sync')}" command`));
+			console.log(chalk.yellow(`Please visit ${studioUrl('/visuals')}, select template and download it using the "${getCommand('sync')}" command`));
 			return await this.exitHandler();
 		}
 
