@@ -52,7 +52,7 @@ export default async function selectVisual() {
 
 	if (visuals.length === 0) {
 		console.error(chalk.red('No templates'));
-		throw new Error('No templates');
+		process.exit(1);
 	}
 
 	visuals.reverse();

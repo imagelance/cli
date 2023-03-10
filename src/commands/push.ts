@@ -50,12 +50,18 @@ export class Push extends AuthenticatedCommand {
 
 					const status = await git.status();
 
-					if (status.files.length === 0) {
+					if (debug) {
+						console.log(status);
+					}
+
+					const hasChangedFilesOrCommits = status.files.length > 0 || status.ahead > 0;
+
+					if (!hasChangedFilesOrCommits) {
 						continue;
 					}
 
 					changedVisuals.push({
-						name: `${visual} (Changed ${status.files.length} files)`,
+						name: `${visual} (Changed ${status.files.length} files, Local commits ${status.ahead})`,
 						value: visualPath,
 						checked: true,
 					});
@@ -67,6 +73,11 @@ export class Push extends AuthenticatedCommand {
 					}
 				}
 			}
+		}
+
+		if (changedVisuals.length < 1) {
+			console.log(chalk.red('No changes in any repository'));
+			await this.exitHandler(1);
 		}
 
 		const visualChoices = {
