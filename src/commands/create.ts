@@ -253,7 +253,13 @@ export class Create extends AuthenticatedCommand {
 						}
 
 						if (processedRepository) {
-							task.title = chalk.green(`Repository "${processedRepository.full_name}" processed`);
+							const synced = await this.toggleRepoSync(processedRepository, brand);
+
+							if (synced) {
+								task.title = chalk.green(`Repository "${processedRepository.full_name}" processed and synced`);
+							} else {
+								task.title = chalk.green(`Repository "${processedRepository.full_name}" processed, don't forget to sync it in ${studioUrl('/visuals')}`);
+							}
 
 							clearInterval(checkInterval);
 							resolve();
@@ -282,13 +288,17 @@ export class Create extends AuthenticatedCommand {
 
 		try {
 			await fs.promises.mkdir(`${root}/src`);
-		} catch {}
+		} catch {
+			// do nothing
+		}
 
 		const origin = processedRepository.clone_url;
 
 		try {
 			await fs.promises.mkdir(`${root}/src/${brand}`);
-		} catch {}
+		} catch {
+			// do nothing
+		}
 
 		const repoPath = `${root}/src/${processedRepository.full_name}`;
 		const git = simpleGit(getGitConfig());
@@ -330,9 +340,33 @@ export class Create extends AuthenticatedCommand {
 		console.log(chalk.green(`Development can be started with command "${getCommand('dev --newest')}"`));
 	}
 
+	async toggleRepoSync(repository: any, brand: string | null): Promise<boolean> {
+		if (!brand) {
+			throw new Error('Cannot sync repo without brand');
+		}
+
+		try {
+			const { data } = await this.performRequest({
+				url: devstackUrl(`/syncs/${brand}/${repository.name}/toggle`),
+				method: 'POST',
+				headers: {
+					'X-Brand': brand,
+				},
+			});
+
+			return data.synced;
+		} catch (error: any) {
+			if (this.isDebugging) {
+				this.reportError(error);
+			}
+
+			return false;
+		}
+	}
+
 	async fetchRepo(repository: any, brand: string | null): Promise<any> {
 		if (!brand) {
-			return null;
+			throw new Error('Cannot fetch repo without brand');
 		}
 
 		try {
