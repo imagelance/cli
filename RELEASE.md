@@ -10,7 +10,7 @@ npm install -g oclif
 ```bash
 yarn build
 yarn version
-git push origin master --tags
+git push origin main --tags
 npm publish
 ```
 
