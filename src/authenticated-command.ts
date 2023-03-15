@@ -28,8 +28,6 @@ export default abstract class AuthenticatedCommand extends BaseCommand {
 			setUser(this.user);
 		} catch {
 			await this.promptLogin(chalk.red(`Invalid user. You need to re-run "${this.config.bin} login". Do you wish to run this command now?`));
-
-			return this.exitHandler(1);
 		}
 	}
 
