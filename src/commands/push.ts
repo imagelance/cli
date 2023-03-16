@@ -129,9 +129,28 @@ export class Push extends AuthenticatedCommand {
 
 		await git.cwd(visualPath);
 
+		const status = await git.status();
+
+		if (!status.current) {
+			console.log(chalk.red(`Cannot read current branch from ${visualPath}`));
+			return;
+		}
+
 		await git.add('./*');
-		await git.commit('Changes');
-		await git.push('origin', 'master');
+
+		const commitMessageAnswer = await inquirer.prompt({
+			type: 'input',
+			name: 'commitMessage',
+			message: `Commit message`,
+			default: 'Changes',
+		});
+
+		const { commitMessage } = commitMessageAnswer;
+
+		await git.commit(commitMessage);
+
+		// always push currently checked out branch
+		await git.push('origin', status.current);
 
 		task.title = chalk.green(`Pushed "${visualPath}"`);
 	}
