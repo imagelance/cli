@@ -12,6 +12,7 @@ import chokidar from 'chokidar';
 import isHiddenFile from '@frigus/is-hidden-file';
 import * as Sentry from '@sentry/node';
 import { Flags } from '@oclif/core';
+import Table from 'cli-table';
 
 import AuthenticatedCommand from '../authenticated-command';
 import selectVisual from '../utils/select-visual';
@@ -110,18 +111,31 @@ export class Dev extends AuthenticatedCommand {
 			visualPath = await selectVisual();
 		}
 
-		console.log(`Preparing ${visualPath}`);
+		console.log(chalk.blue(`Preparing ${visualPath}`));
 		setConfig('lastDev', visualPath);
 
 		this.visualRoot = `${root}/src/${visualPath}`;
 
 		// ToDo: stash before pull/rebase and unstash or skip
-		/*const git = simpleGit(getGitConfig());
+		const git = simpleGit(getGitConfig());
 		git.cwd(this.visualRoot);
 
 		try {
-			await git.fetch();
-			await git.pull(['--rebase']);
+			const status = await git.status();
+
+			const table = new Table({
+				head: [
+					chalk.cyan('Current branch'),
+					chalk.cyan('Commits behind'),
+					chalk.cyan('Commits ahead'),
+					chalk.cyan('Uncommitted files')
+				],
+				rows: [
+					[`${status.current}`, `${status.behind}`, `${status.ahead}`, `${status.files.length}`]
+				],
+			});
+
+			console.log(table.toString());
 		} catch (error: any) {
 			Sentry.captureException(error);
 
@@ -129,9 +143,9 @@ export class Dev extends AuthenticatedCommand {
 				this.reportError(error);
 			}
 
-			console.log(chalk.red('Git pull failed, please pull manually'));
+			console.log(chalk.red('Detecting repository status failed'));
 			return this.exitHandler(1);
-		}*/
+		}
 
 		/**
 		 * VisualSizes
