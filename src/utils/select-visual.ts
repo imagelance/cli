@@ -9,9 +9,7 @@ export default async function selectVisual() {
 	const root: string = getRoot();
 
 	const brandFolders = await getDirectories(path.join(root, 'src'));
-	const brands = brandFolders.filter(folder => {
-		return folder[0] !== '.';
-	});
+	const brands = brandFolders.filter((folder) => folder[0] !== '.');
 
 	if (brands.length === 0) {
 		console.error(chalk.red('No brands'));
