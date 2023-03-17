@@ -134,6 +134,4 @@ export async function performLogin(flags: any): Promise<void> {
 	if (server) {
 		await server.close();
 	}
-
-	process.exit(0);
 }

@@ -8,5 +8,7 @@ export class Login extends BaseCommand {
 		const { flags } = await this.parse(Login);
 
 		await performLogin(flags);
+
+		await this.exitHandler();
 	}
 }
