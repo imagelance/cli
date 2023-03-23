@@ -297,30 +297,18 @@ export class Dev extends AuthenticatedCommand {
 		const tasks = new Listr([{
 			title: chalk.blue('Stopping bundler...'),
 			task: async (ctx, task): Promise<void> => {
-				if (this.shouldDestroyBundle) {
-					if (this.resize) {
-						const config = {
-							url: devstackUrl(`/resizes/${this.resize.id}`),
-							method: 'DELETE',
-							cancelToken: this.getCancelToken('resizeDestroy'),
-						};
+				if (this.shouldDestroyBundle && this.bundle) {
+					const config = {
+						url: devstackUrl(`/bundles/${this.bundle.id}`),
+						method: 'DELETE',
+						data: {
+							saveChanges: false,
+							commitMessage: 'CLI stopped',
+							targetBranch: this.bundle.branch,
+						},
+					};
 
-						await this.performRequest(config);
-					}
-
-					if (this.bundle) {
-						const config = {
-							url: devstackUrl(`/bundles/${this.bundle.id}`),
-							method: 'DELETE',
-							data: {
-								saveChanges: false,
-								commitMessage: 'CLI stopped',
-								targetBranch: this.bundle.branch,
-							},
-						};
-
-						await this.performRequest(config);
-					}
+					await this.performRequest(config);
 				}
 
 				if (this.localZipPath && fs.existsSync(this.localZipPath)) {
