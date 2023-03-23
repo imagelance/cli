@@ -1,6 +1,6 @@
 export interface Sync {
 	id: number;
-	authorId: number;
+	userId: number;
 	repo: string;
 	organization: string;
 	createdAt: string;
