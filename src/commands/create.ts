@@ -176,8 +176,7 @@ export class Create extends AuthenticatedCommand {
 			template,
 			name,
 			description,
-			tags,
-			defaultBranch: 'master',
+			tags
 		};
 
 		console.log(chalk.blue(`Creating template in brand "${chalk.bold(brand)}"`));
