@@ -253,13 +253,7 @@ export class Create extends AuthenticatedCommand {
 						}
 
 						if (processedRepository) {
-							const synced = await this.toggleRepoSync(processedRepository, brand);
-
-							if (synced) {
-								task.title = chalk.green(`Repository "${processedRepository.full_name}" processed and synced`);
-							} else {
-								task.title = chalk.green(`Repository "${processedRepository.full_name}" processed, don't forget to sync it in ${studioUrl('/visuals')}`);
-							}
+							task.title = chalk.green(`Repository "${processedRepository.full_name}" processed and synced`);
 
 							clearInterval(checkInterval);
 							resolve();
@@ -338,30 +332,6 @@ export class Create extends AuthenticatedCommand {
 		setConfig('newestVisual', processedRepository.full_name);
 
 		console.log(chalk.green(`Development can be started with command "${getCommand('dev --newest')}"`));
-	}
-
-	async toggleRepoSync(repository: any, brand: string | null): Promise<boolean> {
-		if (!brand) {
-			throw new Error('Cannot sync repo without brand');
-		}
-
-		try {
-			const { data } = await this.performRequest({
-				url: devstackUrl(`/syncs/${brand}/${repository.name}/toggle`),
-				method: 'POST',
-				headers: {
-					'X-Brand': brand,
-				},
-			});
-
-			return data.synced;
-		} catch (error: any) {
-			if (this.isDebugging) {
-				this.reportError(error);
-			}
-
-			return false;
-		}
 	}
 
 	async fetchRepo(repository: any, brand: string | null): Promise<any> {
