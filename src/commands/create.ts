@@ -210,7 +210,7 @@ export class Create extends AuthenticatedCommand {
 
 					repository = data.repo;
 
-					task.title = chalk.green('Template created');
+					task.title = chalk.green(`Template "${repository.full_name}" created and synced`);
 				},
 			}]);
 
@@ -225,58 +225,9 @@ export class Create extends AuthenticatedCommand {
 			return await this.exitHandler(1);
 		}
 
-		let processedRepository: any = null;
-
-		try {
-			const runner = new Listr([{
-				title: chalk.blue('Processing repository...'),
-				task: async (ctx, task) => await new Promise<void>(resolve => {
-					let checks = 0;
-
-					const checkInterval: ReturnType<typeof setInterval> = setInterval(async () => {
-						if (this.isDebugging) {
-							task.title = chalk.blue(`Processing repository... (${checks + 1}x)`);
-						}
-
-						if (checks > 60) { // 2 minutes, check every 2 seconds
-							clearInterval(checkInterval);
-							resolve();
-						}
-
-						checks++;
-
-						const repo = await this.fetchRepo(repository, brand);
-
-						if (repo.is_processed) {
-							processedRepository = repo;
-						}
-
-						if (processedRepository) {
-							task.title = chalk.green(`Repository "${processedRepository.full_name}" processed and synced`);
-
-							clearInterval(checkInterval);
-							resolve();
-						}
-					}, 2000);
-				}),
-			}]);
-
-			await runner.run();
-		} catch (error: any) {
-			Sentry.captureException(error);
-
-			if (this.isDebugging) {
-				this.reportError(error);
-			}
-
+		if (!repository) {
+			console.log(chalk.red('Something went wrong while trying to create template'));
 			return await this.exitHandler(1);
-		}
-
-		if (!processedRepository) {
-			console.log(chalk.yellow('Processing repository is taking longer than usual'));
-			console.log(chalk.yellow('You will have to manually sync the template after it has been processed'));
-			console.log(chalk.yellow(`Please visit ${studioUrl('/visuals')}, select template and download it using the "${getCommand('sync')}" command`));
-			return await this.exitHandler();
 		}
 
 		try {
@@ -285,7 +236,7 @@ export class Create extends AuthenticatedCommand {
 			// do nothing
 		}
 
-		const origin = processedRepository.clone_url;
+		const origin = repository.clone_url;
 
 		try {
 			await fs.promises.mkdir(`${root}/src/${brand}`);
@@ -293,7 +244,7 @@ export class Create extends AuthenticatedCommand {
 			// do nothing
 		}
 
-		const repoPath = `${root}/src/${processedRepository.full_name}`;
+		const repoPath = `${root}/src/${repository.full_name}`;
 		const git = simpleGit(getGitConfig());
 
 		try {
@@ -328,7 +279,7 @@ export class Create extends AuthenticatedCommand {
 			await git.addConfig('user.email', userEmail);
 		}
 
-		setConfig('newestVisual', processedRepository.full_name);
+		setConfig('newestVisual', repository.full_name);
 
 		console.log(chalk.green(`Development can be started with command "${getCommand('dev --newest')}"`));
 	}
