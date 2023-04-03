@@ -10,6 +10,12 @@ import AuthenticatedCommand from '../authenticated-command';
 import getDirectories from '../utils/get-directories';
 import { getGitConfig, getRoot } from '../utils/config-getters';
 
+interface PushConfig {
+	visualPath: string;
+	commitMessage: string;
+	repoName: string;
+}
+
 export class Push extends AuthenticatedCommand {
 	static description = 'Push all local templates'
 
@@ -91,10 +97,27 @@ export class Push extends AuthenticatedCommand {
 		const { selectedVisuals } = visualAnswers;
 
 		for (const visualPath of selectedVisuals) {
-			// ToDo: prompt commit message?
+			const splitVisualPath = visualPath.split('/');
+			const repoName = splitVisualPath[splitVisualPath.length - 1];
+
+			const commitMessageAnswer = await inquirer.prompt({
+				type: 'input',
+				name: 'commitMessage',
+				message: `Commit message ${chalk.cyan(repoName)}`,
+				default: 'Changes',
+			});
+
+			const { commitMessage } = commitMessageAnswer;
+
+			const config: PushConfig = {
+				visualPath,
+				commitMessage,
+				repoName,
+			};
+
 			tasks.push({
-				title: chalk.blue(`Pushing "${visualPath}"...`),
-				task: async (ctx: ListrContext, task: ListrTaskWrapper) => await this.push(visualPath, task),
+				title: chalk.blue(`Pushing "${repoName}"...`),
+				task: async (ctx: ListrContext, task: ListrTaskWrapper) => await this.push(config, task),
 			});
 		}
 
@@ -120,7 +143,8 @@ export class Push extends AuthenticatedCommand {
 		}
 	}
 
-	async push(visualPath: string, task: ListrTaskWrapper): Promise<void> {
+	async push(config: PushConfig, task: ListrTaskWrapper): Promise<void> {
+		const { visualPath, commitMessage, repoName } = config;
 		const git = simpleGit(getGitConfig());
 
 		if (!fs.existsSync(path.join(visualPath, '.git'))) {
@@ -132,26 +156,15 @@ export class Push extends AuthenticatedCommand {
 		const status = await git.status();
 
 		if (!status.current) {
-			console.log(chalk.red(`Cannot read current branch from ${visualPath}`));
+			console.log(chalk.red(`Cannot read current branch from ${repoName}`));
 			return;
 		}
 
 		await git.add('./*');
-
-		const commitMessageAnswer = await inquirer.prompt({
-			type: 'input',
-			name: 'commitMessage',
-			message: `Commit message`,
-			default: 'Changes',
-		});
-
-		const { commitMessage } = commitMessageAnswer;
-
 		await git.commit(commitMessage);
-
 		// always push currently checked out branch
 		await git.push('origin', status.current);
 
-		task.title = chalk.green(`Pushed "${visualPath}"`);
+		task.title = chalk.green(`Pushed "${repoName}"`);
 	}
 }
