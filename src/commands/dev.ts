@@ -549,6 +549,10 @@ export class Dev extends AuthenticatedCommand {
 					method: 'POST',
 					cancelToken: this.getCancelToken(this.localZipPath),
 					data: formData,
+					// 1 Gb
+					maxBodyLength: 1073741824,
+					// 1 Gb
+					maxContentLength: 1073741824,
 					headers: {
 						'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
 					},
