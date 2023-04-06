@@ -278,7 +278,7 @@ export class Dev extends AuthenticatedCommand {
 					throw new Error('Bundling resize unavailable');
 				}
 
-				const url = studioUrl(`/visuals/local/${orgName}/${repoName}/${selectedFolder}`);
+				const url = studioUrl(`/${orgName}/visuals/local/${repoName}/${selectedFolder}`);
 
 				await open(url);
 
