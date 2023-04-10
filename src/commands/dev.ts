@@ -203,7 +203,7 @@ export class Dev extends AuthenticatedCommand {
 			});
 
 			if (resumingBundleChoice.answer === 'No') {
-				console.log(chalk.blue(`You can continue editing your template in studio here ${studioUrl(`/visuals/${orgName}/${repository.name}`)}`));
+				console.log(chalk.blue(`You can continue editing your template in studio here ${studioUrl(`/${orgName}/visuals/${repository.name}`)}`));
 				return this.exitHandler();
 			}
 		} else {
