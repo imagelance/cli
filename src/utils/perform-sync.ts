@@ -81,7 +81,7 @@ export async function performSync(flags: any): Promise<void> {
 			method: 'GET',
 			params: {
 				organizations: selectedBrands,
-			}
+			},
 		});
 
 		syncs = data as Sync[];
@@ -166,9 +166,7 @@ export async function performSync(flags: any): Promise<void> {
 		 * Clone and fetch synced repos
 		 */
 
-		for (const i in repoNames) {
-			const repoName: any = repoNames[i];
-
+		for (const repoName of repoNames) {
 			if (!repoName) {
 				continue;
 			}
@@ -248,6 +246,7 @@ export async function performSync(flags: any): Promise<void> {
 				try {
 					localConfigValues = JSON.parse(JSON.stringify(config.values['.git/config']));
 				} catch {
+					// do nothing
 				}
 
 				if (localConfigValues) {
@@ -315,7 +314,7 @@ export async function performSync(flags: any): Promise<void> {
 
 	console.log(chalk.green(`Successfully synchronized ${totalSyncedCount} templates`));
 
-	console.log(chalk.blue(`You can change which templates to synchronize at: ${studioUrl('/visuals')}`));
+	console.log(chalk.blue(`You can change which templates to synchronize at: ${studioUrl()}`));
 
 	const now = new Date();
 	setConfig('lastSync', now.toISOString());
