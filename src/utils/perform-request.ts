@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
+import chalk from 'chalk';
 
 import { getAccessToken, getCommand } from './config-getters';
 
@@ -35,6 +36,15 @@ export async function performRequest(config: AxiosRequestConfig, appendAuthoriza
 	} catch (error: any) {
 		if (error.name === 'CancelledError') {
 			return;
+		}
+
+		const { response } = error;
+
+		if (response && response.data && response.data.type === 'ERR_CLI_VERSION_NOT_ALLOWED') {
+			const { minimalCliVersion } = response.data.data;
+
+			console.error(chalk.red(`Cannot connect to devstack. Required CLI version is ${minimalCliVersion}, installed CLI version is ${pkg.version}. Please run "${chalk.bold.underline(`${pkg.oclif.bin} update`)}" command`));
+			process.exit(1);
 		}
 
 		// waterfall error

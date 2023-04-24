@@ -113,7 +113,6 @@ export default abstract class BaseCommand extends Command {
 		}
 	}
 
-
 	private async wasInstallCommandCalled(): Promise<void> {
 		if (this.id === 'install' || isInstalled()) {
 			return;
