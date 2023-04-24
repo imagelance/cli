@@ -1,10 +1,10 @@
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import axios from 'axios';
 import * as Sentry from '@sentry/node';
 
 import devstackUrl from './devstack-url';
 import { ValidatorEntry } from '../types/validation';
+import { performRequest } from './perform-request';
 
 export default async function checkSchema(schemaPath: string, state: any): Promise<boolean> {
 	if (!fs.existsSync(schemaPath)) {
@@ -20,8 +20,12 @@ export default async function checkSchema(schemaPath: string, state: any): Promi
 	}
 
 	try {
-		const { data } = await axios.post(devstackUrl('public/bundle-validator/schema'), {
-			schema: schemaContents,
+		const { data } = await performRequest({
+			url: devstackUrl('public/bundle-validator/schema'),
+			method: 'POST',
+			data: {
+				schema: schemaContents,
+			},
 		});
 
 		state.schema = data;

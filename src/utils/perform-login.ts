@@ -1,5 +1,4 @@
 import express from 'express';
-import axios from 'axios';
 import path from 'node:path';
 import chalk from 'chalk';
 import randomstring from 'randomstring';
@@ -34,12 +33,16 @@ export async function performLogin(flags: any): Promise<void> {
 		}
 
 		try {
-			const { data } = await axios.post(accountsUrl('oauth/token', false), {
-				grant_type: 'authorization_code',
-				code,
-				redirect_uri: redirectUri,
-				client_id: oauthClientId,
-				client_secret: oauthClientSecret,
+			const { data } = await performRequest({
+				url: accountsUrl('/oauth/token', false),
+				method: 'POST',
+				data: {
+					grant_type: 'authorization_code',
+					code,
+					redirect_uri: redirectUri,
+					client_id: oauthClientId,
+					client_secret: oauthClientSecret,
+				},
 			});
 
 			token = data;

@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import axios from 'axios';
 import * as Sentry from '@sentry/node';
 
 import devstackUrl from './devstack-url';
+import { performRequest } from './perform-request';
 import { ValidatorEntry } from '../types/validation';
 
 export default async function checkConfig(configPath: string, outputCategory: string | null = null): Promise<boolean> {
@@ -20,10 +20,14 @@ export default async function checkConfig(configPath: string, outputCategory: st
 	}
 
 	try {
-		const { data } = await axios.post(devstackUrl('public/bundle-validator/config'), {
-			config: configContents,
-			outputCategory,
-		});
+		const { data } = await performRequest({
+			url: devstackUrl('public/bundle-validator/config'),
+			method: 'POST',
+			data: {
+				config: configContents,
+				outputCategory,
+			},
+		}, false);
 
 		const { isValid, log } = data;
 
