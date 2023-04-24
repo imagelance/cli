@@ -12,7 +12,7 @@ export async function performRequest(config: AxiosRequestConfig, appendAuthoriza
 	const headers: AxiosRequestHeaders = {
 		Accept: 'application/json',
 		'X-Cli': pkg.name,
-		'X-Cli-Version': pkg.version
+		'X-Cli-Version': pkg.version,
 	};
 
 	if (appendAuthorization) {
@@ -31,7 +31,7 @@ export async function performRequest(config: AxiosRequestConfig, appendAuthoriza
 	};
 
 	try {
-		return await axios.request(config);
+		return await axios.create().request(config);
 	} catch (error: any) {
 		if (error.name === 'CancelledError') {
 			return;

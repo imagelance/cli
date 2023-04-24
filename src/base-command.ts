@@ -100,7 +100,7 @@ export default abstract class BaseCommand extends Command {
 	async isDevstackHealthy(): Promise<void> {
 		try {
 			const config = {
-				url: devstackUrl(`/public/health/ping`),
+				url: devstackUrl('/public/health/ping'),
 				method: 'GET',
 				cancelToken: this.getCancelToken('isDevstackHealthy'),
 			};
