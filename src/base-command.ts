@@ -25,10 +25,13 @@ export default abstract class BaseCommand extends Command {
 	// region Hooks
 
 	async init(): Promise<void> {
+		const { flags } = await this.parse(BaseCommand);
+		const { debug } = flags;
+
 		// Validate whether install command was called
 		await this.wasInstallCommandCalled();
 		// Check whether devstack is available
-		await this.isDevstackHealthy();
+		await this.isDevstackHealthy(debug);
 
 		// Bind exit handler
 		process.on('exit', this.exitHandler.bind(this));
@@ -97,7 +100,7 @@ export default abstract class BaseCommand extends Command {
 	// endregion
 
 	// region Utilities
-	async isDevstackHealthy(): Promise<void> {
+	async isDevstackHealthy(debug: boolean): Promise<void> {
 		try {
 			const config = {
 				url: devstackUrl('/public/health/ping'),
@@ -109,6 +112,11 @@ export default abstract class BaseCommand extends Command {
 		} catch (error: any) {
 			Sentry.captureException(error);
 			console.error(chalk.red('Devstack unavailable. Please try again later.'));
+
+			if (debug) {
+				console.error(error);
+			}
+
 			await this.exitHandler(1);
 		}
 	}
