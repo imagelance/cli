@@ -18,7 +18,7 @@ import AuthenticatedCommand from '../authenticated-command';
 import selectVisual from '../utils/select-visual';
 import devstackUrl from '../utils/devstack-url';
 import studioUrl from '../utils/studio-url';
-import { getRoot, getLastDev, getConfig, setConfig, hasSynced, getGitConfig } from '../utils/config-getters';
+import { getConfig, getGitConfig, getLastDev, getRoot, hasSynced, setConfig } from '../utils/config-getters';
 import { Endpoint, Endpoints } from '../types/dev';
 import { performSync } from '../utils/perform-sync';
 
@@ -128,7 +128,7 @@ export class Dev extends AuthenticatedCommand {
 					chalk.cyan('Current branch'),
 					chalk.cyan('Commits behind'),
 					chalk.cyan('Commits ahead'),
-					chalk.cyan('Uncommitted files')
+					chalk.cyan('Uncommitted changes'),
 				],
 				rows: [
 					[`${status.current}`, `${status.behind}`, `${status.ahead}`, `${status.files.length}`]
@@ -478,6 +478,8 @@ export class Dev extends AuthenticatedCommand {
 					// unnecessary fire file change events, after ingest, we need to
 					// manually start the watcher again
 					startFileWatcher: false,
+					// clone repo without checking out files
+					noCheckout: true,
 				},
 				headers: {
 					'X-Brand': orgName,
@@ -518,7 +520,25 @@ export class Dev extends AuthenticatedCommand {
 		}
 	}
 
+	deleteHangingZipFiles(gitRepoName: string): void {
+		if (!this.visualRoot) {
+			return;
+		}
+
+		const zips = glob.sync(`${gitRepoName}-*.zip`, { cwd: this.visualRoot });
+
+		if (zips.length === 0) {
+			return;
+		}
+
+		for (const relativeZipPath of zips) {
+			fs.removeSync(`${this.visualRoot}${path.sep}${relativeZipPath}`);
+		}
+	}
+
 	async syncLocalFilesToDevstack(gitRepoName: string): Promise<boolean> {
+		this.deleteHangingZipFiles(gitRepoName);
+
 		const tasks = new Listr([{
 			title: chalk.blue('Syncing local files to devstack...'),
 			task: async (ctx, task) => {
@@ -549,10 +569,10 @@ export class Dev extends AuthenticatedCommand {
 					method: 'POST',
 					cancelToken: this.getCancelToken(this.localZipPath),
 					data: formData,
-					// 1 Gb
-					maxBodyLength: 1073741824,
-					// 1 Gb
-					maxContentLength: 1073741824,
+					// 10 * 1 Gb
+					maxBodyLength: 10 * 1_073_741_824,
+					// 10 * 1 Gb
+					maxContentLength: 10 * 1_073_741_824,
 					headers: {
 						'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
 					},
@@ -622,7 +642,7 @@ export class Dev extends AuthenticatedCommand {
 		// normalize that, since we use unix separators across the board
 		const normalizedPath = filePath.replace(replace, '\/');
 
-		//console.log('VISUAL ROOT: ', this.visualRoot, '\nFILE PATH:', filePath, '\nNORMALIZED PATH:', normalizedPath);
+		// console.log('VISUAL ROOT: ', this.visualRoot, '\nFILE PATH:', filePath, '\nNORMALIZED PATH:', normalizedPath);
 
 		return normalizedPath.replace(`${this.visualRoot}`, '');
 	}
