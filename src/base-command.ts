@@ -108,7 +108,7 @@ export default abstract class BaseCommand extends Command {
 				cancelToken: this.getCancelToken('isDevstackHealthy'),
 			};
 
-			await this.performRequest(config);
+			await this.performRequest(config, false);
 		} catch (error: any) {
 			Sentry.captureException(error);
 			console.error(chalk.red('Devstack unavailable. Please try again later.'));

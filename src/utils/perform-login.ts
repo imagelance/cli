@@ -43,7 +43,7 @@ export async function performLogin(flags: any): Promise<void> {
 					client_id: oauthClientId,
 					client_secret: oauthClientSecret,
 				},
-			});
+			}, false);
 
 			token = data;
 		} catch (error: any) {

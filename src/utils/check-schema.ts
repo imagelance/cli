@@ -26,7 +26,7 @@ export default async function checkSchema(schemaPath: string, state: any): Promi
 			data: {
 				schema: schemaContents,
 			},
-		});
+		}, false);
 
 		state.schema = data;
 
