@@ -229,10 +229,10 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@frigus/is-hidden-file@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@frigus/is-hidden-file/-/is-hidden-file-1.0.2.tgz#e089f1be3d97886f8f3d09635edba1e3e9da61b0"
-  integrity sha512-voXAo5P5qitTG+E1BSaE4DqUSa+wXyMmq50g5tm2SMt2CRcKV2/6YHmn0BurVqHXJkWW0Jyb72K6889f3yA5Mg==
+"@frigus/is-hidden-file@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@frigus/is-hidden-file/-/is-hidden-file-1.1.0.tgz#462b62f90a7a3402c7a395029b79e8ad8eaded85"
+  integrity sha512-ZMpu061IuUJuMK6KCuLyNOugktulV1Bi6rn+v9ROx806hwQxws0k1/JzEBjbce4UGjrTm18ls4kglCLuXOFzzw==
   dependencies:
     path "^0.12.7"
 
