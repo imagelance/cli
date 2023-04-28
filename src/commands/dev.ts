@@ -584,12 +584,10 @@ export class Dev extends AuthenticatedCommand {
 
 						const percent = Math.floor((loaded * 100) / total);
 
-						if(percent < 100) {
-							task.title = chalk.blue(`Uploading local files to devstack ${percent}%...`)
-						} else {
-							task.title = chalk.blue(`Processing uploaded file...`)
-						}
-					}
+						task.title = percent < 100
+							? chalk.blue(`Uploading local files to devstack ${percent}%...`)
+							: chalk.blue('Processing uploaded file...');
+					},
 				};
 
 				await this.performRequest(config);
