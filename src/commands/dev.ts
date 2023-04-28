@@ -13,6 +13,7 @@ import isHiddenFile from '@frigus/is-hidden-file';
 import * as Sentry from '@sentry/node';
 import { Flags } from '@oclif/core';
 import Table from 'cli-table';
+import { AxiosProgressEvent } from 'axios';
 
 import AuthenticatedCommand from '../authenticated-command';
 import selectVisual from '../utils/select-visual';
@@ -540,7 +541,7 @@ export class Dev extends AuthenticatedCommand {
 		this.deleteHangingZipFiles(gitRepoName);
 
 		const tasks = new Listr([{
-			title: chalk.blue('Syncing local files to devstack...'),
+			title: chalk.blue('Uploading local files to devstack 0%...'),
 			task: async (ctx, task) => {
 				const zip = new AdmZip();
 
@@ -576,13 +577,26 @@ export class Dev extends AuthenticatedCommand {
 					headers: {
 						'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
 					},
+					onUploadProgress({ loaded, total }: AxiosProgressEvent) {
+						if (!total) {
+							return;
+						}
+
+						const percent = Math.floor((loaded * 100) / total);
+
+						if(percent < 100) {
+							task.title = chalk.blue(`Uploading local files to devstack ${percent}%...`)
+						} else {
+							task.title = chalk.blue(`Processing uploaded file...`)
+						}
+					}
 				};
 
 				await this.performRequest(config);
 
 				await fs.unlink(this.localZipPath);
 
-				task.title = chalk.green('Synced local files to devstack');
+				task.title = chalk.green('Uploaded local files to devstack');
 			},
 		}]);
 
