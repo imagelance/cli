@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import chalk from 'chalk';
 
 import { getAccessToken, getCommand } from './config-getters';
@@ -10,7 +10,7 @@ export async function performRequest(config: AxiosRequestConfig, appendAuthoriza
 		config.method = 'GET';
 	}
 
-	const headers: AxiosRequestHeaders = {
+	const headers: { [key: string]: string } = {
 		Accept: 'application/json',
 		'X-Cli': pkg.name,
 		'X-Cli-Version': pkg.version,
