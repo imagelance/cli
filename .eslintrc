@@ -5,6 +5,10 @@
 		"unicorn/no-process-exit": "off",
 		"no-async-promise-executor": "off",
 		"no-await-in-loop": "off",
+		"operator-linebreak": [
+			"error",
+			"before"
+		],
 		"arrow-parens": [
 			"error",
 			"always"
