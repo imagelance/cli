@@ -101,10 +101,14 @@ export async function performSync(flags: any): Promise<void> {
 		},
 	}));
 
-	fs.writeFileSync(`${root}/.gitignore`, '*.url');
+	const gitIgnorePath = path.join(root, '.gitignore');
+
+	if (!fs.existsSync(gitIgnorePath)) {
+		fs.writeFileSync(gitIgnorePath, '*.url');
+	}
 
 	try {
-		await fs.promises.mkdir(`${root}/src`);
+		await fs.promises.mkdir(path.join(root, 'src'));
 	} catch {
 		// do nothing
 	}
@@ -116,7 +120,7 @@ export async function performSync(flags: any): Promise<void> {
 	 */
 
 	for (const brand of selectedBrands) {
-		const brandPath = `${root}/src/${brand}`;
+		const brandPath = path.join(root, 'src', brand);
 
 		try {
 			const stats = fs.lstatSync(brandPath);
@@ -177,7 +181,7 @@ export async function performSync(flags: any): Promise<void> {
 				console.log(chalk.cyan(`Syncing template: ${brand}/${repoName}`));
 			}
 
-			const repoPath = `${root}/src/${brand}/${repoName}`;
+			const repoPath = path.join(root, 'src', brand, repoName);
 
 			try {
 				const stats = fs.lstatSync(repoPath);
