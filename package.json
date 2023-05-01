@@ -18,7 +18,7 @@
 	],
 	"dependencies": {
 		"@frigus/is-hidden-file": "^1.1.1",
-		"@oclif/core": "^2.8.1",
+		"@oclif/core": "^2.8.2",
 		"@oclif/plugin-autocomplete": "^2.1.9",
 		"@oclif/plugin-help": "^5.2.9",
 		"@oclif/plugin-not-found": "^2.3.23",
