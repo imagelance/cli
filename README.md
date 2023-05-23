@@ -79,7 +79,7 @@ $ npm install -g imagelance-cli
 $ lance COMMAND
 running command...
 $ lance (--version)
-imagelance-cli/2.4.5 darwin-arm64 node-v16.19.0
+imagelance-cli/2.4.6 darwin-arm64 node-v16.19.0
 $ lance --help [COMMAND]
 USAGE
   $ lance COMMAND
@@ -113,7 +113,7 @@ USAGE
   $ lance autocomplete [SHELL] [-r]
 
 ARGUMENTS
-  SHELL  shell type
+  SHELL  (zsh|bash|powershell) Shell type
 
 FLAGS
   -r, --refresh-cache  Refresh cache (ignores displaying instructions)
@@ -128,10 +128,12 @@ EXAMPLES
 
   $ lance autocomplete zsh
 
+  $ lance autocomplete powershell
+
   $ lance autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.1.9/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.2.0/src/commands/autocomplete/index.ts)_
 
 ## `lance clone REPONAME`
 
@@ -139,17 +141,16 @@ Clone existing template
 
 ```
 USAGE
-  $ lance clone REPONAME [-d] [-a]
+  $ lance clone REPONAME [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Clone existing template
 ```
 
-_See code: [dist/commands/clone.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/clone.ts)_
+_See code: [dist/commands/clone.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/clone.ts)_
 
 ## `lance convert-pdf`
 
@@ -157,17 +158,16 @@ Convert pdf to jpg
 
 ```
 USAGE
-  $ lance convert-pdf [-d] [-a]
+  $ lance convert-pdf [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Convert pdf to jpg
 ```
 
-_See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/convert-pdf.ts)_
+_See code: [dist/commands/convert-pdf.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/convert-pdf.ts)_
 
 ## `lance create`
 
@@ -175,17 +175,16 @@ Creates new template
 
 ```
 USAGE
-  $ lance create [-d] [-a]
+  $ lance create [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Creates new template
 ```
 
-_See code: [dist/commands/create.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/create.ts)_
+_See code: [dist/commands/create.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/create.ts)_
 
 ## `lance dev`
 
@@ -193,10 +192,9 @@ Run development server to create templates
 
 ```
 USAGE
-  $ lance dev [-d] [-a] [-n] [-l]
+  $ lance dev [-d] [-n] [-l]
 
 FLAGS
-  -a, --local   Against local apis
   -d, --debug   Debug mode
   -l, --latest  Start dev with latest edited template
   -n, --newest  Start dev with newly created template
@@ -205,7 +203,7 @@ DESCRIPTION
   Run development server to create templates
 ```
 
-_See code: [dist/commands/dev.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/dev.ts)_
+_See code: [dist/commands/dev.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/dev.ts)_
 
 ## `lance fetch`
 
@@ -213,17 +211,16 @@ Fetch all local templates
 
 ```
 USAGE
-  $ lance fetch [-d] [-a]
+  $ lance fetch [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Fetch all local templates
 ```
 
-_See code: [dist/commands/fetch.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/fetch.ts)_
+_See code: [dist/commands/fetch.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/fetch.ts)_
 
 ## `lance help [COMMANDS]`
 
@@ -251,17 +248,16 @@ Set home directory for templates and prepare dev environment
 
 ```
 USAGE
-  $ lance install [-d] [-a]
+  $ lance install [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Set home directory for templates and prepare dev environment
 ```
 
-_See code: [dist/commands/install.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/install.ts)_
+_See code: [dist/commands/install.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/install.ts)_
 
 ## `lance login`
 
@@ -269,17 +265,16 @@ Authorize CLI against web application
 
 ```
 USAGE
-  $ lance login [-d] [-a]
+  $ lance login [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Authorize CLI against web application
 ```
 
-_See code: [dist/commands/login.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/login.ts)_
+_See code: [dist/commands/login.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/login.ts)_
 
 ## `lance pull`
 
@@ -287,17 +282,16 @@ Pull all local templates
 
 ```
 USAGE
-  $ lance pull [-d] [-a]
+  $ lance pull [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Pull all local templates
 ```
 
-_See code: [dist/commands/pull.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/pull.ts)_
+_See code: [dist/commands/pull.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/pull.ts)_
 
 ## `lance push`
 
@@ -305,17 +299,16 @@ Push all local templates
 
 ```
 USAGE
-  $ lance push [-d] [-a]
+  $ lance push [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Push all local templates
 ```
 
-_See code: [dist/commands/push.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/push.ts)_
+_See code: [dist/commands/push.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/push.ts)_
 
 ## `lance status`
 
@@ -323,17 +316,16 @@ Git status of all local templates
 
 ```
 USAGE
-  $ lance status [-d] [-a]
+  $ lance status [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Git status of all local templates
 ```
 
-_See code: [dist/commands/status.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/status.ts)_
+_See code: [dist/commands/status.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/status.ts)_
 
 ## `lance sync`
 
@@ -341,10 +333,9 @@ Download all synced templates
 
 ```
 USAGE
-  $ lance sync [-d] [-a] [-s]
+  $ lance sync [-d] [-s]
 
 FLAGS
-  -a, --local    Against local apis
   -d, --debug    Debug mode
   -s, --shallow  Perform shallow fetch
 
@@ -352,7 +343,7 @@ DESCRIPTION
   Download all synced templates
 ```
 
-_See code: [dist/commands/sync.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/sync.ts)_
+_See code: [dist/commands/sync.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/sync.ts)_
 
 ## `lance update [CHANNEL]`
 
@@ -389,7 +380,7 @@ EXAMPLES
     $ lance update --available
 ```
 
-_See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v3.1.13/src/commands/update.ts)_
+_See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v3.1.15/src/commands/update.ts)_
 
 ## `lance validate`
 
@@ -397,15 +388,14 @@ Validate the config and schema of all local templates
 
 ```
 USAGE
-  $ lance validate [-d] [-a]
+  $ lance validate [-d]
 
 FLAGS
-  -a, --local  Against local apis
   -d, --debug  Debug mode
 
 DESCRIPTION
   Validate the config and schema of all local templates
 ```
 
-_See code: [dist/commands/validate.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.5/dist/commands/validate.ts)_
+_See code: [dist/commands/validate.ts](https://github.com/imagelance/imagelance-cli/blob/v2.4.6/dist/commands/validate.ts)_
 <!-- commandsstop -->
