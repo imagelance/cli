@@ -19,7 +19,7 @@ export default abstract class BaseCommand extends Command {
 
 	static baseFlags = {
 		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-		local: Flags.boolean({ char: 'a', description: 'Against local apis', required: false, default: false })
+		local: Flags.boolean({ char: 'a', description: 'Against local apis', hidden: true, required: false, default: false })
 	}
 
 	// region Hooks
