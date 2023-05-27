@@ -677,15 +677,6 @@ export class Dev extends AuthenticatedCommand {
 	}
 
 	async onAdd(filepath: string): Promise<void> {
-		if (!this.visualRoot) {
-			return;
-		}
-
-		if (!filepath.includes(this.visualRoot)) {
-			console.log('Wrong file change detected');
-			return;
-		}
-
 		const relativePath = this.getRelativePath(filepath);
 
 		const tasks = new Listr([{
