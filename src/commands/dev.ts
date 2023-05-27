@@ -63,6 +63,9 @@ export class Dev extends AuthenticatedCommand {
 		persistent: true,
 		// don't fire add/addDir on init
 		ignoreInitial: true,
+		// automatically filters out artifacts that occur when using editors
+		// that use "atomic writes" instead of writing directly to the source file
+		atomic: true,
 		// don't fire add/addDir unless file write is finished
 		awaitWriteFinish: {
 			// after last write, wait for 1s to compare outcome with source to ensure add/change are properly fired
@@ -76,7 +79,7 @@ export class Dev extends AuthenticatedCommand {
 
 	private bundle: any = null
 
-	private resize: any = null
+	private bundler: any = null
 
 	private localZipPath: string | null = null
 
@@ -132,7 +135,7 @@ export class Dev extends AuthenticatedCommand {
 					chalk.cyan('Uncommitted changes'),
 				],
 				rows: [
-					[`${status.current}`, `${status.behind}`, `${status.ahead}`, `${status.files.length}`]
+					[`${status.current}`, `${status.behind}`, `${status.ahead}`, `${status.files.length}`],
 				],
 			});
 
@@ -158,21 +161,6 @@ export class Dev extends AuthenticatedCommand {
 			return this.exitHandler(1);
 		}
 
-		// Select resizes
-		// ToDo: allow running multiple bundlers
-		const folderChoices = {
-			type: 'list',
-			name: 'selectedFolder',
-			message: 'Select resize',
-			choices: folders.map((folder: string) => {
-				return folder.toString()
-					.replace(`${this.visualRoot}/`, '')
-					.replace('/index.html', '');
-			}),
-		};
-
-		const folderAnswers = await inquirer.prompt([folderChoices]);
-		const { selectedFolder } = folderAnswers;
 		const [orgName, repoName] = visualPath.split('/');
 
 		const repository = await this.getRepository(orgName, repoName);
@@ -271,15 +259,15 @@ export class Dev extends AuthenticatedCommand {
 
 		// run preview
 		const tasks = new Listr([{
-			title: chalk.blue(`Running bundler for resize ${selectedFolder}...`),
+			title: chalk.blue('Running bundler...'),
 			task: async (ctx, task) => {
-				this.resize = await this.previewResize(orgName, this.bundle.id, selectedFolder);
+				this.bundler = await this.startBundler(orgName, this.bundle.id);
 
-				if (!this.resize) {
+				if (!this.bundler) {
 					throw new Error('Bundling resize unavailable');
 				}
 
-				const url = studioUrl(`/${orgName}/visuals/local/${repoName}/${selectedFolder}`);
+				const url = studioUrl(`/${orgName}/visuals/local/${repoName}`);
 
 				await open(url);
 
@@ -601,15 +589,11 @@ export class Dev extends AuthenticatedCommand {
 		return this.runTasks(tasks);
 	}
 
-	async previewResize(orgName: string, bundleId: number, label: string): Promise<any> {
+	async startBundler(orgName: string, bundleId: number): Promise<any> {
 		try {
 			const config = {
-				url: devstackUrl('resizes'),
+				url: devstackUrl(`/bundlers/${bundleId}`),
 				method: 'post',
-				data: {
-					bundleId,
-					label,
-				},
 				headers: {
 					'X-Brand': orgName,
 				},
@@ -693,7 +677,17 @@ export class Dev extends AuthenticatedCommand {
 	}
 
 	async onAdd(filepath: string): Promise<void> {
+		if (!this.visualRoot) {
+			return;
+		}
+
+		if (!filepath.includes(this.visualRoot)) {
+			console.log('Wrong file change detected');
+			return;
+		}
+
 		const relativePath = this.getRelativePath(filepath);
+
 		const tasks = new Listr([{
 			title: chalk.blue(`Storing file "${relativePath}"...`),
 			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
