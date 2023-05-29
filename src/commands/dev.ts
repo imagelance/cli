@@ -120,7 +120,6 @@ export class Dev extends AuthenticatedCommand {
 
 		this.visualRoot = `${root}/src/${visualPath}`;
 
-		// ToDo: stash before pull/rebase and unstash or skip
 		const git = simpleGit(getGitConfig());
 		git.cwd(this.visualRoot);
 
@@ -313,7 +312,7 @@ export class Dev extends AuthenticatedCommand {
 		process.exit(code);
 	}
 
-	async getLastVisual() {
+	async getLastVisual(): Promise<string | null> {
 		const root = getRoot();
 		const lastDev = getLastDev();
 
@@ -337,7 +336,7 @@ export class Dev extends AuthenticatedCommand {
 		return lastDev;
 	}
 
-	async detectLastVisual() {
+	async detectLastVisual(): Promise<string | null> {
 		const root = getRoot();
 		const lastDev = getLastDev();
 
