@@ -19,10 +19,10 @@
 	"dependencies": {
 		"@frigus/is-hidden-file": "^1.1.1",
 		"@oclif/core": "^2.8.5",
-		"@oclif/plugin-autocomplete": "^2.2.0",
+		"@oclif/plugin-autocomplete": "^2.3.0",
 		"@oclif/plugin-help": "^5.2.9",
-		"@oclif/plugin-not-found": "^2.3.23",
-		"@oclif/plugin-update": "^3.1.15",
+		"@oclif/plugin-not-found": "^2.3.24",
+		"@oclif/plugin-update": "^3.1.16",
 		"@oclif/plugin-warn-if-update-available": "^2.0.37",
 		"@sentry/node": "^6.19.7",
 		"adm-zip": "^0.5.10",
@@ -50,7 +50,7 @@
 		"which": "^2.0.2"
 	},
 	"devDependencies": {
-		"@oclif/test": "^2.3.21",
+		"@oclif/test": "^2.3.22",
 		"@types/adm-zip": "^0.5.0",
 		"@types/chai": "^4.3.5",
 		"@types/cli-table": "^0.3.0",
