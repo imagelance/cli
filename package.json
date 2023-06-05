@@ -1,6 +1,6 @@
 {
 	"name": "imagelance-cli",
-	"version": "2.5.1",
+	"version": "2.5.2",
 	"description": "Development stack for imagelance templates",
 	"author": "Patrik Janosdeak @truesteps",
 	"bin": {
