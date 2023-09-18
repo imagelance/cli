@@ -3113,7 +3113,7 @@ fs-constants@^1.0.0:
   resolved "https://registry.yarnpkg.com/fs-constants/-/fs-constants-1.0.0.tgz#6be0de9be998ce16af8afc24497b9ee9b7ccd9ad"
   integrity sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==
 
-fs-extra@^10.1.0:
+fs-extra@^10.0.0, fs-extra@^10.1.0:
   version "10.1.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.1.0.tgz#02873cfbc4084dde127eaa5f9905eef2325d1abf"
   integrity sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==
@@ -5283,12 +5283,12 @@ pathval@^1.1.1:
   resolved "https://registry.yarnpkg.com/pathval/-/pathval-1.1.1.tgz#8534e77a77ce7ac5a2512ea21e0fdb8fcf6c3d8d"
   integrity sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==
 
-pdf2pic@^2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/pdf2pic/-/pdf2pic-2.1.4.tgz#5c6cbd7809a60b11f6504eb85c386aa2012b1dcf"
-  integrity sha512-8QOCvxZlYs7wsmBQbqpIApSWD/eqgXMQU+4VM0vWrXifLgXS+Ns3484sUa1Q7ddr+gwnruq/xKHzu7x1scqX6w==
+pdf2pic@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/pdf2pic/-/pdf2pic-2.2.1.tgz#e1eafd819ae606011b6e37ab52bd40cb7a8ec2ea"
+  integrity sha512-x4ieCjs6iXYMRmKvvcKq3QywXX2xaB/eniiAhAhJLqmxBmlLW0nBR6mQtkofv4GUkpTpXZwKkuK4lWB8IE1lgA==
   dependencies:
-    fs-extra "^9.1.0"
+    fs-extra "^10.0.0"
     gm "^1.23.1"
 
 picocolors@^1.0.0:
