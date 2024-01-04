@@ -1,4 +1,3 @@
-
 import { Command, Flags } from '@oclif/core';
 import * as Sentry from '@sentry/node';
 import axios, { AxiosRequestConfig, CancelToken } from 'axios';
@@ -17,7 +16,13 @@ import { reportError } from './utils/report-error';
 export default abstract class BaseCommand extends Command {
 	static baseFlags = {
 		debug: Flags.boolean({ char: 'd', default: false, description: 'Debug mode', required: false }),
-		local: Flags.boolean({ char: 'a', default: false, description: 'Against local apis', hidden: true, required: false }),
+		local: Flags.boolean({
+			char: 'a',
+			default: false,
+			description: 'Against local apis',
+			hidden: true,
+			required: false
+		}),
 	};
 
 	cancelTokens: CancelTokens = {};
@@ -74,14 +79,11 @@ export default abstract class BaseCommand extends Command {
 
 		// Init sentry
 		Sentry.init({
-			config: {
-				captureUnhandledRejections: true,
-			},
 			dsn: 'https://02902c9ddb584992a780788c71ba5cd7@o562268.ingest.sentry.io/6384635',
 
 			environment: process.env.NODE_ENV,
 			release: `imagelance-cli@${this.config.pjson.version}`,
-			// @ts-ignore
+			// @ts-expect-error for whatever reason this doesn't seem to appear in options
 			tags: { version: this.config.pjson.version },
 		});
 
