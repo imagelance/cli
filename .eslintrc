@@ -5,6 +5,8 @@
 		"unicorn/no-process-exit": "off",
 		"no-async-promise-executor": "off",
 		"no-await-in-loop": "off",
+		"@typescript-eslint/no-explicit-any": "off",
+		"@typescript-eslint/ban-ts-commen": "off",
 		"operator-linebreak": [
 			"error",
 			"before"
