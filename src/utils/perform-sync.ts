@@ -1,16 +1,16 @@
+import * as Sentry from '@sentry/node';
+import chalk from 'chalk';
+import inquirer from 'inquirer';
 import fs from 'node:fs';
 import path from 'node:path';
-import chalk from 'chalk';
-import * as Sentry from '@sentry/node';
-import inquirer from 'inquirer';
-import simpleGit from 'simple-git';
 import rimraf from 'rimraf';
+import simpleGit from 'simple-git';
 
-import { getConfig, getGitConfig, getGitOrigin, getRoot, setConfig } from './config-getters';
-import getDirectories from './get-directories';
-import devstackUrl from './devstack-url';
-import { performRequest } from './perform-request';
 import { Org, Sync } from '../types/syncs';
+import { getConfig, getGitConfig, getGitOrigin, getRoot, setConfig } from './config-getters';
+import devstackUrl from './devstack-url';
+import getDirectories from './get-directories';
+import { performRequest } from './perform-request';
 import studioUrl from './studio-url';
 
 export async function performSync(flags: any): Promise<void> {
@@ -40,8 +40,8 @@ export async function performSync(flags: any): Promise<void> {
 	 */
 	try {
 		const { data } = await performRequest({
-			url: devstackUrl('/gitea/orgs'),
 			method: 'GET',
+			url: devstackUrl('/gitea/orgs'),
 		});
 
 		orgs = data as Org[];
@@ -63,25 +63,25 @@ export async function performSync(flags: any): Promise<void> {
 		selectedBrands = orgs.map((org: any) => org.name);
 	} else {
 		const brandAnswers = await inquirer.prompt({
-			type: 'checkbox',
-			name: 'brands',
-			message: 'Select brands to sync',
 			choices: orgs.map((org: any) => ({
+				checked: true,
 				name: `${org.full_name} (${org.name})`,
 				value: org.name,
-				checked: true,
 			})),
+			message: 'Select brands to sync',
+			name: 'brands',
+			type: 'checkbox',
 		});
 		selectedBrands = brandAnswers.brands;
 	}
 
 	try {
 		const { data } = await performRequest({
-			url: devstackUrl('/syncs'),
 			method: 'GET',
 			params: {
 				organizations: selectedBrands,
 			},
+			url: devstackUrl('/syncs'),
 		});
 
 		syncs = data as Sync[];
@@ -94,7 +94,7 @@ export async function performSync(flags: any): Promise<void> {
 	}
 
 	const git = simpleGit(getGitConfig({
-		progress: ({ method, stage, progress }: any): void => {
+		progress({ method, progress, stage }: any): void {
 			if (debug) {
 				console.log(`git.${method} ${stage} stage ${progress}% complete`);
 			}
@@ -205,6 +205,12 @@ export async function performSync(flags: any): Promise<void> {
 
 				try {
 					await git.cwd(repoPath);
+
+					await git.removeRemote('origin');
+
+					const origin = getGitOrigin(brand, repoName);
+
+					await git.addRemote('origin', origin);
 
 					if (debug) {
 						console.log(chalk.green('Repository has been successfully initialized'));

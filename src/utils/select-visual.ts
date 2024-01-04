@@ -1,6 +1,6 @@
-import path from 'node:path';
-import inquirer from 'inquirer';
 import chalk from 'chalk';
+import inquirer from 'inquirer';
+import path from 'node:path';
 
 import { getRoot } from './config-getters';
 import getDirectories from './get-directories';
@@ -16,18 +16,18 @@ export default async function selectVisual() {
 		throw new Error('No brands');
 	}
 
-	let selectedBrand: string | null = null;
+	let selectedBrand: null | string = null;
 
 	if (brands.length === 1) {
 		selectedBrand = brands[0];
 	} else {
 		const brandChoices = {
-			type: 'search-list',
-			name: 'selectedBrand',
-			message: 'Select brand',
-			choices: brands.map(brandPath => brandPath.toString()
+			choices: brands.map((brandPath) => brandPath.toString()
 				.replace(`${root}/src/`, '')
 				.replace('/brand.json', '')),
+			message: 'Select brand',
+			name: 'selectedBrand',
+			type: 'search-list',
 		};
 
 		const brandAnswers = await inquirer.prompt([brandChoices]);
@@ -44,9 +44,7 @@ export default async function selectVisual() {
 	// Visual
 
 	const visualFolders = await getDirectories(path.join(root, 'src', selectedBrand));
-	const visuals = visualFolders.filter(folder => {
-		return folder[0] !== '.';
-	});
+	const visuals = visualFolders.filter((folder) => folder[0] !== '.');
 
 	if (visuals.length === 0) {
 		console.error(chalk.red('No templates'));
@@ -56,14 +54,14 @@ export default async function selectVisual() {
 	visuals.reverse();
 
 	const visualsChoices = {
-		type: 'search-list',
-		name: 'first',
-		message: 'Select template',
-		choices: visuals.map(visualPath => visualPath
+		choices: visuals.map((visualPath) => visualPath
 			.toString()
 			.replace(`${root}/src/${selectedBrand}/`, '')
 			.replace('/', ''),
 		),
+		message: 'Select template',
+		name: 'first',
+		type: 'search-list',
 	};
 
 	const visualAnswers = await inquirer.prompt([visualsChoices]);

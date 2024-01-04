@@ -1,14 +1,23 @@
-import path from 'node:path';
-import fs from 'node:fs';
-import simpleGit from 'simple-git';
 import Listr, { ListrTask } from 'listr';
+import path from 'node:path';
 
 import AuthenticatedCommand from '../authenticated-command';
+import { getRoot } from '../utils/config-getters';
+import { fetchVisual } from '../utils/fetch-visual';
 import getDirectories from '../utils/get-directories';
-import { getGitConfig, getRoot } from '../utils/config-getters';
 
 export class Pull extends AuthenticatedCommand {
-	static description = 'Pull all local templates'
+	static description = 'Pull all local templates';
+
+	async fetchAndPull(repoPath: string, brand: string, repoName: string): Promise<void> {
+		const git = await fetchVisual(repoPath, brand, repoName);
+
+		if (!git) {
+			return;
+		}
+
+		await git.pull();
+	}
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(Pull);
@@ -27,9 +36,7 @@ export class Pull extends AuthenticatedCommand {
 			const brand: string = brands[brandIndex];
 			const visualFolders: string[] = await getDirectories(path.join(root, 'src', brand));
 
-			const visuals: string[] = visualFolders.filter((folder: string) => {
-				return folder[0] !== '.';
-			});
+			const visuals: string[] = visualFolders.filter((folder: string) => folder[0] !== '.');
 
 			for (const visualIndex in visuals) {
 				if (!visuals.hasOwnProperty(visualIndex)) {
@@ -40,8 +47,8 @@ export class Pull extends AuthenticatedCommand {
 				const visualPath = path.join(root, 'src', brand, visual);
 
 				tasks.push({
+					task: async () => await this.fetchAndPull(visualPath, brand, visual),
 					title: `Fetching & pulling ${visualPath}`,
-					task: async () => await this.fetchAndPull(visualPath),
 				});
 			}
 		}
@@ -57,17 +64,5 @@ export class Pull extends AuthenticatedCommand {
 		} catch {
 			// do nothing (this is here to silence ugly errors thrown into the console, listr prints errors in a pretty way)
 		}
-	}
-
-	async fetchAndPull(visualPath: string): Promise<void> {
-		const git = simpleGit(getGitConfig());
-
-		if (!fs.existsSync(path.join(visualPath, '.git'))) {
-			return;
-		}
-
-		await git.cwd(visualPath);
-		await git.fetch();
-		await git.pull();
 	}
 }

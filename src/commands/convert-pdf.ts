@@ -1,16 +1,51 @@
+import chalk from 'chalk';
 import fs from 'fs-extra';
 import glob from 'glob';
-import chalk from 'chalk';
-import which from 'which';
 import Listr from 'listr';
 import { fromPath } from 'pdf2pic';
+import which from 'which';
 
 import BaseCommand from '../base-command';
-import selectVisual from '../utils/select-visual';
 import { getRoot } from '../utils/config-getters';
+import selectVisual from '../utils/select-visual';
 
 export class ConvertPdf extends BaseCommand {
-	static description = 'Convert pdf to jpg'
+	static description = 'Convert pdf to jpg';
+
+	async convertPdf(pdf: string, root: string, visualPath: string) {
+		const fileName = pdf.toString().replace(`${root}/src/${visualPath}/`, '');
+
+		const parts1 = fileName.split('mm'); // @variant
+		const parts3 = parts1[1].split('/');
+		const filenameWithExtension = parts3[1];
+		const parts2 = parts1[0].split('x').map((value: string) => Number.parseInt(value, 10));
+
+		const filename = filenameWithExtension.replace('.pdf', '');
+		const width = parts2[0];
+		const height = parts2[1];
+
+		const dpi = 300;
+		const pixelWidth = Math.round(width * dpi / 25.4);
+		const pixelHeight = Math.round(height * dpi / 25.4);
+
+		const savePath = `${root}/src/${visualPath}/${width}x${height}mm${parts3[0]}`;
+
+		const pdf2picOptions = {
+			density: dpi,
+			format: 'jpg',
+			height: pixelHeight,
+			saveFilename: filename,
+			savePath,
+			width: pixelWidth,
+		};
+
+		// generate convert command by pdf2pic
+		const convert = await fromPath(`${savePath}/${filename}.pdf`, pdf2picOptions);
+		// actually convert pdf to image
+		await convert(1);
+
+		await fs.promises.rename(`${savePath}/${filename}.1.jpg`, `${savePath}/${filename}.jpg`);
+	}
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(ConvertPdf);
@@ -57,8 +92,8 @@ export class ConvertPdf extends BaseCommand {
 
 		for (const pdf of pdfs) {
 			tasks.push({
-				title: `Converting ${pdf}`,
 				task: async () => this.convertPdf(pdf, root, visualPath),
+				title: `Converting ${pdf}`,
 			});
 		}
 
@@ -73,40 +108,5 @@ export class ConvertPdf extends BaseCommand {
 		} catch {
 			// do nothing (this is here to silence ugly errors thrown into the console, listr prints errors in a pretty way)
 		}
-	}
-
-	async convertPdf(pdf: string, root: string, visualPath: string) {
-		const fileName = pdf.toString().replace(`${root}/src/${visualPath}/`, '');
-
-		const parts1 = fileName.split('mm'); // @variant
-		const parts3 = parts1[1].split('/');
-		const filenameWithExtension = parts3[1];
-		const parts2 = parts1[0].split('x').map((value: string) => Number.parseInt(value, 10));
-
-		const filename = filenameWithExtension.replace('.pdf', '');
-		const width = parts2[0];
-		const height = parts2[1];
-
-		const dpi = 300;
-		const pixelWidth = Math.round(width * dpi / 25.4);
-		const pixelHeight = Math.round(height * dpi / 25.4);
-
-		const savePath = `${root}/src/${visualPath}/${width}x${height}mm${parts3[0]}`;
-
-		const pdf2picOptions = {
-			density: dpi,
-			savePath,
-			saveFilename: filename,
-			format: 'jpg',
-			width: pixelWidth,
-			height: pixelHeight,
-		};
-
-		// generate convert command by pdf2pic
-		const convert = await fromPath(`${savePath}/${filename}.pdf`, pdf2picOptions);
-		// actually convert pdf to image
-		await convert(1);
-
-		await fs.promises.rename(`${savePath}/${filename}.1.jpg`, `${savePath}/${filename}.jpg`);
 	}
 }

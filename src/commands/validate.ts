@@ -1,15 +1,15 @@
-import path from 'node:path';
-import fs from 'node:fs';
 import chalk from 'chalk';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import AuthenticatedCommand from '../authenticated-command';
-import getDirectories from '../utils/get-directories';
 import checkConfig from '../utils/check-config';
 import checkSchema from '../utils/check-schema';
 import { getRoot } from '../utils/config-getters';
+import getDirectories from '../utils/get-directories';
 
 export class Validate extends AuthenticatedCommand {
-	static description = 'Validate the config and schema of all local templates'
+	static description = 'Validate the config and schema of all local templates';
 
 	async run(): Promise<void> {
 		const root: string = getRoot();

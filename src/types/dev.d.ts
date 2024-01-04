@@ -1,6 +1,6 @@
 export interface Endpoint {
-	url: string;
 	method: string;
+	url: string;
 }
 
 export interface Endpoints {

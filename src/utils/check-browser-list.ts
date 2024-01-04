@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+
 import { getRoot } from './config-getters';
 
 export default function checkBrowsersList() {

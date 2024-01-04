@@ -1,9 +1,9 @@
-import inquirer from 'inquirer';
-import path from 'node:path';
-import os from 'node:os';
-import fs from 'node:fs';
 import chalk from 'chalk';
 import { existsSync, readJsonSync } from 'fs-extra';
+import inquirer from 'inquirer';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import rimraf from 'rimraf';
 
 import { getRoot, setConfig, setIsInstalled } from './config-getters';
@@ -13,10 +13,10 @@ export async function performInstall(): Promise<void> {
 
 	if (currentRoot) {
 		const confirm = await inquirer.prompt({
-			type: 'confirm',
-			name: 'confirm',
-			message: `Root folder for templates is already set to ${currentRoot}. Do you want to change the location?`,
 			default: false,
+			message: `Root folder for templates is already set to ${currentRoot}. Do you want to change the location?`,
+			name: 'confirm',
+			type: 'confirm',
 		});
 
 		if (!confirm.confirm) {
@@ -31,26 +31,28 @@ export async function performInstall(): Promise<void> {
 	const cwdNestDir = path.join(process.cwd(), 'imagelance-templates');
 
 	const choices = [
-		{ value: 'homeDir', name: `${homeDir} (~/imagelance-templates)` },
-		{ value: 'projectsDir', name: `${projectsDir} (~/Projects/imagelance-templates)` },
-		{ value: 'cwdDir', name: `${cwdDir} (Current folder)` },
-		{ value: 'cwdNestDir', name: `${cwdNestDir} (Create folder /imagelance-templates in current folder)` },
+		{ name: `${homeDir} (~/imagelance-templates)`, value: 'homeDir' },
+		{ name: `${projectsDir} (~/Projects/imagelance-templates)`, value: 'projectsDir' },
+		{ name: `${cwdDir} (Current folder)`, value: 'cwdDir' },
+		{ name: `${cwdNestDir} (Create folder /imagelance-templates in current folder)`, value: 'cwdNestDir' },
 	];
 
 	const rootAnswer = await inquirer.prompt({
-		type: 'list',
-		name: 'root',
-		message: 'Where should be templates synchronized on disk?',
 		choices,
+		message: 'Where should be templates synchronized on disk?',
+		name: 'root',
+		type: 'list',
 	});
 
 	let dir;
 
 	switch (rootAnswer.root) {
-		case 'cwdDir':
+		case 'cwdDir': {
 			dir = cwdDir;
 			break;
-		case 'cwdNestDir':
+		}
+
+		case 'cwdNestDir': {
 			try {
 				await fs.promises.mkdir(path.join('.', 'imagelance-templates'));
 			} catch {
@@ -59,7 +61,9 @@ export async function performInstall(): Promise<void> {
 
 			dir = cwdNestDir;
 			break;
-		case 'homeDir':
+		}
+
+		case 'homeDir': {
 			try {
 				await fs.promises.mkdir(path.join(os.homedir(), 'imagelance-templates'));
 			} catch {
@@ -68,7 +72,9 @@ export async function performInstall(): Promise<void> {
 
 			dir = homeDir;
 			break;
-		case 'projectsDir':
+		}
+
+		case 'projectsDir': {
 			try {
 				await fs.promises.mkdir(path.join(os.homedir(), 'Projects'));
 			} catch {
@@ -83,7 +89,9 @@ export async function performInstall(): Promise<void> {
 
 			dir = projectsDir;
 			break;
-		case 'sazkaDir':
+		}
+
+		case 'sazkaDir': {
 			try {
 				await fs.promises.mkdir(path.join(os.homedir(), 'Projects'));
 			} catch {
@@ -98,6 +106,7 @@ export async function performInstall(): Promise<void> {
 
 			dir = sazkaDir;
 			break;
+		}
 	}
 
 	if (dir) {

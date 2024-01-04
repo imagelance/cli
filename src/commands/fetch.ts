@@ -1,14 +1,13 @@
-import path from 'node:path';
-import fs from 'node:fs';
-import simpleGit from 'simple-git';
 import Listr, { ListrTask } from 'listr';
+import path from 'node:path';
 
 import AuthenticatedCommand from '../authenticated-command';
+import { getRoot } from '../utils/config-getters';
+import { fetchVisual } from '../utils/fetch-visual';
 import getDirectories from '../utils/get-directories';
-import { getGitConfig, getRoot } from '../utils/config-getters';
 
 export class Fetch extends AuthenticatedCommand {
-	static description = 'Fetch all local templates'
+	static description = 'Fetch all local templates';
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(Fetch);
@@ -17,9 +16,7 @@ export class Fetch extends AuthenticatedCommand {
 		const root: string = getRoot();
 		const brandFolders: string[] = await getDirectories(path.join(root, 'src'));
 		const tasks: ListrTask[] = [];
-		const brands: string[] = brandFolders.filter((folder: string) => {
-			return folder[0] !== '.';
-		});
+		const brands: string[] = brandFolders.filter((folder: string) => folder[0] !== '.');
 
 		for (const brandIndex in brands) {
 			if (!brands.hasOwnProperty(brandIndex)) {
@@ -28,9 +25,7 @@ export class Fetch extends AuthenticatedCommand {
 
 			const brand: string = brands[brandIndex];
 			const visualFolders: string[] = await getDirectories(path.join(root, 'src', brand));
-			const visuals: string[] = visualFolders.filter((folder: string) => {
-				return folder[0] !== '.';
-			});
+			const visuals: string[] = visualFolders.filter((folder: string) => folder[0] !== '.');
 
 			for (const visualIndex in visuals) {
 				if (!visuals.hasOwnProperty(visualIndex)) {
@@ -41,8 +36,8 @@ export class Fetch extends AuthenticatedCommand {
 				const visualPath = path.join(root, 'src', brand, visual);
 
 				tasks.push({
+					task: async () => await fetchVisual(visualPath, brand, visual),
 					title: `Fetching ${visualPath}`,
-					task: async () => await this.fetchVisual(visualPath),
 				});
 			}
 		}
@@ -58,16 +53,5 @@ export class Fetch extends AuthenticatedCommand {
 		} catch {
 			// do nothing (this is here to silence ugly errors thrown into the console, listr prints errors in a pretty way)
 		}
-	}
-
-	async fetchVisual(visualPath: string) {
-		const git = simpleGit(getGitConfig());
-
-		if (!fs.existsSync(path.join(visualPath, '.git'))) {
-			return;
-		}
-
-		await git.cwd(visualPath);
-		await git.fetch();
 	}
 }

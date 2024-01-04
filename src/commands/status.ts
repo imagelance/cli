@@ -1,16 +1,16 @@
+import * as Sentry from '@sentry/node';
+import chalk from 'chalk';
+import Table from 'cli-table';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import chalk from 'chalk';
 import simpleGit from 'simple-git';
-import Table from 'cli-table';
-import * as Sentry from '@sentry/node';
 
 import AuthenticatedCommand from '../authenticated-command';
+import { getGitConfig, getGitOrigin, getRoot } from '../utils/config-getters';
 import getDirectories from '../utils/get-directories';
-import { getGitConfig, getRoot } from '../utils/config-getters';
 
 export class Status extends AuthenticatedCommand {
-	static description = 'Git status of all local templates'
+	static description = 'Git status of all local templates';
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(Status);
@@ -34,9 +34,7 @@ export class Status extends AuthenticatedCommand {
 			const brand = brands[brandIndex];
 			const visualFolders = await getDirectories(path.join(root, 'src', brand));
 
-			const visuals = visualFolders.filter(folder => {
-				return folder[0] !== '.';
-			});
+			const visuals = visualFolders.filter((folder) => folder[0] !== '.');
 
 			for (const visualIndex in visuals) {
 				if (!visuals.hasOwnProperty(visualIndex)) {
@@ -63,11 +61,16 @@ export class Status extends AuthenticatedCommand {
 
 				try {
 					await git.cwd(visualPath);
+					await git.removeRemote('origin');
+
+					const origin = getGitOrigin(brand, visual);
+
+					await git.addRemote('origin', origin);
 
 					const status = await git.status();
 
 					if (status.files.length > 0) {
-						const fileNames = status.files.map(file => file.path).join(', ');
+						const fileNames = status.files.map((file) => file.path).join(', ');
 						const currentBranch = status.current === 'master' ? status.current : chalk.yellow(`${status.current} (not on master)`);
 
 						table.push([brand, visual, currentBranch, `Changed ${status.files.length} files: ${fileNames}`]);

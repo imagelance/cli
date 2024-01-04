@@ -1,14 +1,14 @@
-import * as inquirer from 'inquirer';
 import chalk from 'chalk';
+import * as inquirer from 'inquirer';
 
 import BaseCommand from './base-command';
+import { User } from './types/authenticated-command';
 import accountsUrl from './utils/accounts-url';
 import { getAccessToken, isLocal, setUser } from './utils/config-getters';
-import { User } from './types/authenticated-command';
 import { performLogin } from './utils/perform-login';
 
 export default abstract class AuthenticatedCommand extends BaseCommand {
-	protected user: User | null = null
+	protected user: User | null = null;
 
 	async init(): Promise<void> {
 		// Call BaseCommand initializer
@@ -19,8 +19,8 @@ export default abstract class AuthenticatedCommand extends BaseCommand {
 
 		try {
 			const { data: user } = await this.performRequest({
-				url: accountsUrl('user'),
 				method: 'GET',
+				url: accountsUrl('user'),
 			});
 
 			this.user = user as User;
@@ -33,13 +33,13 @@ export default abstract class AuthenticatedCommand extends BaseCommand {
 
 	private async promptLogin(message: string): Promise<void> {
 		const shouldRunLoginCommand = await inquirer.prompt({
-			type: 'list',
-			name: 'answer',
-			message,
 			choices: [
 				'Yes',
 				'No',
 			],
+			message,
+			name: 'answer',
+			type: 'list',
 		});
 
 		if (shouldRunLoginCommand.answer === 'No') {

@@ -1,19 +1,43 @@
-import inquirer from 'inquirer';
+import * as Sentry from '@sentry/node';
 import chalk from 'chalk';
+import inquirer from 'inquirer';
+import Listr from 'listr';
 import fs from 'node:fs';
 import simpleGit from 'simple-git';
-import Listr from 'listr';
-import * as Sentry from '@sentry/node';
 
 import AuthenticatedCommand from '../authenticated-command';
-import { getRoot, setConfig, getConfig, getCommand, getGitConfig } from '../utils/config-getters';
+import { getCommand, getConfig, getGitConfig, getRoot, setConfig } from '../utils/config-getters';
 import devstackUrl from '../utils/devstack-url';
 import studioUrl from '../utils/studio-url';
 
 export class Create extends AuthenticatedCommand {
-	static description = 'Creates new template'
+	static description = 'Creates new template';
 
-	private isDebugging = false
+	private isDebugging = false;
+
+	async fetchRepo(repository: any, brand: null | string): Promise<any> {
+		if (!brand) {
+			throw new Error('Cannot fetch repo without brand');
+		}
+
+		try {
+			const { data } = await this.performRequest({
+				headers: {
+					'X-Brand': brand,
+				},
+				method: 'GET',
+				url: devstackUrl(`/gitea/repos/${repository.name}`),
+			});
+
+			return data.repo;
+		} catch (error: any) {
+			if (this.isDebugging) {
+				this.reportError(error);
+			}
+
+			return null;
+		}
+	}
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(Create);
@@ -32,8 +56,8 @@ export class Create extends AuthenticatedCommand {
 
 		try {
 			const response = await this.performRequest({
-				url: devstackUrl('/gitea/orgs'),
 				method: 'GET',
+				url: devstackUrl('/gitea/orgs'),
 			});
 
 			brands = response.data;
@@ -51,18 +75,18 @@ export class Create extends AuthenticatedCommand {
 			return await this.exitHandler(1);
 		}
 
-		let brand: string | null = null;
+		let brand: null | string = null;
 
 		// only prompt brand select if user has more than 1 brands
 		if (brands.length > 1) {
 			const brandAnswer = await inquirer.prompt([{
-				type: 'search-list',
-				name: 'brand',
-				message: 'Select brand',
-				choices: brands.map(({ name, full_name }: any) => ({
+				choices: brands.map(({ full_name, name }: any) => ({
 					name: `${full_name} ${chalk.grey(`(${name})`)}`,
 					value: name,
 				})),
+				message: 'Select brand',
+				name: 'brand',
+				type: 'search-list',
 			}]);
 
 			brand = brandAnswer.brand;
@@ -76,13 +100,13 @@ export class Create extends AuthenticatedCommand {
 		}
 
 		const modeAnswer = await inquirer.prompt({
-			type: 'list',
-			name: 'mode',
-			message: 'Select mode',
 			choices: [
 				{ name: 'Create blank', value: 'blank' },
 				{ name: 'Create from template', value: 'template' },
 			],
+			message: 'Select mode',
+			name: 'mode',
+			type: 'list',
 		});
 
 		const { mode } = modeAnswer;
@@ -92,9 +116,6 @@ export class Create extends AuthenticatedCommand {
 
 		if (mode === 'blank') {
 			const outputCategoryAnswer = await inquirer.prompt([{
-				type: 'search-list',
-				name: 'outputCategory',
-				message: 'Select format',
 				choices: [
 					{ name: 'HTML', value: 'html' },
 					{ name: 'Static', value: 'image' },
@@ -103,6 +124,9 @@ export class Create extends AuthenticatedCommand {
 					{ name: 'Audio', value: 'audio' },
 					{ name: 'Fallback', value: 'fallback' },
 				],
+				message: 'Select format',
+				name: 'outputCategory',
+				type: 'search-list',
 			}]);
 
 			outputCategory = outputCategoryAnswer.outputCategory;
@@ -111,11 +135,11 @@ export class Create extends AuthenticatedCommand {
 
 			try {
 				const { data } = await this.performRequest({
-					url: devstackUrl('/gitea/templates'),
-					method: 'GET',
 					headers: {
 						'X-Brand': brand,
 					},
+					method: 'GET',
+					url: devstackUrl('/gitea/templates'),
 				});
 
 				templates = data.templates;
@@ -130,39 +154,39 @@ export class Create extends AuthenticatedCommand {
 			}
 
 			const templateAnswer = await inquirer.prompt([{
-				type: 'search-list',
-				name: 'template',
-				message: 'Select template',
-				choices: templates.map(({ value, label }: any) => ({
+				choices: templates.map(({ label, value }: any) => ({
 					name: label,
 					value,
 				})),
+				message: 'Select template',
+				name: 'template',
+				type: 'search-list',
 			}]);
 
 			template = templateAnswer.template;
 		}
 
 		const nameAnswer = await inquirer.prompt({
-			type: 'input',
-			name: 'name',
 			message: `Template name ${chalk.yellow('[min 4 characters]')} ${chalk.grey('(public, can be changed later)')}`,
-			validate: input => input && input.length > 3,
+			name: 'name',
+			type: 'input',
+			validate: (input) => input && input.length > 3,
 		});
 
 		const { name } = nameAnswer;
 
 		const descriptionAnswer = await inquirer.prompt({
-			type: 'input',
-			name: 'description',
 			message: `Description ${chalk.grey('(optional)')}`,
+			name: 'description',
+			type: 'input',
 		});
 
 		const { description } = descriptionAnswer;
 
 		const tagsAnswer = await inquirer.prompt({
-			type: 'input',
-			name: 'tags',
 			message: `Tags ${chalk.grey('(separate with a comma, optional)')}`,
+			name: 'tags',
+			type: 'input',
 		});
 
 		const tags = `${tagsAnswer.tags}`
@@ -171,22 +195,22 @@ export class Create extends AuthenticatedCommand {
 			.filter((word: string) => word.length > 0);
 
 		const payload: any = {
-			mode,
-			outputCategory,
-			template,
-			name,
 			description,
-			tags
+			mode,
+			name,
+			outputCategory,
+			tags,
+			template,
 		};
 
 		console.log(chalk.blue(`Creating template in brand "${chalk.bold(brand)}"`));
 		console.log(chalk.blue(JSON.stringify(payload, null, 2)));
 
 		const confirm = await inquirer.prompt({
-			type: 'confirm',
-			name: 'confirm',
-			message: 'Is everything correct?',
 			default: true,
+			message: 'Is everything correct?',
+			name: 'confirm',
+			type: 'confirm',
 		});
 
 		if (!confirm.confirm) {
@@ -197,21 +221,21 @@ export class Create extends AuthenticatedCommand {
 
 		try {
 			const runner = new Listr([{
-				title: chalk.blue('Creating template...'),
 				task: async (ctx, task) => {
 					const { data } = await this.performRequest({
-						url: devstackUrl('/gitea/repos'),
-						method: 'POST',
 						data: payload,
 						headers: {
 							'X-Brand': `${brand}`,
 						},
+						method: 'POST',
+						url: devstackUrl('/gitea/repos'),
 					});
 
 					repository = data.repo;
 
 					task.title = chalk.green(`Template "${repository.full_name}" created and synced`);
 				},
+				title: chalk.blue('Creating template...'),
 			}]);
 
 			await runner.run();
@@ -282,29 +306,5 @@ export class Create extends AuthenticatedCommand {
 		setConfig('newestVisual', repository.full_name);
 
 		console.log(chalk.green(`Development can be started with command "${getCommand('dev --newest')}"`));
-	}
-
-	async fetchRepo(repository: any, brand: string | null): Promise<any> {
-		if (!brand) {
-			throw new Error('Cannot fetch repo without brand');
-		}
-
-		try {
-			const { data } = await this.performRequest({
-				url: devstackUrl(`/gitea/repos/${repository.name}`),
-				method: 'GET',
-				headers: {
-					'X-Brand': brand,
-				},
-			});
-
-			return data.repo;
-		} catch (error: any) {
-			if (this.isDebugging) {
-				this.reportError(error);
-			}
-
-			return null;
-		}
 	}
 }

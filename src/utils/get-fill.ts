@@ -26,14 +26,10 @@ export default function getFill(schemaPath: string) {
 								continue;
 							}
 
-							const value = schema[slotKey].schema[subSlotKey].value;
+							const { value } = schema[slotKey].schema[subSlotKey];
 
 							if (Array.isArray(value)) {
-								if (i >= 0) {
-									subDemoInputs[subSlotKey] = value[i % value.length];
-								} else {
-									subDemoInputs[subSlotKey] = value[Math.floor(Math.random() * value.length)];
-								}
+								subDemoInputs[subSlotKey] = i >= 0 ? value[i % value.length] : value[Math.floor(Math.random() * value.length)];
 							} else {
 								subDemoInputs[subSlotKey] = value;
 							}
@@ -48,7 +44,7 @@ export default function getFill(schemaPath: string) {
 								continue;
 							}
 
-							const value = schema[slotKey].schema[subSlotKey].value;
+							const { value } = schema[slotKey].schema[subSlotKey];
 							if (Array.isArray(value)) {
 								return value.length;
 							}
@@ -104,16 +100,16 @@ export default function getFill(schemaPath: string) {
 							demoInputs[slotKey].push(getSubDemoInputs(i - 1));
 						}
 					}
-				} else if (typeof schema[slotKey].value !== 'undefined') {
-					const value = schema[slotKey].value;
+				} else if (schema[slotKey].value === undefined) {
+					demoInputs[slotKey] = null;
+				} else {
+					const { value } = schema[slotKey];
 					if (Array.isArray(value)) {
 						demoInputs[slotKey] = value[0];
 						// demoInputs[slotKey] = value[Math.floor(Math.random() * value.length)];
 					} else {
 						demoInputs[slotKey] = value;
 					}
-				} else {
-					demoInputs[slotKey] = null;
 				}
 			}
 		} catch (error) {

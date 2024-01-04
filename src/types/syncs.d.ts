@@ -1,18 +1,18 @@
 export interface Sync {
-	id: number;
-	userId: number;
-	repo: string;
-	organization: string;
 	createdAt: string;
-	updatedAt: string;
 	deletedAt: string;
+	id: number;
+	organization: string;
+	repo: string;
+	updatedAt: string;
+	userId: number;
 }
 
 export interface Org {
-	id: number;
-	full_name: string;
-	name: string;
-	description: string;
-	website: string;
 	avatar_url: string;
+	description: string;
+	full_name: string;
+	id: number;
+	name: string;
+	website: string;
 }

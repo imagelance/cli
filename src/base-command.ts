@@ -1,28 +1,60 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import inquirerSearchList from 'inquirer-search-list';
-import * as inquirer from 'inquirer';
-import axios, { AxiosRequestConfig, CancelToken } from 'axios';
+
 import { Command, Flags } from '@oclif/core';
 import * as Sentry from '@sentry/node';
+import axios, { AxiosRequestConfig, CancelToken } from 'axios';
 import chalk from 'chalk';
+import * as inquirer from 'inquirer';
+// @ts-ignore
+import inquirerSearchList from 'inquirer-search-list';
 
 import { CancelTokens } from './types/base-command';
 import { isInstalled } from './utils/config-getters';
+import devstackUrl from './utils/devstack-url';
 import { performInstall } from './utils/perform-install';
 import { performRequest } from './utils/perform-request';
 import { reportError } from './utils/report-error';
-import devstackUrl from './utils/devstack-url';
 
 export default abstract class BaseCommand extends Command {
-	cancelTokens: CancelTokens = {}
-
 	static baseFlags = {
-		debug: Flags.boolean({ char: 'd', description: 'Debug mode', required: false, default: false }),
-		local: Flags.boolean({ char: 'a', description: 'Against local apis', hidden: true, required: false, default: false })
-	}
+		debug: Flags.boolean({ char: 'd', default: false, description: 'Debug mode', required: false }),
+		local: Flags.boolean({ char: 'a', default: false, description: 'Against local apis', hidden: true, required: false }),
+	};
+
+	cancelTokens: CancelTokens = {};
 
 	// region Hooks
+
+	async catch(error: any): Promise<void> {
+		Sentry.captureException(error);
+		super.catch(error);
+	}
+
+	exitHandler(code = 0): void {
+		// implement custom exit handling
+		process.exit(code);
+	}
+
+	async finally(): Promise<void> {
+		Sentry.close();
+	}
+
+	// endregion
+
+	// region Custom hooks
+
+	getCancelToken(name: string): CancelToken {
+		if (this.cancelTokens[name]) {
+			this.cancelTokens[name].cancel();
+		}
+
+		this.cancelTokens[name] = axios.CancelToken.source();
+
+		return this.cancelTokens[name].token;
+	}
+
+	// endregion
+
+	// region Helpers
 
 	async init(): Promise<void> {
 		const { flags } = await this.parse(BaseCommand);
@@ -42,70 +74,28 @@ export default abstract class BaseCommand extends Command {
 
 		// Init sentry
 		Sentry.init({
-			dsn: 'https://02902c9ddb584992a780788c71ba5cd7@o562268.ingest.sentry.io/6384635',
-			release: `imagelance-cli@${this.config.pjson.version}`,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			tags: { version: this.config.pjson.version },
-			environment: process.env.NODE_ENV,
 			config: {
 				captureUnhandledRejections: true,
 			},
+			dsn: 'https://02902c9ddb584992a780788c71ba5cd7@o562268.ingest.sentry.io/6384635',
+
+			environment: process.env.NODE_ENV,
+			release: `imagelance-cli@${this.config.pjson.version}`,
+			// @ts-ignore
+			tags: { version: this.config.pjson.version },
 		});
 
 		// Register custom prompts for inquirer
 		inquirer.registerPrompt('search-list', inquirerSearchList);
 	}
 
-	async catch(error: any): Promise<void> {
-		Sentry.captureException(error);
-		super.catch(error);
-	}
-
-	async finally(): Promise<void> {
-		Sentry.close();
-	}
-
-	// endregion
-
-	// region Custom hooks
-
-	exitHandler(code = 0): void {
-		// implement custom exit handling
-		process.exit(code);
-	}
-
-	// endregion
-
-	// region Helpers
-
-	reportError(error: any): void {
-		reportError(error);
-	}
-
-	getCancelToken(name: string): CancelToken {
-		if (this.cancelTokens[name]) {
-			this.cancelTokens[name].cancel();
-		}
-
-		this.cancelTokens[name] = axios.CancelToken.source();
-
-		return this.cancelTokens[name].token;
-	}
-
-	async performRequest(config: AxiosRequestConfig, appendAuthorization = true): Promise<any> {
-		return performRequest(config, appendAuthorization);
-	}
-
-	// endregion
-
 	// region Utilities
 	async isDevstackHealthy(debug: boolean): Promise<void> {
 		try {
 			const config = {
-				url: devstackUrl('/public/health/ping'),
-				method: 'GET',
 				cancelToken: this.getCancelToken('isDevstackHealthy'),
+				method: 'GET',
+				url: devstackUrl('/public/health/ping'),
 			};
 
 			await this.performRequest(config, false);
@@ -121,19 +111,29 @@ export default abstract class BaseCommand extends Command {
 		}
 	}
 
+	async performRequest(config: AxiosRequestConfig, appendAuthorization = true): Promise<any> {
+		return performRequest(config, appendAuthorization);
+	}
+
+	// endregion
+
+	reportError(error: any): void {
+		reportError(error);
+	}
+
 	private async wasInstallCommandCalled(): Promise<void> {
 		if (this.id === 'install' || isInstalled()) {
 			return;
 		}
 
 		const shouldRunInstallCommand = await inquirer.prompt({
-			type: 'list',
-			name: 'answer',
-			message: chalk.yellow(`Before running any command, you need to run "${this.config.bin} install". Do you wish to run this command now?`),
 			choices: [
 				'Yes',
 				'No',
 			],
+			message: chalk.yellow(`Before running any command, you need to run "${this.config.bin} install". Do you wish to run this command now?`),
+			name: 'answer',
+			type: 'list',
 		});
 
 		if (shouldRunInstallCommand.answer === 'No') {

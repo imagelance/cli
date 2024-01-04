@@ -1,23 +1,55 @@
-import path from 'node:path';
-import fs from 'node:fs';
-import simpleGit from 'simple-git';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
 import * as Sentry from '@sentry/node';
+import chalk from 'chalk';
+import inquirer from 'inquirer';
 import Listr, { ListrContext, ListrTask, ListrTaskWrapper } from 'listr';
+import fs from 'node:fs';
+import path from 'node:path';
+import simpleGit from 'simple-git';
 
 import AuthenticatedCommand from '../authenticated-command';
+import { getGitConfig, getGitOrigin, getRoot } from '../utils/config-getters';
 import getDirectories from '../utils/get-directories';
-import { getGitConfig, getRoot } from '../utils/config-getters';
 
 interface PushConfig {
-	visualPath: string;
+	brand: string;
 	commitMessage: string;
 	repoName: string;
+	visualPath: string;
 }
 
 export class Push extends AuthenticatedCommand {
-	static description = 'Push all local templates'
+	static description = 'Push all local templates';
+
+	async push(config: PushConfig, task: ListrTaskWrapper): Promise<void> {
+		const { brand, commitMessage, repoName, visualPath } = config;
+		const git = simpleGit(getGitConfig());
+
+		if (!fs.existsSync(path.join(visualPath, '.git'))) {
+			return;
+		}
+
+		await git.cwd(visualPath);
+
+		await git.removeRemote('origin');
+
+		const origin = getGitOrigin(brand, repoName);
+
+		await git.addRemote('origin', origin);
+
+		const status = await git.status();
+
+		if (!status.current) {
+			console.log(chalk.red(`Cannot read current branch from ${repoName}`));
+			return;
+		}
+
+		await git.add('./*');
+		await git.commit(commitMessage);
+		// always push currently checked out branch
+		await git.push('origin', status.current);
+
+		task.title = chalk.green(`Pushed "${repoName}"`);
+	}
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(Push);
@@ -28,9 +60,7 @@ export class Push extends AuthenticatedCommand {
 		const brandFolders: string[] = await getDirectories(path.join(root, 'src'));
 		const tasks: ListrTask[] = [];
 		const changedVisuals: any[] = [];
-		const brands: string[] = brandFolders.filter((folder: string) => {
-			return folder[0] !== '.';
-		});
+		const brands: string[] = brandFolders.filter((folder: string) => folder[0] !== '.');
 
 		for (const brandIndex in brands) {
 			if (!brands.hasOwnProperty(brandIndex)) {
@@ -39,9 +69,7 @@ export class Push extends AuthenticatedCommand {
 
 			const brand: string = brands[brandIndex];
 			const visualFolders: string[] = await getDirectories(path.join(root, 'src', brand));
-			const visuals: string[] = visualFolders.filter((folder: string) => {
-				return folder[0] !== '.';
-			});
+			const visuals: string[] = visualFolders.filter((folder: string) => folder[0] !== '.');
 
 			for (const visualIndex in visuals) {
 				if (!visuals.hasOwnProperty(visualIndex)) {
@@ -67,9 +95,9 @@ export class Push extends AuthenticatedCommand {
 					}
 
 					changedVisuals.push({
+						checked: true,
 						name: `${visual} (Changed ${status.files.length} files, Local commits ${status.ahead})`,
 						value: visualPath,
-						checked: true,
 					});
 				} catch (error: any) {
 					Sentry.captureException(error);
@@ -81,16 +109,16 @@ export class Push extends AuthenticatedCommand {
 			}
 		}
 
-		if (changedVisuals.length < 1) {
+		if (changedVisuals.length === 0) {
 			console.log(chalk.red('No changes in any repository'));
-			await this.exitHandler(1);
+			this.exitHandler(1);
 		}
 
 		const visualChoices = {
-			type: 'checkbox',
-			name: 'selectedVisuals',
-			message: 'Select templates to be pushed',
 			choices: changedVisuals,
+			message: 'Select templates to be pushed',
+			name: 'selectedVisuals',
+			type: 'checkbox',
 		};
 
 		const visualAnswers = await inquirer.prompt([visualChoices]);
@@ -98,32 +126,34 @@ export class Push extends AuthenticatedCommand {
 
 		for (const visualPath of selectedVisuals) {
 			const splitVisualPath = visualPath.split('/');
-			const repoName = splitVisualPath[splitVisualPath.length - 1];
+			const repoName = splitVisualPath.at(-1);
+			const brand = splitVisualPath.at(-2);
 
 			const commitMessageAnswer = await inquirer.prompt({
-				type: 'input',
-				name: 'commitMessage',
-				message: `Commit message ${chalk.cyan(repoName)}`,
 				default: 'Changes',
+				message: `Commit message ${chalk.cyan(repoName)}`,
+				name: 'commitMessage',
+				type: 'input',
 			});
 
 			const { commitMessage } = commitMessageAnswer;
 
 			const config: PushConfig = {
-				visualPath,
+				brand,
 				commitMessage,
 				repoName,
+				visualPath,
 			};
 
 			tasks.push({
-				title: chalk.blue(`Pushing "${repoName}"...`),
 				task: async (ctx: ListrContext, task: ListrTaskWrapper) => await this.push(config, task),
+				title: chalk.blue(`Pushing "${repoName}"...`),
 			});
 		}
 
 		if (tasks.length === 0) {
 			console.log(chalk.red('No templates selected'));
-			await this.exitHandler(1);
+			this.exitHandler(1);
 		}
 
 		const runner = new Listr(tasks, {
@@ -141,30 +171,5 @@ export class Push extends AuthenticatedCommand {
 				this.reportError(error);
 			}
 		}
-	}
-
-	async push(config: PushConfig, task: ListrTaskWrapper): Promise<void> {
-		const { visualPath, commitMessage, repoName } = config;
-		const git = simpleGit(getGitConfig());
-
-		if (!fs.existsSync(path.join(visualPath, '.git'))) {
-			return;
-		}
-
-		await git.cwd(visualPath);
-
-		const status = await git.status();
-
-		if (!status.current) {
-			console.log(chalk.red(`Cannot read current branch from ${repoName}`));
-			return;
-		}
-
-		await git.add('./*');
-		await git.commit(commitMessage);
-		// always push currently checked out branch
-		await git.push('origin', status.current);
-
-		task.title = chalk.green(`Pushed "${repoName}"`);
 	}
 }

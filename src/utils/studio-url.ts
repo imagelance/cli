@@ -9,7 +9,7 @@ export default function studioUrl(url = ''): string {
 
 	url = url.trim();
 	// trim slashes
-	url = url.replace(/^\/|\/$/g, '');
+	url = url.replaceAll(/^\/|\/$/g, '');
 
 	return `${baseUrl}/${url}`;
 }

@@ -1,16 +1,16 @@
+import chalk from 'chalk';
 import fs from 'fs-extra';
 import path from 'node:path';
 import rimraf from 'rimraf';
-import chalk from 'chalk';
 
 import BaseCommand from '../base-command';
 import { getRoot } from '../utils/config-getters';
 
 export class Reset extends BaseCommand {
-	static description = 'Fix some package mismatch issues'
+	static description = 'Fix some package mismatch issues';
 
 	// hidden from help command
-	static hidden = true
+	static hidden = true;
 
 	async run(): Promise<void> {
 		const root: string = getRoot();

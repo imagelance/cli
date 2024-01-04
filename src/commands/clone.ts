@@ -1,20 +1,20 @@
+import { Args } from '@oclif/core';
+import * as Sentry from '@sentry/node';
 import chalk from 'chalk';
 import * as fs from 'node:fs';
 import simpleGit from 'simple-git';
-import * as Sentry from '@sentry/node';
-import { Args } from '@oclif/core';
 
 import AuthenticatedCommand from '../authenticated-command';
-import { getRoot, getUsername, getPassword, getGitConfig } from '../utils/config-getters';
+import { getGitConfig, getPassword, getRoot, getUsername } from '../utils/config-getters';
 
 export class Clone extends AuthenticatedCommand {
-	static description = 'Clone existing template'
-
 	static args = {
 		repoName: Args.string({
 			required: true,
 		}),
-	}
+	};
+
+	static description = 'Clone existing template';
 
 	async run(): Promise<void> {
 		const { args, flags } = await this.parse(Clone);

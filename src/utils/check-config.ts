@@ -1,12 +1,12 @@
+import * as Sentry from '@sentry/node';
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import * as Sentry from '@sentry/node';
 
+import { ValidatorEntry } from '../types/validation';
 import devstackUrl from './devstack-url';
 import { performRequest } from './perform-request';
-import { ValidatorEntry } from '../types/validation';
 
-export default async function checkConfig(configPath: string, outputCategory: string | null = null): Promise<boolean> {
+export default async function checkConfig(configPath: string, outputCategory: null | string = null): Promise<boolean> {
 	if (!fs.existsSync(configPath)) {
 		console.error(chalk.red('config.json does not exist!'));
 		return false;
@@ -21,12 +21,12 @@ export default async function checkConfig(configPath: string, outputCategory: st
 
 	try {
 		const { data } = await performRequest({
-			url: devstackUrl('public/bundle-validator/config'),
-			method: 'POST',
 			data: {
 				config: configContents,
 				outputCategory,
 			},
+			method: 'POST',
+			url: devstackUrl('public/bundle-validator/config'),
 		}, false);
 
 		const { isValid, log } = data;

@@ -1,69 +1,51 @@
+import isHiddenFile from '@frigus/is-hidden-file';
+import { Flags } from '@oclif/core';
+import * as Sentry from '@sentry/node';
+import AdmZip from 'adm-zip';
+import { AxiosProgressEvent } from 'axios';
+import chalk from 'chalk';
+import chokidar from 'chokidar';
+import Table from 'cli-table';
+import FormData from 'form-data';
 import fs from 'fs-extra';
 import glob from 'glob';
-import path from 'node:path';
-import chalk from 'chalk';
-import open from 'open';
 import inquirer from 'inquirer';
-import simpleGit from 'simple-git';
-import AdmZip from 'adm-zip';
-import FormData from 'form-data';
 import Listr from 'listr';
-import chokidar from 'chokidar';
-import isHiddenFile from '@frigus/is-hidden-file';
-import * as Sentry from '@sentry/node';
-import { Flags } from '@oclif/core';
-import Table from 'cli-table';
-import { AxiosProgressEvent } from 'axios';
+import path from 'node:path';
+import open from 'open';
+import simpleGit from 'simple-git';
 
 import AuthenticatedCommand from '../authenticated-command';
-import selectVisual from '../utils/select-visual';
-import devstackUrl from '../utils/devstack-url';
-import studioUrl from '../utils/studio-url';
-import { getConfig, getGitConfig, getLastDev, getRoot, hasSynced, setConfig } from '../utils/config-getters';
 import { Endpoint, Endpoints } from '../types/dev';
+import { getConfig, getGitConfig, getLastDev, getRoot, hasSynced, setConfig } from '../utils/config-getters';
+import devstackUrl from '../utils/devstack-url';
 import { performSync } from '../utils/perform-sync';
+import selectVisual from '../utils/select-visual';
+import studioUrl from '../utils/studio-url';
 
 export class Dev extends AuthenticatedCommand {
-	static description = 'Run development server to create templates'
+	static description = 'Run development server to create templates';
 
 	static flags = {
-		newest: Flags.boolean({
-			char: 'n',
-			description: 'Start dev with newly created template',
-			required: false,
-			default: false,
-		}),
 		latest: Flags.boolean({
 			char: 'l',
+			default: false,
 			description: 'Start dev with latest edited template',
 			required: false,
-			default: false,
 		}),
-	}
+		newest: Flags.boolean({
+			char: 'n',
+			default: false,
+			description: 'Start dev with newly created template',
+			required: false,
+		}),
+	};
 
-	private endpoints: Endpoints = {
-		list: { url: '/filesystem/{bundleId}?path={path}', method: 'get' },
-		show: { url: '/filesystem/{bundleId}/show?path={path}', method: 'get' },
-		store: { url: '/filesystem/{bundleId}/store?path={path}', method: 'post' },
-		upload: { url: '/filesystem/upload', method: 'post' },
-		mkdir: { url: '/filesystem/{bundleId}/mkdir?path={value}', method: 'post' },
-		mkresize: { url: '/filesystem/{bundleId}/mkresize', method: 'post' },
-		mkfile: { url: '/filesystem/{bundleId}/mkfile?path={value}', method: 'post' },
-		rename: { url: '/filesystem/{bundleId}/rename?name={value}', method: 'post' },
-		move: { url: '/filesystem/{bundleId}/move?destPath={value}', method: 'post' },
-		rollback: { url: '/git/{bundleId}/rollback?path={value}', method: 'post' },
-		copy: { url: '/filesystem/{bundleId}/copy?srcPath={srcPath}&destPath={destPath}', method: 'post' },
-		delete: { url: '/filesystem/{bundleId}?path={value}', method: 'delete' },
-	}
+	private bundle: any = null;
+
+	private bundler: any = null;
 
 	private chokidarOptions: any = {
-		// ignore dotfiles
-		ignored: /(^|[/\\])\../,
-		// keep on running after initial "ready" event
-		persistent: true,
-		// don't fire add/addDir on init
-		ignoreInitial: true,
-		// automatically filters out artifacts that occur when using editors
 		// that use "atomic writes" instead of writing directly to the source file
 		atomic: true,
 		// don't fire add/addDir unless file write is finished
@@ -71,23 +53,346 @@ export class Dev extends AuthenticatedCommand {
 			// after last write, wait for 1s to compare outcome with source to ensure add/change are properly fired
 			stabilityThreshold: 300,
 		},
+		// don't fire add/addDir on init
+		ignoreInitial: true,
+		// automatically filters out artifacts that occur when using editors
+		// ignore dotfiles
+		ignored: /(^|[/\\])\../,
+		// keep on running after initial "ready" event
+		persistent: true,
+	};
+
+	private endpoints: Endpoints = {
+		copy: { method: 'post', url: '/filesystem/{bundleId}/copy?srcPath={srcPath}&destPath={destPath}' },
+		delete: { method: 'delete', url: '/filesystem/{bundleId}?path={value}' },
+		list: { method: 'get', url: '/filesystem/{bundleId}?path={path}' },
+		mkdir: { method: 'post', url: '/filesystem/{bundleId}/mkdir?path={value}' },
+		mkfile: { method: 'post', url: '/filesystem/{bundleId}/mkfile?path={value}' },
+		mkresize: { method: 'post', url: '/filesystem/{bundleId}/mkresize' },
+		move: { method: 'post', url: '/filesystem/{bundleId}/move?destPath={value}' },
+		rename: { method: 'post', url: '/filesystem/{bundleId}/rename?name={value}' },
+		rollback: { method: 'post', url: '/git/{bundleId}/rollback?path={value}' },
+		show: { method: 'get', url: '/filesystem/{bundleId}/show?path={path}' },
+		store: { method: 'post', url: '/filesystem/{bundleId}/store?path={path}' },
+		upload: { method: 'post', url: '/filesystem/upload' },
+	};
+
+	private isDebugging = false;
+
+	private localZipPath: null | string = null;
+
+	private shouldDestroyBundle = false;
+
+	private visualRoot: null | string = null;
+
+	deleteHangingZipFiles(gitRepoName: string): void {
+		if (!this.visualRoot) {
+			return;
+		}
+
+		const zips = glob.sync(`${gitRepoName}-*.zip`, { cwd: this.visualRoot });
+
+		if (zips.length === 0) {
+			return;
+		}
+
+		for (const relativeZipPath of zips) {
+			fs.removeSync(`${this.visualRoot}${path.sep}${relativeZipPath}`);
+		}
 	}
 
-	private visualRoot: string | null = null
+	async detectLastVisual(): Promise<null | string> {
+		const root = getRoot();
+		const lastDev = getLastDev();
 
-	private isDebugging = false
+		if (!lastDev) {
+			return null;
+		}
 
-	private bundle: any = null
+		let visualExists = false;
 
-	private bundler: any = null
+		try {
+			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev));
+			visualExists = stats.isDirectory();
+		} catch {
+			// do nothing
+		}
 
-	private localZipPath: string | null = null
+		const lastVisualContent = lastDev;
 
-	private shouldDestroyBundle = false
+		if (!visualExists) {
+			return null;
+		}
+
+		const lastVisualAnswers = await inquirer.prompt({
+			choices: [
+				'Yes',
+				'No',
+			],
+			message: `Develop recent template? ${lastVisualContent}`,
+			name: 'first',
+			type: 'list',
+		});
+
+		return lastVisualAnswers.first === 'Yes' ? lastVisualContent : null;
+	}
+
+	async exitHandler(code = 0): Promise<void> {
+		const tasks = new Listr([{
+			task: async (ctx, task): Promise<void> => {
+				if (this.shouldDestroyBundle && this.bundle) {
+					const config = {
+						data: {
+							commitMessage: 'CLI stopped',
+							saveChanges: false,
+							targetBranch: this.bundle.branch,
+						},
+						method: 'DELETE',
+						url: devstackUrl(`/bundles/${this.bundle.id}`),
+					};
+
+					await this.performRequest(config);
+				}
+
+				if (this.localZipPath && fs.existsSync(this.localZipPath)) {
+					await fs.unlink(this.localZipPath);
+				}
+
+				task.title = chalk.green('Stopped');
+			},
+			title: chalk.blue('Stopping bundler...'),
+		}]);
+
+		await this.runTasks(tasks);
+
+		process.exit(code);
+	}
+
+	async findRunningBundle(orgName: string, repoName: string, outputCategory: string): Promise<any> {
+		try {
+			const config = {
+				headers: {
+					'X-Brand': orgName,
+				},
+				method: 'GET',
+				params: {
+					gitOrgName: orgName,
+					gitRepoName: repoName,
+					outputCategory,
+				},
+				url: devstackUrl('/bundles/running'),
+			};
+
+			const { data } = await this.performRequest(config);
+
+			return data.bundle;
+		} catch (error: any) {
+			Sentry.captureException(error);
+
+			if (this.isDebugging) {
+				this.reportError(error);
+			}
+		}
+	}
+
+	async getBranches(orgName: string, repoName: string): Promise<any> {
+		try {
+			const config = {
+				headers: {
+					'X-Brand': orgName,
+				},
+				method: 'get',
+				params: {
+					gitRepoName: repoName,
+				},
+				url: devstackUrl('/gitea/branches'),
+			};
+
+			const { data } = await this.performRequest(config);
+
+			return data.branches;
+		} catch (error: any) {
+			Sentry.captureException(error);
+
+			if (this.isDebugging) {
+				this.reportError(error);
+			}
+
+			return null;
+		}
+	}
+
+	async getLastVisual(): Promise<null | string> {
+		const root = getRoot();
+		const lastDev = getLastDev();
+
+		if (!lastDev) {
+			return null;
+		}
+
+		let visualExists = false;
+
+		try {
+			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev));
+			visualExists = stats.isDirectory();
+		} catch (error) {
+			console.error(error);
+		}
+
+		if (!visualExists) {
+			return null;
+		}
+
+		return lastDev;
+	}
+
+	getRelativePath(filePath: string): string {
+		const replace = new RegExp(`\\${path.sep}`, 'g');
+		// on windows, chokidar return path with windows separators
+		// normalize that, since we use unix separators across the board
+		const normalizedPath = filePath.replace(replace, '\/');
+
+		// console.log('VISUAL ROOT: ', this.visualRoot, '\nFILE PATH:', filePath, '\nNORMALIZED PATH:', normalizedPath);
+
+		return normalizedPath.replace(`${this.visualRoot}`, '');
+	}
+
+	async getRepository(orgName: string, repoName: string): Promise<any> {
+		try {
+			const config = {
+				headers: {
+					'X-Brand': orgName,
+				},
+				method: 'get',
+				url: devstackUrl(`/gitea/repos/${repoName}`),
+			};
+
+			const { data } = await this.performRequest(config);
+
+			return data.repo;
+		} catch (error: any) {
+			Sentry.captureException(error);
+
+			if (this.isDebugging) {
+				this.reportError(error);
+			}
+
+			return null;
+		}
+	}
+
+	async onAdd(filepath: string): Promise<void> {
+		const relativePath = this.getRelativePath(filepath);
+
+		const tasks = new Listr([{
+			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
+				if (this.isDebugging) {
+					console.log(`Added file: ${this.endpoints.store.url.replaceAll('{path}', relativePath)}`);
+				}
+
+				try {
+					const filename = path.basename(filepath);
+					const formData = new FormData();
+
+					formData.append('bundleId', this.bundle.id);
+					formData.append('path', relativePath.replace(`/${filename}`, '') || '/');
+					formData.append('files[]', fs.createReadStream(filepath), filename);
+
+					const config = {
+						cancelToken: this.getCancelToken(filepath),
+						data: formData,
+						headers: {
+							'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
+						},
+						method: this.endpoints.upload.method,
+						url: this.endpoints.upload.url,
+					};
+
+					await this.performRequest(config);
+
+					task.title = chalk.green(`Stored file "${relativePath}"`);
+
+					resolve();
+				} catch (error: any) {
+					reject(error);
+				}
+			}),
+			title: chalk.blue(`Storing file "${relativePath}"...`),
+		}]);
+
+		await this.runTasks(tasks);
+	}
+
+	async onAddDir(filepath: string): Promise<void> {
+		const relativePath = this.getRelativePath(filepath);
+		const tasks = new Listr([{
+			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
+				try {
+					const config = {
+						cancelToken: this.getCancelToken(filepath),
+						method: this.endpoints.mkdir.method,
+						url: this.endpoints.mkdir.url.replaceAll('{value}', this.getRelativePath(filepath)),
+					};
+
+					await this.performRequest(config);
+
+					task.title = chalk.green(`Created directory "${relativePath}"`);
+
+					resolve();
+				} catch (error: any) {
+					reject(error);
+				}
+			}),
+			title: chalk.blue(`Creating directory "${relativePath}"...`),
+		}]);
+
+		await this.runTasks(tasks);
+	}
+
+	async onChange(filepath: string): Promise<void> {
+		const relativePath = this.getRelativePath(filepath);
+		const tasks = new Listr([{
+			task: (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
+				if (this.isDebugging) {
+					console.log(`Edited file: ${this.endpoints.store.url.replaceAll('{path}', relativePath)}`);
+				}
+
+				try {
+					const config = {
+						cancelToken: this.getCancelToken(filepath),
+						data: {
+							content: fs.readFileSync(filepath, { encoding: 'utf8' }),
+						},
+						method: this.endpoints.store.method,
+						url: this.endpoints.store.url.replaceAll('{path}', relativePath),
+					};
+
+					await this.performRequest(config);
+
+					task.title = chalk.green(`Updated "${relativePath}"`);
+
+					resolve();
+				} catch (error: any) {
+					reject(error);
+				}
+			}),
+			title: chalk.blue(`Updating "${relativePath}"...`),
+		}]);
+
+		await this.runTasks(tasks);
+	}
+
+	async onUnlink(filepath: string): Promise<void> {
+		await this.unlink(filepath);
+	}
+
+	async onUnlinkDir(filepath: string): Promise<void> {
+		await this.unlink(filepath);
+	}
 
 	async run(): Promise<void> {
 		const { flags } = await this.parse(Dev);
-		const { debug, newest, latest } = flags;
+		const { debug, latest, newest } = flags;
 
 		this.isDebugging = debug;
 
@@ -101,7 +406,7 @@ export class Dev extends AuthenticatedCommand {
 
 		// Selected visual being edited
 
-		let visualPath: string | null;
+		let visualPath: null | string;
 
 		if (newest && getConfig('newestVisual')) {
 			visualPath = getConfig('newestVisual');
@@ -181,13 +486,13 @@ export class Dev extends AuthenticatedCommand {
 			console.log(chalk.yellow.bold('Template is already being edited in studio. If you start a local build, all unsaved changes from studio will be overwritten by local files'));
 
 			const resumingBundleChoice = await inquirer.prompt({
-				type: 'list',
-				name: 'answer',
-				message: chalk.yellow('Do you wish to continue?'),
 				choices: [
 					'Yes',
 					'No',
 				],
+				message: chalk.yellow('Do you wish to continue?'),
+				name: 'answer',
+				type: 'list',
 			});
 
 			if (resumingBundleChoice.answer === 'No') {
@@ -197,7 +502,7 @@ export class Dev extends AuthenticatedCommand {
 		} else {
 			const branches = await this.getBranches(orgName, repository.name);
 
-			let branch: string | null = null;
+			let branch: null | string = null;
 
 			if (branches.length === 0) {
 				console.log(chalk.red('🤖 No branches found'));
@@ -210,10 +515,10 @@ export class Dev extends AuthenticatedCommand {
 
 			if (!branch) {
 				const branchChoices = {
-					type: 'search-list',
-					name: 'selectedBranch',
-					message: 'Select branch',
 					choices: branches,
+					message: 'Select branch',
+					name: 'selectedBranch',
+					type: 'search-list',
 				};
 
 				const branchAnswer = await inquirer.prompt([branchChoices]);
@@ -258,7 +563,6 @@ export class Dev extends AuthenticatedCommand {
 
 		// run preview
 		const tasks = new Listr([{
-			title: chalk.blue('Running bundler...'),
 			task: async (ctx, task) => {
 				this.bundler = await this.startBundler(orgName, this.bundle.id);
 
@@ -272,6 +576,7 @@ export class Dev extends AuthenticatedCommand {
 
 				task.title = chalk.green(`Started bundle ${url}`);
 			},
+			title: chalk.blue('Running bundler...'),
 		}]);
 
 		await this.runTasks(tasks);
@@ -281,110 +586,11 @@ export class Dev extends AuthenticatedCommand {
 		console.log(chalk.blue('🤖 Watching for changes... Press ctrl + c to stop bundler'));
 	}
 
-	async exitHandler(code = 0): Promise<void> {
-		const tasks = new Listr([{
-			title: chalk.blue('Stopping bundler...'),
-			task: async (ctx, task): Promise<void> => {
-				if (this.shouldDestroyBundle && this.bundle) {
-					const config = {
-						url: devstackUrl(`/bundles/${this.bundle.id}`),
-						method: 'DELETE',
-						data: {
-							saveChanges: false,
-							commitMessage: 'CLI stopped',
-							targetBranch: this.bundle.branch,
-						},
-					};
-
-					await this.performRequest(config);
-				}
-
-				if (this.localZipPath && fs.existsSync(this.localZipPath)) {
-					await fs.unlink(this.localZipPath);
-				}
-
-				task.title = chalk.green('Stopped');
-			},
-		}]);
-
-		await this.runTasks(tasks);
-
-		process.exit(code);
-	}
-
-	async getLastVisual(): Promise<string | null> {
-		const root = getRoot();
-		const lastDev = getLastDev();
-
-		if (!lastDev) {
-			return null;
-		}
-
-		let visualExists = false;
-
+	async runTasks(tasks: Listr): Promise<boolean> {
 		try {
-			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev));
-			visualExists = stats.isDirectory();
-		} catch (error) {
-			console.error(error);
-		}
+			await tasks.run();
 
-		if (!visualExists) {
-			return null;
-		}
-
-		return lastDev;
-	}
-
-	async detectLastVisual(): Promise<string | null> {
-		const root = getRoot();
-		const lastDev = getLastDev();
-
-		if (!lastDev) {
-			return null;
-		}
-
-		let visualExists = false;
-
-		try {
-			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev));
-			visualExists = stats.isDirectory();
-		} catch {
-			// do nothing
-		}
-
-		const lastVisualContent = lastDev;
-
-		if (!visualExists) {
-			return null;
-		}
-
-		const lastVisualAnswers = await inquirer.prompt({
-			type: 'list',
-			name: 'first',
-			message: `Develop recent template? ${lastVisualContent}`,
-			choices: [
-				'Yes',
-				'No',
-			],
-		});
-
-		return lastVisualAnswers.first === 'Yes' ? lastVisualContent : null;
-	}
-
-	async getRepository(orgName: string, repoName: string): Promise<any> {
-		try {
-			const config = {
-				url: devstackUrl(`/gitea/repos/${repoName}`),
-				method: 'get',
-				headers: {
-					'X-Brand': orgName,
-				},
-			};
-
-			const { data } = await this.performRequest(config);
-
-			return data.repo;
+			return true;
 		} catch (error: any) {
 			Sentry.captureException(error);
 
@@ -392,86 +598,56 @@ export class Dev extends AuthenticatedCommand {
 				this.reportError(error);
 			}
 
-			return null;
-		}
-	}
-
-	async getBranches(orgName: string, repoName: string): Promise<any> {
-		try {
-			const config = {
-				url: devstackUrl('/gitea/branches'),
-				method: 'get',
-				params: {
-					gitRepoName: repoName,
-				},
-				headers: {
-					'X-Brand': orgName,
-				},
-			};
-
-			const { data } = await this.performRequest(config);
-
-			return data.branches;
-		} catch (error: any) {
-			Sentry.captureException(error);
-
-			if (this.isDebugging) {
-				this.reportError(error);
-			}
-
-			return null;
-		}
-	}
-
-	async findRunningBundle(orgName: string, repoName: string, outputCategory: string): Promise<any> {
-		try {
-			const config = {
-				url: devstackUrl('/bundles/running'),
-				method: 'GET',
-				params: {
-					gitOrgName: orgName,
-					gitRepoName: repoName,
-					outputCategory: outputCategory,
-				},
-				headers: {
-					'X-Brand': orgName,
-				},
-			};
-
-			const { data } = await this.performRequest(config);
-
-			return data.bundle;
-		} catch (error: any) {
-			Sentry.captureException(error);
-
-			if (this.isDebugging) {
-				this.reportError(error);
-			}
+			return false;
 		}
 	}
 
 	async startBundle(branch: string, orgName: string, repoName: string, outputCategory: string): Promise<any> {
 		try {
 			const config = {
-				url: devstackUrl('/bundles'),
-				method: 'POST',
 				data: {
-					target: 'local',
-					branch: branch,
+					branch,
 					gitOrgName: orgName,
 					gitRepoName: repoName,
-					outputCategory: outputCategory,
+					// clone repo without checking out files
+					noCheckout: true,
+					outputCategory,
 					// initially we stop the bundle file watcher on devstack side
 					// because we'll be performing an ingest operation which would
 					// unnecessary fire file change events, after ingest, we need to
 					// manually start the watcher again
 					startFileWatcher: false,
-					// clone repo without checking out files
-					noCheckout: true,
+					target: 'local',
 				},
 				headers: {
 					'X-Brand': orgName,
 				},
+				method: 'POST',
+				url: devstackUrl('/bundles'),
+			};
+
+			const { data } = await this.performRequest(config);
+
+			return data;
+		} catch (error: any) {
+			Sentry.captureException(error);
+
+			if (this.isDebugging) {
+				this.reportError(error);
+			}
+
+			return null;
+		}
+	}
+
+	async startBundler(orgName: string, bundleId: number): Promise<any> {
+		try {
+			const config = {
+				headers: {
+					'X-Brand': orgName,
+				},
+				method: 'post',
+				url: devstackUrl(`/bundlers/${bundleId}`),
 			};
 
 			const { data } = await this.performRequest(config);
@@ -491,11 +667,11 @@ export class Dev extends AuthenticatedCommand {
 	async startBundleWatcher(orgName: string): Promise<void> {
 		try {
 			const config = {
-				url: devstackUrl(`/bundle-watchers/start/${this.bundle.id}`),
-				method: 'POST',
 				headers: {
 					'X-Brand': orgName,
 				},
+				method: 'POST',
+				url: devstackUrl(`/bundle-watchers/start/${this.bundle.id}`),
 			};
 
 			await this.performRequest(config);
@@ -508,27 +684,29 @@ export class Dev extends AuthenticatedCommand {
 		}
 	}
 
-	deleteHangingZipFiles(gitRepoName: string): void {
+	async startWatcher(): Promise<any> {
 		if (!this.visualRoot) {
-			return;
+			console.log(chalk.red('🛑 Templates root not set! Cannot start watcher.'));
+			return this.exitHandler(1);
 		}
 
-		const zips = glob.sync(`${gitRepoName}-*.zip`, { cwd: this.visualRoot });
+		// init file watcher
+		const watcher = chokidar.watch(`${this.visualRoot}`, this.chokidarOptions);
 
-		if (zips.length === 0) {
-			return;
-		}
+		// bind event listeners + set context of functions to current class
+		watcher.on('add', this.onAdd.bind(this));
+		watcher.on('unlink', this.onUnlink.bind(this));
+		watcher.on('change', this.onChange.bind(this));
+		watcher.on('addDir', this.onAddDir.bind(this));
+		watcher.on('unlinkDir', this.onUnlinkDir.bind(this));
 
-		for (const relativeZipPath of zips) {
-			fs.removeSync(`${this.visualRoot}${path.sep}${relativeZipPath}`);
-		}
+		return watcher;
 	}
 
 	async syncLocalFilesToDevstack(gitRepoName: string): Promise<boolean> {
 		this.deleteHangingZipFiles(gitRepoName);
 
 		const tasks = new Listr([{
-			title: chalk.blue('Uploading local files to devstack 0%...'),
 			task: async (ctx, task) => {
 				const zip = new AdmZip();
 
@@ -553,17 +731,16 @@ export class Dev extends AuthenticatedCommand {
 				formData.append('files[]', fs.createReadStream(this.localZipPath), zipName);
 
 				const config = {
-					url: devstackUrl('/ingest'),
-					method: 'POST',
 					cancelToken: this.getCancelToken(this.localZipPath),
 					data: formData,
+					headers: {
+						'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
+					},
 					// 10 * 1 Gb
 					maxBodyLength: 10 * 1_073_741_824,
 					// 10 * 1 Gb
 					maxContentLength: 10 * 1_073_741_824,
-					headers: {
-						'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
-					},
+					method: 'POST',
 					onUploadProgress({ loaded, total }: AxiosProgressEvent) {
 						if (!total) {
 							return;
@@ -575,6 +752,7 @@ export class Dev extends AuthenticatedCommand {
 							? chalk.blue(`Uploading local files to devstack ${percent}%...`)
 							: chalk.blue('Processing uploaded file...');
 					},
+					url: devstackUrl('/ingest'),
 				};
 
 				await this.performRequest(config);
@@ -583,188 +761,25 @@ export class Dev extends AuthenticatedCommand {
 
 				task.title = chalk.green('Uploaded local files to devstack');
 			},
+			title: chalk.blue('Uploading local files to devstack 0%...'),
 		}]);
 
 		return this.runTasks(tasks);
 	}
 
-	async startBundler(orgName: string, bundleId: number): Promise<any> {
-		try {
-			const config = {
-				url: devstackUrl(`/bundlers/${bundleId}`),
-				method: 'post',
-				headers: {
-					'X-Brand': orgName,
-				},
-			};
-
-			const { data } = await this.performRequest(config);
-
-			return data;
-		} catch (error: any) {
-			Sentry.captureException(error);
-
-			if (this.isDebugging) {
-				this.reportError(error);
-			}
-
-			return null;
-		}
-	}
-
-	async startWatcher(): Promise<any> {
-		if (!this.visualRoot) {
-			console.log(chalk.red('🛑 Templates root not set! Cannot start watcher.'));
-			return this.exitHandler(1);
-		}
-
-		// init file watcher
-		const watcher = chokidar.watch(`${this.visualRoot}`, this.chokidarOptions);
-
-		// bind event listeners + set context of functions to current class
-		watcher.on('add', this.onAdd.bind(this));
-		watcher.on('unlink', this.onUnlink.bind(this));
-		watcher.on('change', this.onChange.bind(this));
-		watcher.on('addDir', this.onAddDir.bind(this));
-		watcher.on('unlinkDir', this.onUnlinkDir.bind(this));
-
-		return watcher;
-	}
-
-	getRelativePath(filePath: string): string {
-		const replace = new RegExp(`\\${path.sep}`, 'g');
-		// on windows, chokidar return path with windows separators
-		// normalize that, since we use unix separators across the board
-		const normalizedPath = filePath.replace(replace, '\/');
-
-		// console.log('VISUAL ROOT: ', this.visualRoot, '\nFILE PATH:', filePath, '\nNORMALIZED PATH:', normalizedPath);
-
-		return normalizedPath.replace(`${this.visualRoot}`, '');
-	}
-
-	async onChange(filepath: string): Promise<void> {
-		const relativePath = this.getRelativePath(filepath);
-		const tasks = new Listr([{
-			title: chalk.blue(`Updating "${relativePath}"...`),
-			task: (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
-				if (this.isDebugging) {
-					console.log(`Edited file: ${this.endpoints.store.url.replace(/{path}/g, relativePath)}`);
-				}
-
-				try {
-					const config = {
-						url: this.endpoints.store.url.replace(/{path}/g, relativePath),
-						method: this.endpoints.store.method,
-						cancelToken: this.getCancelToken(filepath),
-						data: {
-							content: fs.readFileSync(filepath, { encoding: 'utf8' }),
-						},
-					};
-
-					await this.performRequest(config);
-
-					task.title = chalk.green(`Updated "${relativePath}"`);
-
-					resolve();
-				} catch (error: any) {
-					reject(error);
-				}
-			}),
-		}]);
-
-		await this.runTasks(tasks);
-	}
-
-	async onAdd(filepath: string): Promise<void> {
-		const relativePath = this.getRelativePath(filepath);
-
-		const tasks = new Listr([{
-			title: chalk.blue(`Storing file "${relativePath}"...`),
-			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
-				if (this.isDebugging) {
-					console.log(`Added file: ${this.endpoints.store.url.replace(/{path}/g, relativePath)}`);
-				}
-
-				try {
-					const filename = path.basename(filepath);
-					const formData = new FormData();
-
-					formData.append('bundleId', this.bundle.id);
-					formData.append('path', relativePath.replace(`/${filename}`, '') || '/');
-					formData.append('files[]', fs.createReadStream(filepath), filename);
-
-					const config = {
-						url: this.endpoints.upload.url,
-						method: this.endpoints.upload.method,
-						cancelToken: this.getCancelToken(filepath),
-						data: formData,
-						headers: {
-							'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
-						},
-					};
-
-					await this.performRequest(config);
-
-					task.title = chalk.green(`Stored file "${relativePath}"`);
-
-					resolve();
-				} catch (error: any) {
-					reject(error);
-				}
-			}),
-		}]);
-
-		await this.runTasks(tasks);
-	}
-
-	async onUnlink(filepath: string): Promise<void> {
-		await this.unlink(filepath);
-	}
-
-	async onAddDir(filepath: string): Promise<void> {
-		const relativePath = this.getRelativePath(filepath);
-		const tasks = new Listr([{
-			title: chalk.blue(`Creating directory "${relativePath}"...`),
-			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
-				try {
-					const config = {
-						url: this.endpoints.mkdir.url.replace(/{value}/g, this.getRelativePath(filepath)),
-						method: this.endpoints.mkdir.method,
-						cancelToken: this.getCancelToken(filepath),
-					};
-
-					await this.performRequest(config);
-
-					task.title = chalk.green(`Created directory "${relativePath}"`);
-
-					resolve();
-				} catch (error: any) {
-					reject(error);
-				}
-			}),
-		}]);
-
-		await this.runTasks(tasks);
-	}
-
-	async onUnlinkDir(filepath: string): Promise<void> {
-		await this.unlink(filepath);
-	}
-
 	async unlink(filepath: string): Promise<void> {
 		const relativePath = this.getRelativePath(filepath);
 		const tasks = new Listr([{
-			title: chalk.blue(`Deleting "${relativePath}"...`),
 			task: async (ctx, task): Promise<void> => new Promise(async (resolve, reject) => {
 				if (this.isDebugging) {
-					console.log(`Removed file: ${this.endpoints.store.url.replace(/{path}/g, relativePath)}`);
+					console.log(`Removed file: ${this.endpoints.store.url.replaceAll('{path}', relativePath)}`);
 				}
 
 				try {
 					const config = {
-						url: this.endpoints.delete.url.replace(/{value}/g, relativePath),
-						method: this.endpoints.delete.method,
 						cancelToken: this.getCancelToken(filepath),
+						method: this.endpoints.delete.method,
+						url: this.endpoints.delete.url.replaceAll('{value}', relativePath),
 					};
 
 					await this.performRequest(config);
@@ -786,25 +801,10 @@ export class Dev extends AuthenticatedCommand {
 					reject(error);
 				}
 			}),
+			title: chalk.blue(`Deleting "${relativePath}"...`),
 		}]);
 
 		await this.runTasks(tasks);
-	}
-
-	async runTasks(tasks: Listr): Promise<boolean> {
-		try {
-			await tasks.run();
-
-			return true;
-		} catch (error: any) {
-			Sentry.captureException(error);
-
-			if (this.isDebugging) {
-				this.reportError(error);
-			}
-
-			return false;
-		}
 	}
 
 	private async wasSyncRun(): Promise<void> {
@@ -813,13 +813,13 @@ export class Dev extends AuthenticatedCommand {
 		}
 
 		const shouldRunSyncCommand = await inquirer.prompt({
-			type: 'list',
-			name: 'answer',
-			message: chalk.yellow(`Before running the dev command you need to run "${this.config.bin} sync" to download synchronised templates. Do you wish to run this command now?`),
 			choices: [
 				'Yes',
 				'No',
 			],
+			message: chalk.yellow(`Before running the dev command you need to run "${this.config.bin} sync" to download synchronised templates. Do you wish to run this command now?`),
+			name: 'answer',
+			type: 'list',
 		});
 
 		if (shouldRunSyncCommand.answer === 'No') {

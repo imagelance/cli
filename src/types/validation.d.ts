@@ -1,5 +1,5 @@
 export interface ValidatorEntry {
-	level: string;
 	category: string;
+	level: string;
 	message: string;
 }

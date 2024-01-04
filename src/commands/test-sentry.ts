@@ -1,11 +1,12 @@
-import BaseCommand from '../base-command';
 import * as Sentry from '@sentry/node';
 
+import BaseCommand from '../base-command';
+
 export class TestSentry extends BaseCommand {
-	static description = 'Test whether Sentry error reporting is working'
+	static description = 'Test whether Sentry error reporting is working';
 
 	// hide the command from help
-	static hidden = true
+	static hidden = true;
 
 	async run(): Promise<void> {
 		Sentry.captureMessage('Test');

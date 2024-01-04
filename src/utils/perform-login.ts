@@ -1,10 +1,10 @@
-import express from 'express';
-import path from 'node:path';
-import chalk from 'chalk';
-import randomstring from 'randomstring';
-import open from 'open';
-import Listr, { ListrContext, ListrTaskWrapper } from 'listr';
 import * as Sentry from '@sentry/node';
+import chalk from 'chalk';
+import express from 'express';
+import Listr, { ListrContext, ListrTaskWrapper } from 'listr';
+import path from 'node:path';
+import open from 'open';
+import randomstring from 'randomstring';
 
 import { Token } from '../types/login';
 import accountsUrl from './accounts-url';
@@ -13,7 +13,7 @@ import { performRequest } from './perform-request';
 import { reportError } from './report-error';
 
 export async function performLogin(flags: any): Promise<void> {
-	const { local, debug } = flags;
+	const { debug, local } = flags;
 
 	const oauthClientId = local ? '963b867a-f8a3-4abf-abc7-9b2cf27376eb' : '963bd29c-5162-4e81-b3c7-e6b22915d68e';
 	const oauthClientSecret = local ? 'wCeDg2MlEkVURVpVPxxN1cq9R9qhBZcu2lXVK3eY' : 'EDBe481iZWGXk4hnOJUH9FcFqRu7yxzrjDYYj83x';
@@ -34,15 +34,15 @@ export async function performLogin(flags: any): Promise<void> {
 
 		try {
 			const { data } = await performRequest({
-				url: accountsUrl('/oauth/token', false),
-				method: 'POST',
 				data: {
-					grant_type: 'authorization_code',
-					code,
-					redirect_uri: redirectUri,
 					client_id: oauthClientId,
 					client_secret: oauthClientSecret,
+					code,
+					grant_type: 'authorization_code',
+					redirect_uri: redirectUri,
 				},
+				method: 'POST',
+				url: accountsUrl('/oauth/token', false),
 			}, false);
 
 			token = data;
@@ -53,7 +53,7 @@ export async function performLogin(flags: any): Promise<void> {
 		return res.sendFile(path.join(__dirname, '../assets/success.html'));
 	});
 
-	const server = await app.listen(expressPort);
+	const server = app.listen(expressPort);
 
 	if (debug) {
 		console.log(chalk.green(`Listening on port ${expressPort}`));
@@ -68,7 +68,7 @@ export async function performLogin(flags: any): Promise<void> {
 		state,
 	};
 
-	const endpoint = `oauth/authorize?${(new URLSearchParams(challenge)).toString()}`;
+	const endpoint = `/oauth/authorize?${(new URLSearchParams(challenge)).toString()}`;
 	const url: string = accountsUrl(endpoint, false);
 
 	await open(url);
@@ -76,7 +76,6 @@ export async function performLogin(flags: any): Promise<void> {
 
 	const runner = new Listr([
 		{
-			title: 'Awaiting login in browser...',
 			task: async (ctx: ListrContext, task: ListrTaskWrapper) => new Promise<void>((resolve) => {
 				let checks = 0;
 
@@ -97,8 +96,8 @@ export async function performLogin(flags: any): Promise<void> {
 
 						try {
 							const { data: user } = await performRequest({
-								url: accountsUrl('user'),
 								method: 'GET',
+								url: accountsUrl('/user'),
 							});
 
 							setUser(user);
@@ -113,7 +112,7 @@ export async function performLogin(flags: any): Promise<void> {
 							reportError(error);
 
 							if (server) {
-								await server.close();
+								server.close();
 							}
 
 							process.exit(1);
@@ -121,6 +120,7 @@ export async function performLogin(flags: any): Promise<void> {
 					}
 				}, 2000);
 			}),
+			title: 'Awaiting login in browser...',
 		},
 	]);
 
@@ -135,6 +135,6 @@ export async function performLogin(flags: any): Promise<void> {
 	}
 
 	if (server) {
-		await server.close();
+		server.close();
 	}
 }

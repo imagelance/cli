@@ -3,7 +3,7 @@ import { isLocal } from './config-getters';
 export default function devstackUrl(url: string): string {
 	url = url.trim();
 	// trim slashes
-	url = url.replace(/^\/|\/$/g, '');
+	url = url.replaceAll(/^\/|\/$/g, '');
 
 	if (isLocal()) {
 		return `http://localhost:8060/api/${url}`;

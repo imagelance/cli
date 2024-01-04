@@ -1,6 +1,6 @@
-import config from './config';
-import { Token } from '../types/login';
 import { User } from '../types/authenticated-command';
+import { Token } from '../types/login';
+import config from './config';
 
 const isLocal = function (): boolean {
 	const args = process.argv.slice(2);
@@ -28,7 +28,7 @@ const getConfig = function (name: string): any {
 	return config.get(name);
 };
 
-const getAccessToken = function (): string | null {
+const getAccessToken = function (): null | string {
 	const token: Token | null = getConfig('token');
 
 	if (!token) {
@@ -68,13 +68,13 @@ const getGitConfig = function (mergedConfig: { [key: string]: any } = {}): { [ke
 	};
 };
 
-const getGitOrigin = function (organization: string, repo: string) {
+const getGitOrigin = function (organization: string, repo: string): string {
 	const gitUsername = getUsername();
 	const gitPassword = getPassword();
 	const gitDomain = 'git.imagelance.com';
 
 	return `https://${gitUsername}:${gitPassword}@${gitDomain}/${organization}/${repo}.git`;
-}
+};
 
 const setUser = (user: User): void => {
 	setConfig('username', user.git_username);
@@ -85,19 +85,19 @@ const setUser = (user: User): void => {
 };
 
 export {
-	isLocal,
-	getRoot,
-	getLastDev,
-	getUsername,
-	getPassword,
-	setConfig,
-	getConfig,
 	getAccessToken,
 	getCommand,
+	getConfig,
 	getGitConfig,
 	getGitOrigin,
-	setUser,
-	setIsInstalled,
-	isInstalled,
+	getLastDev,
+	getPassword,
+	getRoot,
+	getUsername,
 	hasSynced,
+	isInstalled,
+	isLocal,
+	setConfig,
+	setIsInstalled,
+	setUser,
 };
