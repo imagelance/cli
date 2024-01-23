@@ -57,27 +57,27 @@ export class Push extends AuthenticatedCommand {
 
 		const root: string = getRoot();
 		const git = simpleGit(getGitConfig());
-		const brandFolders: string[] = await getDirectories(path.join(root, 'src'));
+		const brandFolders: string[] = await getDirectories(root);
 		const tasks: ListrTask[] = [];
 		const changedVisuals: any[] = [];
 		const brands: string[] = brandFolders.filter((folder: string) => folder[0] !== '.');
 
 		for (const brandIndex in brands) {
-			if (!brands.hasOwnProperty(brandIndex)) {
+			if (!brands[brandIndex]) {
 				continue;
 			}
 
 			const brand: string = brands[brandIndex];
-			const visualFolders: string[] = await getDirectories(path.join(root, 'src', brand));
+			const visualFolders: string[] = await getDirectories(path.join(root, brand));
 			const visuals: string[] = visualFolders.filter((folder: string) => folder[0] !== '.');
 
 			for (const visualIndex in visuals) {
-				if (!visuals.hasOwnProperty(visualIndex)) {
+				if (!visuals[visualIndex]) {
 					continue;
 				}
 
 				const visual: string = visuals[visualIndex];
-				const visualPath: string = path.join(root, 'src', brand, visual);
+				const visualPath: string = path.join(root, brand, visual);
 
 				try {
 					await git.cwd(visualPath);
@@ -146,7 +146,7 @@ export class Push extends AuthenticatedCommand {
 			};
 
 			tasks.push({
-				task: async (ctx: ListrContext, task: ListrTaskWrapper) => await this.push(config, task),
+				task: (ctx: ListrContext, task: ListrTaskWrapper) => this.push(config, task),
 				title: chalk.blue(`Pushing "${repoName}"...`),
 			});
 		}

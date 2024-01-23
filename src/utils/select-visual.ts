@@ -8,7 +8,7 @@ import getDirectories from './get-directories';
 export default async function selectVisual() {
 	const root: string = getRoot();
 
-	const brandFolders = await getDirectories(path.join(root, 'src'));
+	const brandFolders = await getDirectories(root);
 	const brands = brandFolders.filter((folder) => folder[0] !== '.');
 
 	if (brands.length === 0) {
@@ -23,7 +23,7 @@ export default async function selectVisual() {
 	} else {
 		const brandChoices = {
 			choices: brands.map((brandPath) => brandPath.toString()
-				.replace(`${root}/src/`, '')
+				.replace(`${root}/`, '')
 				.replace('/brand.json', '')),
 			message: 'Select brand',
 			name: 'selectedBrand',
@@ -43,7 +43,7 @@ export default async function selectVisual() {
 
 	// Visual
 
-	const visualFolders = await getDirectories(path.join(root, 'src', selectedBrand));
+	const visualFolders = await getDirectories(path.join(root, selectedBrand));
 	const visuals = visualFolders.filter((folder) => folder[0] !== '.');
 
 	if (visuals.length === 0) {
@@ -56,7 +56,7 @@ export default async function selectVisual() {
 	const visualsChoices = {
 		choices: visuals.map((visualPath) => visualPath
 			.toString()
-			.replace(`${root}/src/${selectedBrand}/`, '')
+			.replace(`${root}/${selectedBrand}/`, '')
 			.replace('/', ''),
 		),
 		message: 'Select template',

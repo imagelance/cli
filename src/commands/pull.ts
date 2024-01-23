@@ -16,6 +16,7 @@ export class Pull extends AuthenticatedCommand {
 			return;
 		}
 
+		await git.branch(['--set-upstream-to=origin/master', 'master']);
 		await git.pull();
 	}
 
@@ -25,29 +26,29 @@ export class Pull extends AuthenticatedCommand {
 
 		const tasks: ListrTask[] = [];
 		const root: string = getRoot();
-		const brandFolders: string[] = await getDirectories(path.join(root, 'src'));
+		const brandFolders: string[] = await getDirectories(root);
 		const brands: string[] = brandFolders.filter((folder: string) => folder[0] !== '.');
 
 		for (const brandIndex in brands) {
-			if (!brands.hasOwnProperty(brandIndex)) {
+			if (!brands[brandIndex]) {
 				continue;
 			}
 
 			const brand: string = brands[brandIndex];
-			const visualFolders: string[] = await getDirectories(path.join(root, 'src', brand));
+			const visualFolders: string[] = await getDirectories(path.join(root, brand));
 
 			const visuals: string[] = visualFolders.filter((folder: string) => folder[0] !== '.');
 
 			for (const visualIndex in visuals) {
-				if (!visuals.hasOwnProperty(visualIndex)) {
+				if (!visuals[visualIndex]) {
 					continue;
 				}
 
 				const visual = visuals[visualIndex];
-				const visualPath = path.join(root, 'src', brand, visual);
+				const visualPath = path.join(root, brand, visual);
 
 				tasks.push({
-					task: async () => await this.fetchAndPull(visualPath, brand, visual),
+					task: () => this.fetchAndPull(visualPath, brand, visual),
 					title: `Fetching & pulling ${visualPath}`,
 				});
 			}

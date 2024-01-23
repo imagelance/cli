@@ -13,17 +13,17 @@ export class Validate extends AuthenticatedCommand {
 
 	async run(): Promise<void> {
 		const root: string = getRoot();
-		const brandFolders: string[] = await getDirectories(path.join(root, 'src'));
+		const brandFolders: string[] = await getDirectories(root);
 		const brands: string[] = brandFolders.filter((folder: string) => folder[0] !== '.');
 
 		for (const brandIndex in brands) {
 			const brand: string = brands[brandIndex];
-			const visualFolders: string[] = await getDirectories(path.join(root, 'src', brand));
+			const visualFolders: string[] = await getDirectories(path.join(root, brand));
 			const visuals: string[] = visualFolders.filter((folder: string) => folder[0] !== '.');
 
 			for (const visualIndex in visuals) {
 				const visual = visuals[visualIndex];
-				const visualPath = path.join(root, 'src', brand, visual);
+				const visualPath = path.join(root, brand, visual);
 
 				await this.validate(visualPath, brand, visual);
 			}

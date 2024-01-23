@@ -6,40 +6,40 @@ import os from 'node:os';
 import path from 'node:path';
 import rimraf from 'rimraf';
 
-import { getRoot, setConfig, setIsInstalled } from './config-getters';
+import { getRoot, getUsername, setConfig, setIsInstalled } from './config-getters';
 
 export async function performInstall(): Promise<void> {
 	const currentRoot = getRoot();
 
 	if (currentRoot) {
-		const confirm = await inquirer.prompt({
+		const shouldChangeRootLocation = await inquirer.prompt({
 			default: false,
-			message: `Root folder for templates is already set to ${currentRoot}. Do you want to change the location?`,
-			name: 'confirm',
+			message: `Root folder for templates is already set to ${currentRoot}. Do you want to change it's location?`,
+			name: 'answer',
 			type: 'confirm',
 		});
 
-		if (!confirm.confirm) {
+		if (!shouldChangeRootLocation.answer) {
 			process.exit(1);
 		}
 	}
 
-	const homeDir = path.join(os.homedir(), 'imagelance-templates');
-	const projectsDir = path.join(os.homedir(), 'Projects', 'imagelance-templates');
-	const sazkaDir = path.join(os.homedir(), 'Projects', 'imagelance-templates-sazka');
-	const cwdDir = process.cwd();
-	const cwdNestDir = path.join(process.cwd(), 'imagelance-templates');
+	const homeDir = path.join(os.homedir(), 'imagelance-templates', getUsername());
+	const projectsDir = path.join(os.homedir(), 'Projects', 'imagelance-templates', getUsername());
+	const cwdNestDir = path.join(process.cwd(), 'imagelance-templates', getUsername());
 
 	const choices = [
-		{ name: `${homeDir} (~/imagelance-templates)`, value: 'homeDir' },
-		{ name: `${projectsDir} (~/Projects/imagelance-templates)`, value: 'projectsDir' },
-		{ name: `${cwdDir} (Current folder)`, value: 'cwdDir' },
-		{ name: `${cwdNestDir} (Create folder /imagelance-templates in current folder)`, value: 'cwdNestDir' },
+		{ name: `${homeDir} (~/imagelance-templates/${getUsername()})`, value: 'homeDir' },
+		{ name: `${projectsDir} (~/Projects/imagelance-templates/${getUsername()})`, value: 'projectsDir' },
+		{
+			name: `${cwdNestDir} (Create folder /imagelance-templates/${getUsername()} in current folder)`,
+			value: 'cwdNestDir',
+		},
 	];
 
 	const rootAnswer = await inquirer.prompt({
 		choices,
-		message: 'Where should be templates synchronized on disk?',
+		message: 'Select root directory location for template synchronization',
 		name: 'root',
 		type: 'list',
 	});
@@ -47,11 +47,6 @@ export async function performInstall(): Promise<void> {
 	let dir;
 
 	switch (rootAnswer.root) {
-		case 'cwdDir': {
-			dir = cwdDir;
-			break;
-		}
-
 		case 'cwdNestDir': {
 			try {
 				await fs.promises.mkdir(path.join('.', 'imagelance-templates'));
@@ -90,23 +85,6 @@ export async function performInstall(): Promise<void> {
 			dir = projectsDir;
 			break;
 		}
-
-		case 'sazkaDir': {
-			try {
-				await fs.promises.mkdir(path.join(os.homedir(), 'Projects'));
-			} catch {
-				// do nothing
-			}
-
-			try {
-				await fs.promises.mkdir(path.join(os.homedir(), 'Projects', 'imagelance-templates-sazka'));
-			} catch {
-				// do nothing
-			}
-
-			dir = sazkaDir;
-			break;
-		}
 	}
 
 	if (dir) {
@@ -116,7 +94,7 @@ export async function performInstall(): Promise<void> {
 		console.log('Root folder for templates set to:', chalk.blue(dir));
 
 		// replace wrong package json, that could contain bad version of postcss with custom one
-		const packageJsonPath = path.join(root, 'package.json');
+		const packageJsonPath = path.join(root, '..', 'package.json');
 
 		if (existsSync(packageJsonPath)) {
 			rimraf.sync(packageJsonPath);

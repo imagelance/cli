@@ -33,16 +33,13 @@ export default abstract class AuthenticatedCommand extends BaseCommand {
 
 	private async promptLogin(message: string): Promise<void> {
 		const shouldRunLoginCommand = await inquirer.prompt({
-			choices: [
-				'Yes',
-				'No',
-			],
+			default: true,
 			message,
 			name: 'answer',
-			type: 'list',
+			type: 'confirm',
 		});
 
-		if (shouldRunLoginCommand.answer === 'No') {
+		if (!shouldRunLoginCommand.answer) {
 			console.log(chalk.blue(`Take your time! When you're ready, just call the "${this.config.bin} login" command.`));
 			return this.exitHandler(1);
 		}

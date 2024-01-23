@@ -9,7 +9,7 @@
                         |___/                                                            
 ```
 
-### Development stack for Imagelance templates
+### Development tool for Imagelance templates
 
 [![npm](https://img.shields.io/npm/v/imagelance-cli.svg)](https://www.npmjs.com/package/imagelance-cli)
 
@@ -55,8 +55,8 @@ yarn global add imagelance-cli
 
 <!-- getting started -->
 
-- Create proper directory structure `$ lance install`
-- Login to your accounts `$ lance login`
+- Log in to your account `$ lance login`
+- Create directory structure `$ lance install`
 - Sync templates `$ lance sync`
 
 <!-- getting started stop -->

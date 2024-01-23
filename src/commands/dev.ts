@@ -112,7 +112,7 @@ export class Dev extends AuthenticatedCommand {
 		let visualExists = false;
 
 		try {
-			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev));
+			const stats = await fs.promises.lstat(path.join(root, lastDev));
 			visualExists = stats.isDirectory();
 		} catch {
 			// do nothing
@@ -233,7 +233,7 @@ export class Dev extends AuthenticatedCommand {
 		let visualExists = false;
 
 		try {
-			const stats = await fs.promises.lstat(path.join(root, 'src', lastDev));
+			const stats = await fs.promises.lstat(path.join(root, lastDev));
 			visualExists = stats.isDirectory();
 		} catch (error) {
 			console.error(error);
@@ -423,7 +423,7 @@ export class Dev extends AuthenticatedCommand {
 		console.log(chalk.blue(`Preparing ${visualPath}`));
 		setConfig('lastDev', visualPath);
 
-		this.visualRoot = `${root}/src/${visualPath}`;
+		this.visualRoot = `${root}/${visualPath}`;
 
 		const git = simpleGit(getGitConfig());
 		git.cwd(this.visualRoot);
@@ -458,7 +458,7 @@ export class Dev extends AuthenticatedCommand {
 		/**
 		 * VisualSizes
 		 */
-		const folders = glob.sync(`${root}/src/${visualPath}/[!_][0-9]*/index.html`);
+		const folders = glob.sync(`${root}/${visualPath}/[!_][0-9]*/index.html`);
 
 		if (folders.length === 0) {
 			console.log(chalk.red('🛑 No resize in template! Copy an existing template or get one from https://git.imagelance.com/templates'));

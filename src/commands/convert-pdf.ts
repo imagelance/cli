@@ -13,7 +13,7 @@ export class ConvertPdf extends BaseCommand {
 	static description = 'Convert pdf to jpg';
 
 	async convertPdf(pdf: string, root: string, visualPath: string) {
-		const fileName = pdf.toString().replace(`${root}/src/${visualPath}/`, '');
+		const fileName = pdf.toString().replace(`${root}/${visualPath}/`, '');
 
 		const parts1 = fileName.split('mm'); // @variant
 		const parts3 = parts1[1].split('/');
@@ -28,7 +28,7 @@ export class ConvertPdf extends BaseCommand {
 		const pixelWidth = Math.round(width * dpi / 25.4);
 		const pixelHeight = Math.round(height * dpi / 25.4);
 
-		const savePath = `${root}/src/${visualPath}/${width}x${height}mm${parts3[0]}`;
+		const savePath = `${root}/${visualPath}/${width}x${height}mm${parts3[0]}`;
 
 		const pdf2picOptions = {
 			density: dpi,
@@ -84,7 +84,7 @@ export class ConvertPdf extends BaseCommand {
 		const visualPath = await selectVisual();
 
 		const root = getRoot();
-		const pdfs = glob.sync(`${root}/src/${visualPath}/[!_][0-9]*/*.pdf`);
+		const pdfs = glob.sync(`${root}/${visualPath}/[!_][0-9]*/*.pdf`);
 
 		console.log(chalk.blue(`Converting ${pdfs.length} pdfs`));
 

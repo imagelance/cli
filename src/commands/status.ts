@@ -18,7 +18,7 @@ export class Status extends AuthenticatedCommand {
 
 		const root = getRoot();
 		const git = simpleGit(getGitConfig());
-		const brandFolders = await getDirectories(path.join(root, 'src'));
+		const brandFolders = await getDirectories(root);
 		const brands = brandFolders.filter((folder: string) => folder[0] !== '.');
 		const table = new Table({
 			head: ['Brand', 'Template', 'Git Branch', 'Status'],
@@ -27,22 +27,22 @@ export class Status extends AuthenticatedCommand {
 		let tableContainsRows = false;
 
 		for (const brandIndex in brands) {
-			if (!brands.hasOwnProperty(brandIndex)) {
+			if (!brands[brandIndex]) {
 				continue;
 			}
 
 			const brand = brands[brandIndex];
-			const visualFolders = await getDirectories(path.join(root, 'src', brand));
+			const visualFolders = await getDirectories(path.join(root, brand));
 
 			const visuals = visualFolders.filter((folder) => folder[0] !== '.');
 
 			for (const visualIndex in visuals) {
-				if (!visuals.hasOwnProperty(visualIndex)) {
+				if (!visuals[visualIndex]) {
 					continue;
 				}
 
 				const visual = visuals[visualIndex];
-				const visualPath = path.join(root, 'src', brand, visual);
+				const visualPath = path.join(root, brand, visual);
 
 				const visualFiles = await fs.promises.readdir(visualPath, { withFileTypes: true });
 

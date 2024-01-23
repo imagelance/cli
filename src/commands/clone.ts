@@ -33,13 +33,13 @@ export class Clone extends AuthenticatedCommand {
 		const remote = `https://${username}:${password}@git.imagelance.com/${repoName}.git`;
 
 		try {
-			await fs.promises.mkdir(`${root}/src`);
+			await fs.promises.mkdir(root);
 		} catch {
 			// do nothing
 		}
 
 		try {
-			const stats = await fs.promises.lstat(`${root}/src/${repoName}`);
+			const stats = await fs.promises.lstat(`${root}/${repoName}`);
 			const exists = /* (stats.isDirectory() && ) || */stats.isFile();
 
 			if (exists) {
@@ -53,8 +53,8 @@ export class Clone extends AuthenticatedCommand {
 		const brandFolder = repoName.split('/')[0];
 
 		try {
-			await fs.promises.mkdir(`${root}/src/${brandFolder}`);
-			await fs.promises.mkdir(`${root}/src/${repoName}`);
+			await fs.promises.mkdir(`${root}/${brandFolder}`);
+			await fs.promises.mkdir(`${root}/${repoName}`);
 		} catch {
 			// do nothing
 		}
@@ -64,7 +64,7 @@ export class Clone extends AuthenticatedCommand {
 
 			const git = simpleGit(getGitConfig());
 
-			await git.clone(remote, `${root}/src/${repoName}`, { '--depth': '1' });
+			await git.clone(remote, `${root}/${repoName}`, { '--depth': '1' });
 
 			console.log(chalk.green('Repository successfully cloned'));
 		} catch (error: any) {

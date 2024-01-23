@@ -21,7 +21,7 @@ export default abstract class BaseCommand extends Command {
 			default: false,
 			description: 'Against local apis',
 			hidden: true,
-			required: false
+			required: false,
 		}),
 	};
 

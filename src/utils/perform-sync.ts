@@ -19,7 +19,7 @@ export async function performSync(flags: any): Promise<void> {
 	const root: string = getRoot();
 
 	try {
-		await fs.promises.mkdir(path.join(root, 'src'));
+		await fs.promises.mkdir(root);
 	} catch {
 		// do nothing
 	}
@@ -108,7 +108,7 @@ export async function performSync(flags: any): Promise<void> {
 	}
 
 	try {
-		await fs.promises.mkdir(path.join(root, 'src'));
+		await fs.promises.mkdir(root);
 	} catch {
 		// do nothing
 	}
@@ -120,7 +120,7 @@ export async function performSync(flags: any): Promise<void> {
 	 */
 
 	for (const brand of selectedBrands) {
-		const brandPath = path.join(root, 'src', brand);
+		const brandPath = path.join(root, brand);
 
 		try {
 			const stats = fs.lstatSync(brandPath);
@@ -181,7 +181,7 @@ export async function performSync(flags: any): Promise<void> {
 				console.log(chalk.cyan(`Syncing template: ${brand}/${repoName}`));
 			}
 
-			const repoPath = path.join(root, 'src', brand, repoName);
+			const repoPath = path.join(root, brand, repoName);
 
 			try {
 				const stats = fs.lstatSync(repoPath);

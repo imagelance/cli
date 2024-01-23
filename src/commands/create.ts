@@ -8,7 +8,6 @@ import simpleGit from 'simple-git';
 import AuthenticatedCommand from '../authenticated-command';
 import { getCommand, getConfig, getGitConfig, getRoot, setConfig } from '../utils/config-getters';
 import devstackUrl from '../utils/devstack-url';
-import studioUrl from '../utils/studio-url';
 
 export class Create extends AuthenticatedCommand {
 	static description = 'Creates new template';
@@ -47,7 +46,7 @@ export class Create extends AuthenticatedCommand {
 
 		if (!this.user) {
 			console.log(chalk.red('You are not logged in.'));
-			return await this.exitHandler(1);
+			return this.exitHandler(1);
 		}
 
 		const root = getRoot();
@@ -72,7 +71,7 @@ export class Create extends AuthenticatedCommand {
 				this.reportError(error);
 			}
 
-			return await this.exitHandler(1);
+			return this.exitHandler(1);
 		}
 
 		let brand: null | string = null;
@@ -96,7 +95,7 @@ export class Create extends AuthenticatedCommand {
 
 		if (!brand) {
 			console.log(chalk.red('No brand selected'));
-			return await this.exitHandler(1);
+			return this.exitHandler(1);
 		}
 
 		const modeAnswer = await inquirer.prompt({
@@ -246,16 +245,16 @@ export class Create extends AuthenticatedCommand {
 				this.reportError(error);
 			}
 
-			return await this.exitHandler(1);
+			return this.exitHandler(1);
 		}
 
 		if (!repository) {
 			console.log(chalk.red('Something went wrong while trying to create template'));
-			return await this.exitHandler(1);
+			return this.exitHandler(1);
 		}
 
 		try {
-			await fs.promises.mkdir(`${root}/src`);
+			await fs.promises.mkdir(root);
 		} catch {
 			// do nothing
 		}
@@ -263,12 +262,12 @@ export class Create extends AuthenticatedCommand {
 		const origin = repository.clone_url;
 
 		try {
-			await fs.promises.mkdir(`${root}/src/${brand}`);
+			await fs.promises.mkdir(`${root}/${brand}`);
 		} catch {
 			// do nothing
 		}
 
-		const repoPath = `${root}/src/${repository.full_name}`;
+		const repoPath = `${root}/${repository.full_name}`;
 		const git = simpleGit(getGitConfig());
 
 		try {

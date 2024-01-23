@@ -14,29 +14,29 @@ export class Fetch extends AuthenticatedCommand {
 		const { debug } = flags;
 
 		const root: string = getRoot();
-		const brandFolders: string[] = await getDirectories(path.join(root, 'src'));
+		const brandFolders: string[] = await getDirectories(root);
 		const tasks: ListrTask[] = [];
 		const brands: string[] = brandFolders.filter((folder: string) => folder[0] !== '.');
 
 		for (const brandIndex in brands) {
-			if (!brands.hasOwnProperty(brandIndex)) {
+			if (!brands[brandIndex]) {
 				continue;
 			}
 
 			const brand: string = brands[brandIndex];
-			const visualFolders: string[] = await getDirectories(path.join(root, 'src', brand));
+			const visualFolders: string[] = await getDirectories(path.join(root, brand));
 			const visuals: string[] = visualFolders.filter((folder: string) => folder[0] !== '.');
 
 			for (const visualIndex in visuals) {
-				if (!visuals.hasOwnProperty(visualIndex)) {
+				if (!visuals[visualIndex]) {
 					continue;
 				}
 
 				const visual = visuals[visualIndex];
-				const visualPath = path.join(root, 'src', brand, visual);
+				const visualPath = path.join(root, brand, visual);
 
 				tasks.push({
-					task: async () => await fetchVisual(visualPath, brand, visual),
+					task: () => fetchVisual(visualPath, brand, visual),
 					title: `Fetching ${visualPath}`,
 				});
 			}
