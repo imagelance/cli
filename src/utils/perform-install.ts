@@ -1,10 +1,8 @@
 import chalk from 'chalk';
-import { existsSync, readJsonSync } from 'fs-extra';
 import inquirer from 'inquirer';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import rimraf from 'rimraf';
 
 import { getRoot, getUsername, setConfig, setIsInstalled } from './config-getters';
 
@@ -92,19 +90,6 @@ export async function performInstall(): Promise<void> {
 
 		setConfig('root', root);
 		console.log('Root folder for templates set to:', chalk.blue(dir));
-
-		// replace wrong package json, that could contain bad version of postcss with custom one
-		const packageJsonPath = path.join(root, '..', 'package.json');
-
-		if (existsSync(packageJsonPath)) {
-			rimraf.sync(packageJsonPath);
-			console.log(`Deleted old ${path.join(root, 'package.json')}`);
-		}
-
-		const packageJsonContents = readJsonSync(path.join(__dirname, '..', 'assets', 'packageJsonTemplate.json'));
-
-		fs.writeFileSync(packageJsonPath, JSON.stringify(packageJsonContents, null, '\t'));
-		console.log(`Created new ${packageJsonPath}`);
 	}
 
 	setIsInstalled();
