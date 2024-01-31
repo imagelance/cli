@@ -458,14 +458,14 @@ export class Dev extends AuthenticatedCommand {
 		/**
 		 * VisualSizes
 		 */
-		const folders = glob.sync(`${root}/${visualPath}/[!_][0-9]*/index.html`);
+		const folders = glob.sync(`${root}${path.sep}${visualPath}${path.sep}[!_][0-9]*${path.sep}index.html`);
 
 		if (folders.length === 0) {
 			console.log(chalk.red('🛑 No resize in template! Copy an existing template or get one from https://git.imagelance.com/templates'));
 			return this.exitHandler(1);
 		}
 
-		const [orgName, repoName] = visualPath.split('/');
+		const [orgName, repoName] = visualPath.split(path.sep);
 
 		const repository = await this.getRepository(orgName, repoName);
 
