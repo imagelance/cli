@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import fs from 'fs-extra';
 import glob from 'glob';
 import Listr from 'listr';
-import path from 'node:path';
 import { fromPath } from 'pdf2pic';
 import which from 'which';
 
@@ -14,10 +13,10 @@ export class ConvertPdf extends BaseCommand {
 	static description = 'Convert pdf to jpg';
 
 	async convertPdf(pdf: string, root: string, visualPath: string) {
-		const fileName = pdf.toString().replace(`${root}${path.sep}${visualPath}${path.sep}`, '');
+		const fileName = pdf.toString().replace(`${root}/${visualPath}/`, '');
 
 		const parts1 = fileName.split('mm'); // @variant
-		const parts3 = parts1[1].split(path.sep);
+		const parts3 = parts1[1].split('/');
 		const filenameWithExtension = parts3[1];
 		const parts2 = parts1[0].split('x').map((value: string) => Number.parseInt(value, 10));
 
