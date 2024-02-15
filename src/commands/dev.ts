@@ -465,7 +465,7 @@ export class Dev extends AuthenticatedCommand {
 			return this.exitHandler(1);
 		}
 
-		const [orgName, repoName] = visualPath.split(path.sep);
+		const [orgName, repoName] = visualPath.split('/');
 
 		const repository = await this.getRepository(orgName, repoName);
 
