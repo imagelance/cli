@@ -97,7 +97,7 @@ export class Dev extends AuthenticatedCommand {
 		}
 
 		for (const relativeZipPath of zips) {
-			fs.removeSync(`${this.visualRoot}/${relativeZipPath}`);
+			fs.removeSync(`${this.visualRoot}${path.sep}${relativeZipPath}`);
 		}
 	}
 
