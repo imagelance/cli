@@ -85,6 +85,53 @@ export class Dev extends AuthenticatedCommand {
 
 	private visualRoot: null | string = null;
 
+	async createBundle(branch: string, orgName: string, repoName: string, outputCategory: string): Promise<any> {
+		try {
+			const config = {
+				data: {
+					branch,
+					gitOrgName: orgName,
+					gitRepoName: repoName,
+					// clone repo without checking out files
+					noCheckout: true,
+					outputCategory,
+					// initially we stop the bundle file watcher on devstack side
+					// because we'll be performing an ingest operation which would
+					// unnecessary fire file change events, after ingest, we need to
+					// manually start the watcher again
+					startFileWatcher: false,
+					target: 'local',
+				},
+				headers: {
+					'X-Brand': orgName,
+				},
+				method: 'POST',
+				url: devstackUrl('/bundles'),
+			};
+
+			const { data } = await this.performRequest(config);
+
+			return data;
+		} catch (error: any) {
+			Sentry.captureException(error);
+
+			if (
+				error.response
+				&& error.response.data
+				&& error.response.data.message
+				&& error.response.data.message === 'ERR_REPO_ARCHIVED_OR_DELETED'
+			) {
+				console.log(chalk.red('😾 Repository archived or deleted.'));
+			}
+
+			if (this.isDebugging) {
+				this.reportError(error);
+			}
+
+			return null;
+		}
+	}
+
 	deleteHangingZipFiles(gitRepoName: string): void {
 		if (!this.visualRoot) {
 			return;
@@ -531,15 +578,15 @@ export class Dev extends AuthenticatedCommand {
 				return this.exitHandler(1);
 			}
 
-			this.bundle = await this.startBundle(branch, orgName, repository.name, outputCategory);
+			this.bundle = await this.createBundle(branch, orgName, repository.name, outputCategory);
 		}
-
-		this.shouldDestroyBundle = true;
 
 		if (!this.bundle) {
 			console.log(chalk.red('🤖 Could not start bundle'));
 			return this.exitHandler(1);
 		}
+
+		this.shouldDestroyBundle = true;
 
 		// replace bundleId in endpoints with actual bundle.id
 		for (const endpoint of Object.keys(this.endpoints)) {
@@ -599,44 +646,6 @@ export class Dev extends AuthenticatedCommand {
 			}
 
 			return false;
-		}
-	}
-
-	async startBundle(branch: string, orgName: string, repoName: string, outputCategory: string): Promise<any> {
-		try {
-			const config = {
-				data: {
-					branch,
-					gitOrgName: orgName,
-					gitRepoName: repoName,
-					// clone repo without checking out files
-					noCheckout: true,
-					outputCategory,
-					// initially we stop the bundle file watcher on devstack side
-					// because we'll be performing an ingest operation which would
-					// unnecessary fire file change events, after ingest, we need to
-					// manually start the watcher again
-					startFileWatcher: false,
-					target: 'local',
-				},
-				headers: {
-					'X-Brand': orgName,
-				},
-				method: 'POST',
-				url: devstackUrl('/bundles'),
-			};
-
-			const { data } = await this.performRequest(config);
-
-			return data;
-		} catch (error: any) {
-			Sentry.captureException(error);
-
-			if (this.isDebugging) {
-				this.reportError(error);
-			}
-
-			return null;
 		}
 	}
 
