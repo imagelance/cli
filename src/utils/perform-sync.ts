@@ -72,6 +72,7 @@ export async function performSync(flags: any): Promise<void> {
 			name: 'brands',
 			type: 'checkbox',
 		});
+
 		selectedBrands = brandAnswers.brands;
 	}
 
@@ -150,20 +151,26 @@ export async function performSync(flags: any): Promise<void> {
 		 */
 
 		for (const repoFolder of repoFolders) {
-			if (!repoNames.includes(repoFolder)) {
-				// console.log(`Should delete ${brand}/${repoFolder}`);
-				// const files = await fs.promises.readdir(path.join(brandPath, repoFolder), { withFileTypes: true });
-				// const hasNoFiles = files.length === 0;
-				// const hasOnlyGit = files.length === 1 && files[0].name === '.git';
-				// const hasGitAndConfig = files.length === 2 && files[0].name === '.git' && files[1].name === 'config.json';
-				// if (hasNoFiles || hasOnlyGit || hasGitAndConfig) {
-				if (debug) {
-					console.log(`DELETING ${repoFolder}`);
-				}
-
-				rimraf.sync(path.join(brandPath, repoFolder));
-				// }
+			if (repoNames.includes(repoFolder)) {
+				continue;
 			}
+
+			const repoPath = `${brandPath}${path.sep}${repoFolder}`;
+
+			await git.cwd(repoPath);
+
+			const status = await git.status();
+
+			if (status.files.length > 0) {
+				console.log(chalk.red(`🚫 Cannot delete ${repoFolder}, ${status.files.length} files changed, commit/push first`));
+				continue;
+			}
+
+			if (debug) {
+				console.log(`DELETING ${repoFolder}`);
+			}
+
+			rimraf.sync(path.join(brandPath, repoFolder));
 		}
 
 		/**
