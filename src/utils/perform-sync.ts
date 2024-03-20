@@ -155,7 +155,7 @@ export async function performSync(flags: any): Promise<void> {
 				continue;
 			}
 
-			const repoPath = `${brandPath}${path.sep}${repoFolder}`;
+			const repoPath = path.join(brandPath, repoFolder);
 
 			await git.cwd(repoPath);
 
@@ -170,7 +170,7 @@ export async function performSync(flags: any): Promise<void> {
 				console.log(`DELETING ${repoFolder}`);
 			}
 
-			rimraf.sync(path.join(brandPath, repoFolder));
+			rimraf.sync(repoPath);
 		}
 
 		/**
