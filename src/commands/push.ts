@@ -20,7 +20,7 @@ interface PushConfig {
 export class Push extends AuthenticatedCommand {
 	static description = 'Push all local templates';
 
-	async push(config: PushConfig, task: ListrTaskWrapper): Promise<void> {
+	async push(config: PushConfig, task: ListrTaskWrapper, debug: boolean): Promise<void> {
 		const { brand, commitMessage, repoName, visualPath } = config;
 		const git = simpleGit(getGitConfig());
 
@@ -33,6 +33,10 @@ export class Push extends AuthenticatedCommand {
 		await git.removeRemote('origin');
 
 		const origin = getGitOrigin(brand, repoName);
+
+		if (debug) {
+			console.log(`Started push to ${origin}`);
+		}
 
 		await git.addRemote('origin', origin);
 
@@ -146,7 +150,7 @@ export class Push extends AuthenticatedCommand {
 			};
 
 			tasks.push({
-				task: (ctx: ListrContext, task: ListrTaskWrapper) => this.push(config, task),
+				task: (ctx: ListrContext, task: ListrTaskWrapper) => this.push(config, task, debug),
 				title: chalk.blue(`Pushing "${repoName}"...`),
 			});
 		}

@@ -217,6 +217,10 @@ export async function performSync(flags: any): Promise<void> {
 
 					const origin = getGitOrigin(brand, repoName);
 
+					if (debug) {
+						console.log(`Starting cloning ${origin}`);
+					}
+
 					await git.addRemote('origin', origin);
 
 					if (debug) {
