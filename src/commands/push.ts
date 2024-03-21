@@ -129,7 +129,7 @@ export class Push extends AuthenticatedCommand {
 		const { selectedVisuals } = visualAnswers;
 
 		for (const visualPath of selectedVisuals) {
-			const splitVisualPath = visualPath.split('/');
+			const splitVisualPath = visualPath.split(path.sep);
 			const repoName = splitVisualPath.at(-1);
 			const brand = splitVisualPath.at(-2);
 
