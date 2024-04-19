@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/node';
 import axios, { AxiosRequestConfig, CancelToken } from 'axios';
 import chalk from 'chalk';
 import * as inquirer from 'inquirer';
+import dns from 'node:dns';
 // @ts-ignore
 import inquirerSearchList from 'inquirer-search-list';
 
@@ -65,6 +66,8 @@ export default abstract class BaseCommand extends Command {
 		const { flags } = await this.parse(BaseCommand);
 		const { debug } = flags;
 
+		// Validate whether computer is online
+		await this.isOnline();
 		// Validate whether install command was called
 		await this.wasInstallCommandCalled();
 		// Check whether devstack is available
@@ -108,6 +111,18 @@ export default abstract class BaseCommand extends Command {
 			if (debug) {
 				console.error(error);
 			}
+
+			await this.exitHandler(1);
+		}
+	}
+
+	async isOnline() {
+		const isOnline = Boolean(await dns.promises.resolve('google.com').catch(() => {
+			// do nothing
+		}));
+
+		if (!isOnline) {
+			console.error(chalk.red('📡 You are currently offline. Please connect to the internet to use imagelance-cli.'));
 
 			await this.exitHandler(1);
 		}

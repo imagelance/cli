@@ -1,7 +1,6 @@
 {
 	"rules": {
 		"camelcase": "off",
-		"no-process-exit": "off",
 		"unicorn/no-process-exit": "off",
 		"no-async-promise-executor": "off",
 		"no-await-in-loop": "off",
@@ -30,22 +29,7 @@
 			"error",
 			"always"
 		],
-		"node/no-missing-import": [
-			"error",
-			{
-				"allowModules": [],
-				"resolvePaths": [
-					"/src"
-				],
-				"tryExtensions": [
-					".js",
-					".json",
-					".node",
-					".ts",
-					".d.ts"
-				]
-			}
-		]
+		"node/no-missing-import": "off"
 	},
 	"extends": [
 		"oclif",
