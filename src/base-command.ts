@@ -97,7 +97,7 @@ export default abstract class BaseCommand extends Command {
 			const config = {
 				cancelToken: this.getCancelToken('isDevstackHealthy'),
 				method: 'GET',
-				url: devstackUrl('/public/health/ping'),
+				url: devstackUrl('/public/health'),
 			};
 
 			await this.performRequest(config, false);
