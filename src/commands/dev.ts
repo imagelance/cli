@@ -185,6 +185,12 @@ export class Dev extends AuthenticatedCommand {
 	}
 
 	async exitHandler(code = 0): Promise<void> {
+		if (this.isExiting) {
+			return;
+		}
+
+		this.isExiting = true;
+
 		const tasks = new Listr([{
 			task: async (ctx, task): Promise<void> => {
 				if (this.shouldDestroyBundle && this.bundle) {

@@ -26,6 +26,8 @@ export default abstract class BaseCommand extends Command {
 		}),
 	};
 
+	public isExiting: boolean = false;
+
 	cancelTokens: CancelTokens = {};
 
 	// region Hooks
@@ -36,6 +38,12 @@ export default abstract class BaseCommand extends Command {
 	}
 
 	exitHandler(code = 0): void {
+		if (this.isExiting) {
+			return;
+		}
+
+		this.isExiting = true;
+
 		// implement custom exit handling
 		process.exit(code);
 	}
