@@ -5285,10 +5285,10 @@ pathval@^1.1.1:
   resolved "https://registry.yarnpkg.com/pathval/-/pathval-1.1.1.tgz#8534e77a77ce7ac5a2512ea21e0fdb8fcf6c3d8d"
   integrity sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==
 
-pdf2pic@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/pdf2pic/-/pdf2pic-2.2.1.tgz#e1eafd819ae606011b6e37ab52bd40cb7a8ec2ea"
-  integrity sha512-x4ieCjs6iXYMRmKvvcKq3QywXX2xaB/eniiAhAhJLqmxBmlLW0nBR6mQtkofv4GUkpTpXZwKkuK4lWB8IE1lgA==
+pdf2pic@^2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/pdf2pic/-/pdf2pic-2.2.4.tgz#4a0884a826f22780191d25dd93dda53db633b65f"
+  integrity sha512-FoimNRDKblUT2p0WpX5vRvcXlyNs9EYRxonpUHGzbCHJ6o+pJIfcW2YREzCqTeOUdD9RoGP7V565oGGIG1NdEg==
   dependencies:
     fs-extra "^10.0.0"
     gm "^1.23.1"
