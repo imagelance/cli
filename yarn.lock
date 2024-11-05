@@ -1753,10 +1753,10 @@
   resolved "https://registry.yarnpkg.com/@types/sinonjs__fake-timers/-/sinonjs__fake-timers-8.1.2.tgz#bf2e02a3dbd4aecaf95942ecd99b7402e03fad5e"
   integrity sha512-9GcLXF0/v3t80caGs5p2rRfkB+a8VBGLJZVih6CNFkx8IZ994wiKKLSRs9nuFwk1HevWs/1mnUmkApGrSGsShA==
 
-"@types/tcp-port-used@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@types/tcp-port-used/-/tcp-port-used-1.0.1.tgz#4e15eada6d9f63a5e6c5ef73348d6023f1e91157"
-  integrity sha512-6pwWTx8oUtWvsiZUCrhrK/53MzKVLnuNSSaZILPy3uMes9QnTrLMar9BDlJArbMOjDcjb3QXFk6Rz8qmmuySZw==
+"@types/tcp-port-used@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@types/tcp-port-used/-/tcp-port-used-1.0.4.tgz#035a37b104d161e547cefc6bfec784133ac63716"
+  integrity sha512-0vQ4fz9TTM4bCdllYWEJ2JHBUXR9xqPtc70dJ7BMRDVfvZyYdrgey3nP5RRcVj+qAgnHJM8r9fvgrfnPMxdnhA==
 
 "@types/through@*":
   version "0.0.30"
