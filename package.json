@@ -28,7 +28,7 @@
 		"adm-zip": "^0.5.10",
 		"axios": "^1.6.4",
 		"chalk": "^4.1.2",
-		"chokidar": "^3.5.3",
+		"chokidar": "^3.6.0",
 		"cli-table": "^0.3.11",
 		"configstore": "^5.0.0",
 		"crypto": "^1.0.1",
