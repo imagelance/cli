@@ -26,7 +26,7 @@
 		"@oclif/plugin-warn-if-update-available": "^3.0.15",
 		"@sentry/node": "^7.91.0",
 		"adm-zip": "^0.5.10",
-		"axios": "^1.6.4",
+		"axios": "^1.7.8",
 		"chalk": "^4.1.2",
 		"chokidar": "^3.5.3",
 		"cli-table": "^0.3.11",
