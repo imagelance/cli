@@ -861,7 +861,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@oclif/core@^3.21.0", "@oclif/core@^3.26.0", "@oclif/core@^3.26.2", "@oclif/core@^3.26.3", "@oclif/core@^3.26.4":
+"@oclif/core@^3.21.0", "@oclif/core@^3.26.0", "@oclif/core@^3.26.3", "@oclif/core@^3.26.4":
   version "3.26.4"
   resolved "https://registry.yarnpkg.com/@oclif/core/-/core-3.26.4.tgz#ab0c6d06f699abaf0fa6186466f64f02a8435c61"
   integrity sha512-ntfo2ut7enNtAn/jB/dryMUPBM2Fh8Fydmi3k/Ybo6lCGU/hmsPFkBRjCEJAQMyNkK2yVZARaWogdOrcVgFz+w==
@@ -895,6 +895,30 @@
     wordwrap "^1.0.0"
     wrap-ansi "^7.0.0"
 
+"@oclif/core@^4":
+  version "4.0.33"
+  resolved "https://registry.yarnpkg.com/@oclif/core/-/core-4.0.33.tgz#fcaf3dd2850c5999de20459a1445d31a230cd24b"
+  integrity sha512-NoTDwJ2L/ywpsSjcN7jAAHf3m70Px4Yim2SJrm16r70XpnfbNOdlj1x0HEJ0t95gfD+p/y5uy+qPT/VXTh/1gw==
+  dependencies:
+    ansi-escapes "^4.3.2"
+    ansis "^3.3.2"
+    clean-stack "^3.0.1"
+    cli-spinners "^2.9.2"
+    debug "^4.3.7"
+    ejs "^3.1.10"
+    get-package-type "^0.1.0"
+    globby "^11.1.0"
+    indent-string "^4.0.0"
+    is-wsl "^2.2.0"
+    lilconfig "^3.1.2"
+    minimatch "^9.0.5"
+    semver "^7.6.3"
+    string-width "^4.2.3"
+    supports-color "^8"
+    widest-line "^3.1.0"
+    wordwrap "^1.0.0"
+    wrap-ansi "^7.0.0"
+
 "@oclif/plugin-autocomplete@^3.0.15":
   version "3.0.15"
   resolved "https://registry.yarnpkg.com/@oclif/plugin-autocomplete/-/plugin-autocomplete-3.0.15.tgz#98c21190464400d40150d35f7b80fcbbe8c0d2cb"
@@ -905,12 +929,12 @@
     debug "^4.3.4"
     ejs "^3.1.10"
 
-"@oclif/plugin-help@^6.0.21":
-  version "6.0.21"
-  resolved "https://registry.yarnpkg.com/@oclif/plugin-help/-/plugin-help-6.0.21.tgz#c48e688bf6df574e74557ebe2f877556f08dc60b"
-  integrity sha512-w860r9d456xhw1GPaos9yQF+BZeFY9UKdrINbL3fZFX5ZHhr/zGT4Fep5wUkHogjjnSB8+ZHi3D6j2jScIizUw==
+"@oclif/plugin-help@^6.0.21", "@oclif/plugin-help@^6.2.18":
+  version "6.2.18"
+  resolved "https://registry.yarnpkg.com/@oclif/plugin-help/-/plugin-help-6.2.18.tgz#fab8173773bb0afcc7a8e459187021fe65c461df"
+  integrity sha512-mDYOl8RmldLkOg9i9YKgyBlpcyi/bNySoIVHJ2EJd2qCmZaXRKQKRW2Zkx92bwjik8jfs/A3EFI+p4DsrXi57g==
   dependencies:
-    "@oclif/core" "^3.26.2"
+    "@oclif/core" "^4"
 
 "@oclif/plugin-not-found@^3.0.14", "@oclif/plugin-not-found@^3.1.4":
   version "3.1.4"
@@ -2025,6 +2049,11 @@ ansicolors@~0.3.2:
   resolved "https://registry.yarnpkg.com/ansicolors/-/ansicolors-0.3.2.tgz#665597de86a9ffe3aa9bfbe6cae5c6ea426b4979"
   integrity sha512-QXu7BPrP29VllRxH8GwB7x5iX5qWKAAMLqKQGWTeLWVlNHNOpVMJ91dsxQAIWXpjuW5wqvxu3Jd/nRjrJ+0pqg==
 
+ansis@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/ansis/-/ansis-3.3.2.tgz#15adc36fea112da95c74d309706e593618accac3"
+  integrity sha512-cFthbBlt+Oi0i9Pv/j6YdVWJh54CtjGACaMPCIrEV4Ha7HWsIjXDwseYV79TIL0B4+KfSwD5S70PeQDkPUd1rA==
+
 any-observable@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/any-observable/-/any-observable-0.3.0.tgz#af933475e5806a67d0d7df090dd5e8bef65d119b"
@@ -2754,6 +2783,13 @@ debug@^3.1.0, debug@^3.2.7:
   integrity sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==
   dependencies:
     ms "^2.1.1"
+
+debug@^4.3.7:
+  version "4.3.7"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.7.tgz#87945b4151a011d76d95a198d7111c865c360a52"
+  integrity sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==
+  dependencies:
+    ms "^2.1.3"
 
 decamelize@^4.0.0:
   version "4.0.0"
@@ -4521,6 +4557,11 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
+lilconfig@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/lilconfig/-/lilconfig-3.1.2.tgz#e4a7c3cb549e3a606c8dcc32e5ae1005e62c05cb"
+  integrity sha512-eop+wDAvpItUys0FWkHIKeC9ybYrTGbU41U5K7+bttZZeohvnY7M9dZ5kB21GNWiFT2q1OoPTvncPCgSOVO5ow==
+
 lines-and-columns@^1.1.6:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.2.4.tgz#eca284f75d2965079309dc0ad9255abb2ebc1632"
@@ -4806,6 +4847,13 @@ minimatch@^9.0.4:
   dependencies:
     brace-expansion "^2.0.1"
 
+minimatch@^9.0.5:
+  version "9.0.5"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-9.0.5.tgz#d74f9dd6b57d83d8e98cfb82133b03978bc929e5"
+  integrity sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==
+  dependencies:
+    brace-expansion "^2.0.1"
+
 minimist@^1.2.0, minimist@^1.2.3, minimist@^1.2.6:
   version "1.2.8"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.8.tgz#c1a464e7693302e082a075cee0c057741ac4772c"
@@ -4861,7 +4909,7 @@ ms@2.1.2:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
-ms@2.1.3, ms@^2.1.1:
+ms@2.1.3, ms@^2.1.1, ms@^2.1.3:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
@@ -5669,6 +5717,11 @@ semver@^7.6.0:
   dependencies:
     lru-cache "^6.0.0"
 
+semver@^7.6.3:
+  version "7.6.3"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.3.tgz#980f7b5550bc175fb4dc09403085627f9eb33143"
+  integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
+
 send@0.18.0:
   version "0.18.0"
   resolved "https://registry.yarnpkg.com/send/-/send-0.18.0.tgz#670167cc654b05f5aa4a767f9113bb371bc706be"
@@ -6012,7 +6065,7 @@ strnum@^1.0.5:
   resolved "https://registry.yarnpkg.com/strnum/-/strnum-1.0.5.tgz#5c4e829fe15ad4ff0d20c3db5ac97b73c9b072db"
   integrity sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==
 
-supports-color@8.1.1, supports-color@^8.1.1:
+supports-color@8.1.1, supports-color@^8, supports-color@^8.1.1:
   version "8.1.1"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-8.1.1.tgz#cd6fc17e28500cff56c1b86c0a7fd4a54a73005c"
   integrity sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q==
