@@ -51,7 +51,7 @@
 		"which": "^2.0.2"
 	},
 	"devDependencies": {
-		"@oclif/test": "^3.2.10",
+		"@oclif/test": "^3.2.15",
 		"@types/adm-zip": "^0.5.0",
 		"@types/chai": "^4.3.5",
 		"@types/cli-table": "^0.3.0",
