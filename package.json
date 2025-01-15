@@ -45,7 +45,7 @@
 		"pdf2pic": "^2.2.1",
 		"randomstring": "^1.2.3",
 		"rimraf": "^3.0.2",
-		"simple-git": "^3.18.0",
+		"simple-git": "^3.27.0",
 		"tcp-port-used": "^1.0.2",
 		"tslib": "^2.6.2",
 		"which": "^2.0.2"
