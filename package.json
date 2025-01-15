@@ -37,7 +37,7 @@
 		"fs": "^0.0.1-security",
 		"fs-extra": "^10.1.0",
 		"glob": "^8.1.0",
-		"inquirer": "^8.2.5",
+		"inquirer": "^8.2.6",
 		"inquirer-search-list": "^1.2.6",
 		"listr": "^0.14.3",
 		"open": "^8.4.2",
