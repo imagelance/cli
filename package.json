@@ -1,8 +1,8 @@
 {
 	"name": "imagelance-cli",
-	"version": "3.0.16",
+	"version": "3.0.17",
 	"description": "Development stack for imagelance templates",
-	"author": "Patrik Janosdeak @truesteps",
+	"author": "Dentsu Czech Republic",
 	"bin": {
 		"lance": "./bin/run"
 	},

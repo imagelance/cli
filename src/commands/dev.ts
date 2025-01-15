@@ -218,7 +218,7 @@ export class Dev extends AuthenticatedCommand {
 
 		await this.runTasks(tasks);
 
-		process.exit(code);
+		process.exit(Number.isInteger(code) ? code : 0);
 	}
 
 	async findRunningBundle(orgName: string, repoName: string, outputCategory: string): Promise<any> {
