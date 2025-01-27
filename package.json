@@ -24,7 +24,7 @@
 		"@oclif/plugin-not-found": "^3.1.4",
 		"@oclif/plugin-update": "^4.2.6",
 		"@oclif/plugin-warn-if-update-available": "^3.0.15",
-		"@sentry/node": "^7.91.0",
+		"@sentry/node": "^7.120.3",
 		"adm-zip": "^0.5.10",
 		"axios": "^1.6.4",
 		"chalk": "^4.1.2",
