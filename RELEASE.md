@@ -16,7 +16,7 @@ npm publish
 
 ## 3. Create release files and upload them to S3
 
-!! Copy `.env.example` to `.env`. Fill out `.env` variables, you can find them shared in SharePoint. !!
+!! Copy `.env.example` to `.env`. Fill out `.env` variables, you can find them shared in SharePoint. (Imagelance/Devel/Přístupy/imagelance-cli-s3-access-tokens) !!
 
 ```bash
 oclif pack tarballs
